@@ -102,7 +102,6 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior-y: none;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -169,8 +168,6 @@ h1, h2, h3, h4, .font-heading {
   background-color: var(--bg-primary);
   position: relative;
   overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
   padding: max(12px, var(--safe-top)) max(14px, var(--safe-right)) max(24px, var(--safe-bottom)) max(14px, var(--safe-left));
   gap: 14px;
@@ -265,6 +262,15 @@ button:active {
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 16px var(--color-surplus-glow); }
   50% { box-shadow: 0 0 28px var(--color-surplus-glow); }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-fade-in {

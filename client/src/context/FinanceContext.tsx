@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { db, MonefyDatabase } from '../db/localDb';
 import type { Transaction, Category, Account, Budget, TimeInterval } from '../types';
-import { getPeriodBounds, stepPeriod, filterTransactionsByPeriod } from '../utils/dateFilters';
+import { getPeriodBounds, stepPeriod, filterTransactionsByPeriod, canStepNextPeriod } from '../utils/dateFilters';
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -26,6 +26,7 @@ interface FinanceContextType {
   referenceDate: Date;
   setReferenceDate: (d: Date) => void;
   periodLabel: string;
+  canStepNext: boolean;
   stepPrevPeriod: () => void;
   stepNextPeriod: () => void;
   addTransaction: (input: {
@@ -72,7 +73,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   const [netBalance, setNetBalance] = useState<number>(0);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [interval, setInterval] = useState<TimeInterval>('MONTH');
-  const [referenceDate, setReferenceDate] = useState<Date>(() => new Date());
+  const [referenceDate, setReferenceDateState] = useState<Date>(() => new Date());
   const [currency, setCurrencyState] = useState<string>(() => {
     return localStorage.getItem('ai_monefy_currency') || '$';
   });
@@ -80,13 +81,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     return (localStorage.getItem('ai_monefy_theme') as 'dark' | 'light') || 'dark';
   });
 
+  const setReferenceDate = useCallback((d: Date) => {
+    const today = new Date();
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+    setReferenceDateState(d.getTime() > endOfToday.getTime() ? today : d);
+  }, []);
+
+  const canStepNext = useMemo(() => {
+    return canStepNextPeriod(interval, referenceDate);
+  }, [interval, referenceDate]);
+
   const stepPrevPeriod = useCallback(() => {
-    setReferenceDate((prev) => stepPeriod(interval, prev, 'prev'));
+    setReferenceDateState((prev) => stepPeriod(interval, prev, 'prev'));
   }, [interval]);
 
   const stepNextPeriod = useCallback(() => {
-    setReferenceDate((prev) => stepPeriod(interval, prev, 'next'));
-  }, [interval]);
+    if (!canStepNextPeriod(interval, referenceDate)) {
+      return;
+    }
+    setReferenceDateState((prev) => stepPeriod(interval, prev, 'next'));
+  }, [interval, referenceDate]);
 
   const periodLabel = useMemo(() => {
     return getPeriodBounds(interval, referenceDate).label;
@@ -129,7 +143,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     setAccounts(allAccs);
     setBudgets(allBudgets);
     setTransactions(allTxs);
-    setNetBalance(balance);
+    setNetBalance(typeof balance === 'number' && !isNaN(balance) ? balance : 0);
   }, [database, selectedAccountId]);
 
   useEffect(() => {
@@ -301,24 +315,28 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   const accountBalances = useMemo(() => {
     const balances: Record<string, number> = {};
     for (const acc of accounts) {
-      balances[acc.id] = acc.initialBalance;
+      const initBal = Number(acc.initialBalance);
+      balances[acc.id] = isNaN(initBal) ? 0 : initBal;
     }
     for (const tx of transactions) {
+      const amount = Number(tx.amount);
+      const safeAmount = isNaN(amount) ? 0 : amount;
       if (tx.type === 'expense' && balances[tx.accountId] !== undefined) {
-        balances[tx.accountId] -= tx.amount;
+        balances[tx.accountId] -= safeAmount;
       } else if (tx.type === 'income' && balances[tx.accountId] !== undefined) {
-        balances[tx.accountId] += tx.amount;
+        balances[tx.accountId] += safeAmount;
       } else if (tx.type === 'transfer') {
         if (balances[tx.accountId] !== undefined) {
-          balances[tx.accountId] -= tx.amount;
+          balances[tx.accountId] -= safeAmount;
         }
         if (tx.toAccountId && balances[tx.toAccountId] !== undefined) {
-          balances[tx.toAccountId] += tx.amount;
+          balances[tx.toAccountId] += safeAmount;
         }
       }
     }
     for (const id of Object.keys(balances)) {
-      balances[id] = Math.round(balances[id] * 100) / 100;
+      const b = balances[id];
+      balances[id] = isNaN(b) ? 0 : Math.round(b * 100) / 100;
     }
     return balances;
   }, [accounts, transactions]);
@@ -390,7 +408,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   }, [budgets]);
 
   const totalBalance = useMemo(() => {
-    return Math.round(Object.values(accountBalances).reduce((a, b) => a + b, 0) * 100) / 100;
+    const sum = Object.values(accountBalances).reduce((a, b) => a + (Number(b) || 0), 0);
+    return isNaN(sum) ? 0 : Math.round(sum * 100) / 100;
   }, [accountBalances]);
 
   const periodTransactions = useMemo(() => {
@@ -404,15 +423,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
       if (selectedAccountId && tx.accountId !== selectedAccountId && tx.toAccountId !== selectedAccountId) {
         continue;
       }
+      const amount = Number(tx.amount);
+      const safeAmount = isNaN(amount) ? 0 : amount;
       if (tx.type === 'income') {
-        inc += tx.amount;
+        inc += safeAmount;
       } else if (tx.type === 'expense') {
-        exp += tx.amount;
+        exp += safeAmount;
       }
     }
     return {
-      totalIncome: Math.round(inc * 100) / 100,
-      totalExpense: Math.round(exp * 100) / 100,
+      totalIncome: isNaN(inc) ? 0 : Math.round(inc * 100) / 100,
+      totalExpense: isNaN(exp) ? 0 : Math.round(exp * 100) / 100,
     };
   }, [periodTransactions, selectedAccountId]);
 
@@ -441,6 +462,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         referenceDate,
         setReferenceDate,
         periodLabel,
+        canStepNext,
         stepPrevPeriod,
         stepNextPeriod,
         addTransaction,

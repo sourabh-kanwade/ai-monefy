@@ -3,6 +3,9 @@ import {
   getPeriodBounds,
   stepPeriod,
   filterTransactionsByPeriod,
+  canStepNextPeriod,
+  isFutureDate,
+  getLocalDateString,
 } from '../utils/dateFilters';
 import type { Transaction } from '../types';
 
@@ -120,6 +123,76 @@ describe('Date Filters & Period Navigation Seam Tests', () => {
     it('returns all transactions for ALL', () => {
       const filtered = filterTransactionsByPeriod(mockTxs, 'ALL', baseDate);
       expect(filtered).toHaveLength(3);
+    });
+  });
+
+  describe('canStepNextPeriod & Future Date Restrictions', () => {
+    // Current date is 2026-10-15 (baseDate)
+    const now = new Date('2026-10-15T12:00:00Z');
+
+    it('limits DAY interval up to current day', () => {
+      // Viewing past day (Oct 14) -> Can step to Oct 15 (current day)
+      const pastDay = new Date('2026-10-14T10:00:00Z');
+      expect(canStepNextPeriod('DAY', pastDay, now)).toBe(true);
+
+      // Viewing current day (Oct 15) -> Cannot step to future day (Oct 16)
+      const today = new Date('2026-10-15T10:00:00Z');
+      expect(canStepNextPeriod('DAY', today, now)).toBe(false);
+
+      // Viewing future day (Oct 16) -> Cannot step further
+      const futureDay = new Date('2026-10-16T10:00:00Z');
+      expect(canStepNextPeriod('DAY', futureDay, now)).toBe(false);
+    });
+
+    it('limits WEEK interval up to current week', () => {
+      // Oct 15 2026 is a Thursday. Week is Oct 12 - Oct 18.
+      // Past week (Oct 5 - Oct 11) -> Can step to current week
+      const pastWeek = new Date('2026-10-06T10:00:00Z');
+      expect(canStepNextPeriod('WEEK', pastWeek, now)).toBe(true);
+
+      // Current week (contains Oct 15) -> Cannot step to next week (starts Oct 19)
+      const currentWeek = new Date('2026-10-14T10:00:00Z');
+      expect(canStepNextPeriod('WEEK', currentWeek, now)).toBe(false);
+    });
+
+    it('limits MONTH interval up to current month', () => {
+      // September 2026 -> Can step to October 2026
+      const pastMonth = new Date('2026-09-15T10:00:00Z');
+      expect(canStepNextPeriod('MONTH', pastMonth, now)).toBe(true);
+
+      // October 2026 (current month) -> Cannot step to November 2026
+      const currentMonth = new Date('2026-10-01T10:00:00Z');
+      expect(canStepNextPeriod('MONTH', currentMonth, now)).toBe(false);
+    });
+
+    it('limits YEAR interval up to current year', () => {
+      // 2025 -> Can step to 2026
+      const pastYear = new Date('2025-06-15T10:00:00Z');
+      expect(canStepNextPeriod('YEAR', pastYear, now)).toBe(true);
+
+      // 2026 (current year) -> Cannot step to 2027
+      const currentYear = new Date('2026-01-01T10:00:00Z');
+      expect(canStepNextPeriod('YEAR', currentYear, now)).toBe(false);
+    });
+
+    it('disallows ALL interval stepping next', () => {
+      expect(canStepNextPeriod('ALL', baseDate, now)).toBe(false);
+    });
+
+    it('correctly identifies future dates with isFutureDate', () => {
+      // Local timezone dates compared with now
+      const past = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      const current = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const future = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+      expect(isFutureDate(past, now)).toBe(false);
+      expect(isFutureDate(current, now)).toBe(false);
+      expect(isFutureDate(future, now)).toBe(true);
+    });
+
+    it('formats local date string as YYYY-MM-DD', () => {
+      const date = new Date(2026, 9, 15);
+      expect(getLocalDateString(date)).toBe('2026-10-15');
     });
   });
 });

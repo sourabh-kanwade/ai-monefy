@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Category, Account, TransactionType } from '../../types';
 import { evaluateExpression } from '../../utils/calculator';
 import { triggerHapticFeedback } from '../../utils/nativePlatform';
+import { getLocalDateString } from '../../utils/dateFilters';
 import { X, Check, Delete, Calendar, Wallet } from 'lucide-react';
 
 interface NumericKeypadModalProps {
@@ -30,10 +31,11 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
   currency = '$',
   type = 'expense',
 }) => {
+  const todayStr = getLocalDateString();
   const [expression, setExpression] = useState('');
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [note, setNote] = useState('');
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(() => getLocalDateString());
 
   // Set default account when accounts change
   useEffect(() => {
@@ -48,7 +50,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
     if (isOpen) {
       setExpression('');
       setNote('');
-      setDate(new Date().toISOString().split('T')[0]);
+      setDate(getLocalDateString());
     }
   }, [isOpen]);
 
@@ -254,8 +256,12 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
               <Calendar size={16} color="var(--text-muted)" style={{ marginRight: '6px', flexShrink: 0 }} />
               <input
                 type="date"
+                max={todayStr}
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setDate(val > todayStr ? todayStr : val);
+                }}
                 style={{
                   width: '100%',
                   padding: '8px 0',

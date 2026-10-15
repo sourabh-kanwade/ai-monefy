@@ -29,6 +29,11 @@ describe('Mobile Phone Responsiveness & Touch Optimization Seam Tests', () => {
     expect(cssContent).toMatch(/\.modal-drag-handle/);
   });
 
+  it('keeps web and desktop viewport scrolling unblocked without overscroll-behavior-y locking', () => {
+    // overscroll-behavior-y: none on html, body locks wheel and trackpad scroll gestures in Chromium
+    expect(cssContent).not.toMatch(/html,\s*body\s*\{[^}]*overscroll-behavior-y:\s*none/);
+  });
+
   it('renders Header with responsive top bar and stepper row classes', () => {
     const { container } = render(
       <Header

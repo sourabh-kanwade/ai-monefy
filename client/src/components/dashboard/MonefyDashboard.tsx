@@ -41,6 +41,7 @@ export const MonefyDashboard: React.FC = () => {
     interval,
     setInterval,
     periodLabel,
+    canStepNext,
     stepPrevPeriod,
     stepNextPeriod,
     addTransaction,
@@ -202,6 +203,7 @@ export const MonefyDashboard: React.FC = () => {
         currentInterval={interval}
         periodLabel={periodLabel}
         theme={theme}
+        canStepNext={canStepNext}
         onIntervalChange={setInterval}
         onStepPrev={stepPrevPeriod}
         onStepNext={stepNextPeriod}
@@ -209,6 +211,9 @@ export const MonefyDashboard: React.FC = () => {
         onOpenSettings={() => setIsSettingsOpen(true)}
         syncStatus={syncStatus}
         onOpenSync={() => setIsSyncModalOpen(true)}
+        onOpenAccounts={() => setIsAccountManagerOpen(true)}
+        onOpenBudgets={() => setIsBudgetModalOpen(true)}
+        onOpenCategories={() => setIsCustomizerOpen(true)}
       />
 
       {/* Account Breakdown Bar */}

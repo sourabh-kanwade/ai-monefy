@@ -114,7 +114,7 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {activeAccounts.map((acc) => {
             const isEditing = editingId === acc.id;
-            const bal = accountBalances[acc.id] ?? acc.initialBalance;
+            const bal = Number(accountBalances[acc.id] ?? acc.initialBalance) || 0;
 
             return (
               <div
@@ -172,7 +172,7 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
                         {acc.name}
                       </div>
                       <div className="font-num" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        Current: {currency}{bal.toFixed(2)} (Initial: {currency}{acc.initialBalance.toFixed(2)})
+                        Current: {currency}{bal.toFixed(2)} (Initial: {currency}{(Number(acc.initialBalance) || 0).toFixed(2)})
                       </div>
                     </div>
                   )}

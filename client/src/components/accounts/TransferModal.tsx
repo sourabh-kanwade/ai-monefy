@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ArrowRightLeft } from 'lucide-react';
+import { getLocalDateString } from '../../utils/dateFilters';
 import type { Account } from '../../types';
 
 interface TransferModalProps {
@@ -30,11 +31,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   const initialFrom = defaultAccountId || activeAccounts[0]?.id || '';
   const initialTo = activeAccounts.find((a) => a.id !== initialFrom)?.id || '';
 
+  const todayStr = getLocalDateString();
   const [fromAccountId, setFromAccountId] = useState<string>(initialFrom);
   const [toAccountId, setToAccountId] = useState<string>(initialTo);
   const [amount, setAmount] = useState<string>('');
   const [note, setNote] = useState<string>('');
-  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState<string>(() => getLocalDateString());
 
   if (!isOpen) return null;
 
@@ -214,8 +216,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <input
               id="transfer-date"
               type="date"
+              max={todayStr}
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setDate(val > todayStr ? todayStr : val);
+              }}
               style={{
                 width: '100%',
                 padding: '10px 12px',

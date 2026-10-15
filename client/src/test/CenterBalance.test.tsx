@@ -48,4 +48,20 @@ describe('CenterBalance Component Seam Tests', () => {
     expect(screen.getByTestId('center-balance-amount')).toHaveTextContent('-$85.20');
     expect(screen.getByTestId('center-balance-hub')).toHaveAttribute('data-state', 'deficit');
   });
+
+  it('safely handles NaN or undefined balance without crashing or rendering NaN', () => {
+    render(
+      <CenterBalance
+        netBalance={NaN}
+        totalIncome={NaN}
+        totalExpense={NaN}
+        currency="₹"
+        onOpenExpenseKeypad={() => {}}
+        onOpenIncomeKeypad={() => {}}
+      />
+    );
+
+    expect(screen.getByTestId('center-balance-amount')).toHaveTextContent('₹0.00');
+    expect(screen.getByTestId('center-balance-amount')).not.toHaveTextContent('NaN');
+  });
 });

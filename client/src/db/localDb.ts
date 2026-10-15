@@ -158,33 +158,36 @@ export class MonefyDatabase extends Dexie {
     const accounts = await this.accounts.filter((a) => !a.isDeleted).toArray();
     for (const acc of accounts) {
       if (!accountId || acc.id === accountId) {
-        balance += acc.initialBalance;
+        const initBal = Number(acc.initialBalance);
+        balance += isNaN(initBal) ? 0 : initBal;
       }
     }
 
     for (const tx of txs) {
+      const amount = Number(tx.amount);
+      const safeAmount = isNaN(amount) ? 0 : amount;
       if (tx.type === 'expense') {
         if (!accountId || tx.accountId === accountId) {
-          balance -= tx.amount;
+          balance -= safeAmount;
         }
       } else if (tx.type === 'income') {
         if (!accountId || tx.accountId === accountId) {
-          balance += tx.amount;
+          balance += safeAmount;
         }
       } else if (tx.type === 'transfer') {
         if (accountId) {
           if (tx.accountId === accountId) {
-            balance -= tx.amount;
+            balance -= safeAmount;
           }
           if (tx.toAccountId === accountId) {
-            balance += tx.amount;
+            balance += safeAmount;
           }
         }
         // If no accountId is specified, transfer between own accounts leaves overall net balance unchanged!
       }
     }
 
-    return Math.round(balance * 100) / 100;
+    return isNaN(balance) ? 0 : Math.round(balance * 100) / 100;
   }
 
   async getRecentTransactions(limit = 100): Promise<Transaction[]> {

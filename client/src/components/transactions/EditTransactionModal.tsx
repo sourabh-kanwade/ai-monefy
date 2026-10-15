@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trash2, Check } from 'lucide-react';
+import { getLocalDateString } from '../../utils/dateFilters';
 import type { Transaction, Category, Account, TransactionType } from '../../types';
 
 interface EditTransactionModalProps {
@@ -23,6 +24,7 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
   onSave,
   onDelete,
 }) => {
+  const todayStr = getLocalDateString();
   const [amount, setAmount] = useState<string>('');
   const [type, setType] = useState<TransactionType>('expense');
   const [categoryId, setCategoryId] = useState<string>('');
@@ -246,8 +248,12 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
               id="edit-date"
               aria-label="Date"
               type="date"
+              max={todayStr}
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setDate(val > todayStr ? todayStr : val);
+              }}
               style={{
                 width: '100%',
                 padding: '10px 12px',

@@ -43,9 +43,156 @@ describe('Header & Interval Navigation Seam Tests', () => {
     fireEvent.click(nextBtn);
     expect(handleStepNext).toHaveBeenCalled();
 
-    // Click theme toggle
+    // Open hamburger menu and click theme toggle
+    const hamburgerBtn = screen.getByTestId('btn-hamburger-menu');
+    fireEvent.click(hamburgerBtn);
+
     const themeBtn = screen.getByLabelText(/theme/i);
     fireEvent.click(themeBtn);
     expect(handleToggleTheme).toHaveBeenCalled();
+  });
+
+  it('opens and closes hamburger menu with navigation actions and backdrop click', () => {
+    const handleOpenSettings = vi.fn();
+    const handleOpenSync = vi.fn();
+    const handleOpenAccounts = vi.fn();
+    const handleOpenBudgets = vi.fn();
+    const handleOpenCategories = vi.fn();
+
+    render(
+      <Header
+        currentInterval="MONTH"
+        periodLabel="October 2026"
+        theme="dark"
+        syncStatus="synced"
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={vi.fn()}
+        onToggleTheme={vi.fn()}
+        onOpenSettings={handleOpenSettings}
+        onOpenSync={handleOpenSync}
+        onOpenAccounts={handleOpenAccounts}
+        onOpenBudgets={handleOpenBudgets}
+        onOpenCategories={handleOpenCategories}
+      />
+    );
+
+    // Initially dropdown menu is not present
+    expect(screen.queryByTestId('hamburger-dropdown-menu')).not.toBeInTheDocument();
+
+    // Open hamburger menu
+    const menuBtn = screen.getByTestId('btn-hamburger-menu');
+    fireEvent.click(menuBtn);
+
+    expect(screen.getByTestId('hamburger-dropdown-menu')).toBeInTheDocument();
+    expect(screen.getByText('SYNCED')).toBeInTheDocument();
+
+    // Verify background blur and high z-index
+    const backdropEl = screen.getByTestId('menu-backdrop');
+    expect(backdropEl.style.backdropFilter).toContain('blur');
+    expect(backdropEl.style.zIndex).toBe('2001');
+
+    const dropdownMenuEl = screen.getByTestId('hamburger-dropdown-menu');
+    expect(dropdownMenuEl.style.zIndex).toBe('2003');
+
+    const headerEl = screen.getByTestId('app-header');
+    expect(headerEl.style.zIndex).toBe('2000');
+
+    // Click settings item
+    const settingsItem = screen.getByTestId('btn-open-settings');
+    fireEvent.click(settingsItem);
+    expect(handleOpenSettings).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('hamburger-dropdown-menu')).not.toBeInTheDocument();
+
+    // Reopen menu and test sync item
+    fireEvent.click(menuBtn);
+    const syncItem = screen.getByTestId('btn-open-sync');
+    fireEvent.click(syncItem);
+    expect(handleOpenSync).toHaveBeenCalledTimes(1);
+
+    // Reopen and test quick navigation shortcuts
+    fireEvent.click(menuBtn);
+    fireEvent.click(screen.getByTestId('btn-menu-accounts'));
+    expect(handleOpenAccounts).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(menuBtn);
+    fireEvent.click(screen.getByTestId('btn-menu-budgets'));
+    expect(handleOpenBudgets).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(menuBtn);
+    fireEvent.click(screen.getByTestId('btn-menu-categories'));
+    expect(handleOpenCategories).toHaveBeenCalledTimes(1);
+
+    // Reopen and test closing with backdrop click
+    fireEvent.click(menuBtn);
+    expect(screen.getByTestId('hamburger-dropdown-menu')).toBeInTheDocument();
+    const backdrop = screen.getByTestId('menu-backdrop');
+    fireEvent.click(backdrop);
+    expect(screen.queryByTestId('hamburger-dropdown-menu')).not.toBeInTheDocument();
+
+    // Reopen and test closing with Escape key
+    fireEvent.click(menuBtn);
+    expect(screen.getByTestId('hamburger-dropdown-menu')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByTestId('hamburger-dropdown-menu')).not.toBeInTheDocument();
+  });
+
+  it('disables the Next period button when canStepNext is false or interval is ALL', () => {
+    const handleStepNext = vi.fn();
+
+    const { rerender } = render(
+      <Header
+        currentInterval="DAY"
+        periodLabel="Today"
+        theme="dark"
+        canStepNext={false}
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={handleStepNext}
+        onToggleTheme={vi.fn()}
+      />
+    );
+
+    const nextBtn = screen.getByLabelText('Next period');
+    expect(nextBtn).toBeDisabled();
+    expect(nextBtn.style.cursor).toBe('not-allowed');
+
+    fireEvent.click(nextBtn);
+    expect(handleStepNext).not.toHaveBeenCalled();
+
+    // When canStepNext is true (e.g. past day)
+    rerender(
+      <Header
+        currentInterval="DAY"
+        periodLabel="Yesterday"
+        theme="dark"
+        canStepNext={true}
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={handleStepNext}
+        onToggleTheme={vi.fn()}
+      />
+    );
+
+    expect(nextBtn).toBeEnabled();
+    expect(nextBtn.style.cursor).toBe('pointer');
+
+    fireEvent.click(nextBtn);
+    expect(handleStepNext).toHaveBeenCalledTimes(1);
+
+    // When interval is ALL, Next is always disabled regardless of canStepNext
+    rerender(
+      <Header
+        currentInterval="ALL"
+        periodLabel="All Time"
+        theme="dark"
+        canStepNext={true}
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={handleStepNext}
+        onToggleTheme={vi.fn()}
+      />
+    );
+    expect(nextBtn).toBeDisabled();
   });
 });

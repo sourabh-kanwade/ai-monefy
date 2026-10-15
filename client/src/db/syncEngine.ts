@@ -212,9 +212,14 @@ export class SyncEngine {
 
       // Apply LWW for accounts
       for (const rAcc of remoteAccounts) {
-        const local = await db.accounts.get(rAcc.id);
-        if (!local || new Date(rAcc.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
-          await db.accounts.put(rAcc);
+        const initBal = Number(rAcc.initialBalance);
+        const normalizedAcc: Account = {
+          ...rAcc,
+          initialBalance: isNaN(initBal) ? 0 : initBal,
+        };
+        const local = await db.accounts.get(normalizedAcc.id);
+        if (!local || new Date(normalizedAcc.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+          await db.accounts.put(normalizedAcc);
           pulledCount++;
         }
       }
@@ -230,18 +235,28 @@ export class SyncEngine {
 
       // Apply LWW for transactions
       for (const rTx of remoteTransactions) {
-        const local = await db.transactions.get(rTx.id);
-        if (!local || new Date(rTx.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
-          await db.transactions.put(rTx);
+        const amount = Number(rTx.amount);
+        const normalizedTx: Transaction = {
+          ...rTx,
+          amount: isNaN(amount) ? 0 : Math.abs(amount),
+        };
+        const local = await db.transactions.get(normalizedTx.id);
+        if (!local || new Date(normalizedTx.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+          await db.transactions.put(normalizedTx);
           pulledCount++;
         }
       }
 
       // Apply LWW for budgets
       for (const rB of remoteBudgets) {
-        const local = await db.budgets.get(rB.id);
-        if (!local || new Date(rB.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
-          await db.budgets.put(rB);
+        const limit = Number(rB.monthlyLimit);
+        const normalizedBudget: Budget = {
+          ...rB,
+          monthlyLimit: isNaN(limit) ? 0 : Math.max(0, limit),
+        };
+        const local = await db.budgets.get(normalizedBudget.id);
+        if (!local || new Date(normalizedBudget.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+          await db.budgets.put(normalizedBudget);
           pulledCount++;
         }
       }

@@ -24,7 +24,8 @@ export const AccountBar: React.FC<AccountBarProps> = ({
   const activeAccounts = accounts.filter((a) => !a.isDeleted);
 
   const formatAmount = (val: number) => {
-    return `${val < 0 ? '-' : ''}${currency}${Math.abs(val).toLocaleString('en-US', {
+    const safeVal = typeof val === 'number' && !isNaN(val) ? val : 0;
+    return `${safeVal < 0 ? '-' : ''}${currency}${Math.abs(safeVal).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -84,7 +85,7 @@ export const AccountBar: React.FC<AccountBarProps> = ({
       {/* Account Pills */}
       {activeAccounts.map((acc) => {
         const isSelected = selectedAccountId === acc.id;
-        const bal = accountBalances[acc.id] ?? acc.initialBalance;
+        const bal = Number(accountBalances[acc.id] ?? acc.initialBalance) || 0;
 
         return (
           <button

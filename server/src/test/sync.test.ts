@@ -96,10 +96,13 @@ describe('Delta Synchronization Endpoints Seam Tests', () => {
     expect(pullResA.status).toBe(200);
     expect(pullResA.body.accounts).toHaveLength(1);
     expect(pullResA.body.accounts[0].name).toBe('Main Checking');
+    expect(pullResA.body.accounts[0].initialBalance).toBe(1000);
+    expect(typeof pullResA.body.accounts[0].initialBalance).toBe('number');
     expect(pullResA.body.categories).toHaveLength(1);
     expect(pullResA.body.categories[0].name).toBe('Coffee');
     expect(pullResA.body.transactions).toHaveLength(1);
     expect(pullResA.body.transactions[0].amount).toBe(5.5);
+    expect(typeof pullResA.body.transactions[0].amount).toBe('number');
 
     // Verify User B receives empty (tenant isolation)
     const pullResB = await request(app)

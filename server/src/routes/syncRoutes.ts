@@ -83,7 +83,7 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
     // 1. Upsert Accounts
     for (const acc of accounts) {
       const now = new Date().toISOString();
-      const initialBal = acc.initialBalance ?? acc.initial_balance ?? 0;
+      const initialBal = Number(acc.initialBalance ?? acc.initial_balance ?? 0) || 0;
       const isDef = acc.isDefault ?? acc.is_default ?? false;
       const isDel = acc.isDeleted ?? acc.is_deleted ?? false;
       const createdAt = acc.createdAt ?? acc.created_at ?? now;
@@ -202,7 +202,7 @@ syncRouter.get('/pull', authenticateToken, async (req, res) => {
 
     const [accResult, catResult, txResult, budgetResult] = await Promise.all([
       query(
-        `SELECT id, name, icon, color, initial_balance AS "initialBalance", is_default AS "isDefault", is_deleted AS "isDeleted", created_at AS "createdAt", updated_at AS "updatedAt"
+        `SELECT id, name, icon, color, initial_balance::float AS "initialBalance", is_default AS "isDefault", is_deleted AS "isDeleted", created_at AS "createdAt", updated_at AS "updatedAt"
          FROM accounts
          WHERE user_id = $1 AND ($2::timestamptz IS NULL OR updated_at > $2::timestamptz)`,
         [userId, since]

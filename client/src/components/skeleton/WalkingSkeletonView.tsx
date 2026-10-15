@@ -64,6 +64,10 @@ export const WalkingSkeletonView: React.FC = () => {
     return accounts.find((a) => a.id === accId)?.name || 'Default';
   };
 
+  const safeNetBalance = typeof netBalance === 'number' && !isNaN(netBalance) ? netBalance : 0;
+  const safeIncome = typeof totalIncome === 'number' && !isNaN(totalIncome) ? totalIncome : 0;
+  const safeExpense = typeof totalExpense === 'number' && !isNaN(totalExpense) ? totalExpense : 0;
+
   return (
     <div className="app-container" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Top Bar */}
@@ -91,10 +95,10 @@ export const WalkingSkeletonView: React.FC = () => {
         style={{
           padding: '24px',
           textAlign: 'center',
-          background: netBalance >= 0
+          background: safeNetBalance >= 0
             ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)'
             : 'linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)',
-          border: `1px solid ${netBalance >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+          border: `1px solid ${safeNetBalance >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
         }}
       >
         <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, letterSpacing: '0.05em' }}>
@@ -106,13 +110,13 @@ export const WalkingSkeletonView: React.FC = () => {
           style={{
             fontSize: '38px',
             fontWeight: 800,
-            color: netBalance >= 0 ? 'var(--color-surplus)' : 'var(--color-deficit)',
+            color: safeNetBalance >= 0 ? 'var(--color-surplus)' : 'var(--color-deficit)',
             marginTop: '4px',
-            textShadow: netBalance >= 0 ? '0 0 20px var(--color-surplus-glow)' : '0 0 20px var(--color-deficit-glow)',
+            textShadow: safeNetBalance >= 0 ? '0 0 20px var(--color-surplus-glow)' : '0 0 20px var(--color-deficit-glow)',
           }}
         >
-          {currency}{Math.abs(netBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          {netBalance < 0 && <span style={{ fontSize: '20px', marginLeft: '4px' }}>-</span>}
+          {currency}{Math.abs(safeNetBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {safeNetBalance < 0 && <span style={{ fontSize: '20px', marginLeft: '4px' }}>-</span>}
         </div>
 
         {/* Income & Expense Subtotals */}
@@ -124,7 +128,7 @@ export const WalkingSkeletonView: React.FC = () => {
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Income</div>
               <div className="font-num" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-surplus)' }}>
-                +{currency}{totalIncome.toFixed(2)}
+                +{currency}{safeIncome.toFixed(2)}
               </div>
             </div>
           </div>
@@ -135,7 +139,7 @@ export const WalkingSkeletonView: React.FC = () => {
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Expense</div>
               <div className="font-num" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-deficit)' }}>
-                -{currency}{totalExpense.toFixed(2)}
+                -{currency}{safeExpense.toFixed(2)}
               </div>
             </div>
           </div>

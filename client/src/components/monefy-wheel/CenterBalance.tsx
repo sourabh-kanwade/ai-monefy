@@ -20,9 +20,13 @@ export const CenterBalance: React.FC<CenterBalanceProps> = ({
   onOpenIncomeKeypad,
   onOpenTransferModal,
 }) => {
-  const isSurplus = netBalance >= 0;
+  const safeBalance = typeof netBalance === 'number' && !isNaN(netBalance) ? netBalance : 0;
+  const safeIncome = typeof totalIncome === 'number' && !isNaN(totalIncome) ? totalIncome : 0;
+  const safeExpense = typeof totalExpense === 'number' && !isNaN(totalExpense) ? totalExpense : 0;
+
+  const isSurplus = safeBalance >= 0;
   const state = isSurplus ? 'surplus' : 'deficit';
-  const formattedAmount = `${netBalance < 0 ? '-' : ''}${currency}${Math.abs(netBalance).toLocaleString('en-US', {
+  const formattedAmount = `${safeBalance < 0 ? '-' : ''}${currency}${Math.abs(safeBalance).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -94,9 +98,9 @@ export const CenterBalance: React.FC<CenterBalanceProps> = ({
           fontWeight: 600,
         }}
       >
-        <span style={{ color: 'var(--color-surplus)' }}>+{currency}{totalIncome.toFixed(0)}</span>
+        <span style={{ color: 'var(--color-surplus)' }}>+{currency}{safeIncome.toFixed(0)}</span>
         <span>/</span>
-        <span style={{ color: 'var(--color-deficit)' }}>-{currency}{totalExpense.toFixed(0)}</span>
+        <span style={{ color: 'var(--color-deficit)' }}>-{currency}{safeExpense.toFixed(0)}</span>
       </div>
 
       {/* Quick Action Floating Action Triggers: [-] on left, [+] on right, [⇄] on bottom */}

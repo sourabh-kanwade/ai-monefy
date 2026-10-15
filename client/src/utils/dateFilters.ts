@@ -72,6 +72,47 @@ export function stepPeriod(interval: TimeInterval, refDate: Date, direction: 'pr
   return d;
 }
 
+/**
+ * Formats a Date object into YYYY-MM-DD using local calendar day.
+ */
+export function getLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Checks whether a given date is strictly in the future compared to the current day.
+ */
+export function isFutureDate(date: Date, now: Date = new Date()): boolean {
+  const startOfDayDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  return startOfDayDate.getTime() > startOfToday.getTime();
+}
+
+/**
+ * Determines whether stepping to the next period is permitted.
+ * Future dates are not allowed; period navigation is limited up to the current day.
+ * Returns false if interval is 'ALL', or if the next period starts strictly after today.
+ */
+export function canStepNextPeriod(
+  interval: TimeInterval,
+  refDate: Date = new Date(),
+  now: Date = new Date()
+): boolean {
+  if (interval === 'ALL') {
+    return false;
+  }
+
+  const nextDate = stepPeriod(interval, refDate, 'next');
+  const nextBounds = getPeriodBounds(interval, nextDate);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
+  // Stepping to next period is permitted only if the start of that period is on or before today
+  return nextBounds.start.getTime() <= startOfToday.getTime();
+}
+
 export function filterTransactionsByPeriod(
   transactions: Transaction[],
   interval: TimeInterval,
