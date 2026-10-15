@@ -17,7 +17,7 @@ import { ExpenseBreakdownView } from '../analytics/ExpenseBreakdownView';
 import { SettingsModal } from '../settings/SettingsModal';
 import { CloudSyncModal } from '../sync/CloudSyncModal';
 import { syncEngine, type AuthUser } from '../../db/syncEngine';
-import { importDatabaseFromJSON } from '../../utils/exportImport';
+import { importDatabaseFromJSON, importTransactionsFromCSV } from '../../utils/exportImport';
 import { PieChart, BarChart3 } from 'lucide-react';
 import type { Category, Transaction, TransactionType } from '../../types';
 
@@ -478,7 +478,13 @@ export const MonefyDashboard: React.FC = () => {
           await importDatabaseFromJSON(json, dbInstance);
           await refreshData();
         }}
+        onImportCSV={async (csv) => {
+          const res = await importTransactionsFromCSV(csv, dbInstance, { skipDuplicates: true });
+          await refreshData();
+          return res;
+        }}
       />
+
 
       {/* Cloud Sync & Migration Modal */}
       <CloudSyncModal
