@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useFinance } from '../../context/FinanceContext';
 import { CircularChart } from '../monefy-wheel/CircularChart';
 import { CenterBalance } from '../monefy-wheel/CenterBalance';
+import { RadialCategoryGrid } from '../monefy-wheel/RadialCategoryGrid';
+import { CategoryCustomizerModal } from '../categories/CategoryCustomizerModal';
 import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
 import type { Category, TransactionType } from '../../types';
 import {
@@ -24,11 +26,13 @@ export const MonefyDashboard: React.FC = () => {
     theme,
     toggleTheme,
     addTransaction,
+    addCategory,
     deleteTransaction,
     selectedAccountId,
   } = useFinance();
 
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
@@ -128,47 +132,14 @@ export const MonefyDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Category Action Pill Bar */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Quick Tap Logging
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            overflowX: 'auto',
-            paddingBottom: '4px',
-            scrollbarWidth: 'none',
-          }}
-        >
-          {categories.filter((c) => c.type === 'expense').slice(0, 8).map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => handleOpenExpenseKeypad(cat)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 12px',
-                background: 'var(--bg-elevated)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cat.color }} />
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* Radial Category Grid Section */}
+      <RadialCategoryGrid
+        categories={categories}
+        categoryExpenses={categoryExpenses}
+        currency={currency}
+        onCategoryTap={(cat) => handleOpenExpenseKeypad(cat)}
+        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+      />
 
       {/* Recent Transactions Section */}
       <section className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
@@ -269,6 +240,15 @@ export const MonefyDashboard: React.FC = () => {
         accounts={accounts}
         currency={currency}
         type={keypadType as 'expense' | 'income'}
+      />
+
+      {/* Category Customizer Modal */}
+      <CategoryCustomizerModal
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+        onSave={async (catData) => {
+          await addCategory(catData);
+        }}
       />
     </div>
   );
