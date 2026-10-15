@@ -27,6 +27,12 @@ interface FinanceContextType {
   }) => Promise<string>;
   deleteTransaction: (id: string) => Promise<void>;
   updateTransaction: (id: string, updates: Partial<Transaction>) => Promise<void>;
+  addCategory: (input: {
+    name: string;
+    icon: string;
+    color: string;
+    type: 'expense' | 'income';
+  }) => Promise<string>;
   refreshData: () => Promise<void>;
   dbInstance: MonefyDatabase;
 }
@@ -151,6 +157,41 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     [database, refreshData]
   );
 
+  const addCategory = useCallback(
+    async (input: {
+      name: string;
+      icon: string;
+      color: string;
+      type: 'expense' | 'income';
+    }) => {
+      const id = crypto.randomUUID?.() || String(Date.now());
+      const now = new Date().toISOString();
+      const newCat: Category = {
+        id,
+        name: input.name,
+        icon: input.icon,
+        color: input.color,
+        type: input.type,
+        isDefault: false,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await database.categories.add(newCat);
+      await database.syncQueue.add({
+        id: crypto.randomUUID?.() || String(Date.now()),
+        entityType: 'category',
+        entityId: id,
+        action: 'create',
+        payload: newCat,
+        timestamp: now,
+      });
+      await refreshData();
+      return id;
+    },
+    [database, refreshData]
+  );
+
   const { totalIncome, totalExpense } = useMemo(() => {
     let inc = 0;
     let exp = 0;
@@ -189,6 +230,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         addTransaction,
         deleteTransaction,
         updateTransaction,
+        addCategory,
         refreshData,
         dbInstance: database,
       }}
