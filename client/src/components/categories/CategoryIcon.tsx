@@ -1,5 +1,38 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import {
+  Award,
+  Banknote,
+  Book,
+  Briefcase,
+  Camera,
+  Car,
+  Circle,
+  Coffee,
+  CreditCard,
+  Dog,
+  Film,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  MoreHorizontal,
+  Music,
+  PiggyBank,
+  Plane,
+  Shield,
+  Shirt,
+  ShoppingBag,
+  ShoppingCart,
+  Smartphone,
+  Smile,
+  Tag,
+  TrendingUp,
+  Utensils,
+  Wallet,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface CategoryIconProps {
   name: string;
@@ -8,15 +41,49 @@ interface CategoryIconProps {
   className?: string;
 }
 
+const ICON_MAP: Record<string, LucideIcon> = {
+  award: Award,
+  banknote: Banknote,
+  book: Book,
+  briefcase: Briefcase,
+  camera: Camera,
+  car: Car,
+  circle: Circle,
+  coffee: Coffee,
+  creditcard: CreditCard,
+  dog: Dog,
+  film: Film,
+  gamepad2: Gamepad2,
+  gift: Gift,
+  graduationcap: GraduationCap,
+  heartpulse: HeartPulse,
+  home: Home,
+  morehorizontal: MoreHorizontal,
+  music: Music,
+  piggybank: PiggyBank,
+  plane: Plane,
+  shield: Shield,
+  shirt: Shirt,
+  shoppingbag: ShoppingBag,
+  shoppingcart: ShoppingCart,
+  smartphone: Smartphone,
+  smile: Smile,
+  tag: Tag,
+  trendingup: TrendingUp,
+  utensils: Utensils,
+  wallet: Wallet,
+  zap: Zap,
+};
+
 export const CategoryIcon: React.FC<CategoryIconProps> = ({
   name,
   size = 20,
   color = 'currentColor',
   className,
 }) => {
-  // Normalize icon name (e.g. Utensils, utensils, car -> Car)
-  const normalizedName = name.charAt(0).toUpperCase() + name.slice(1);
-  const IconComponent = (Icons as Record<string, any>)[normalizedName] || Icons.Tag;
+  // Normalize icon key (case-insensitive, remove spaces/hyphens/underscores)
+  const normalizedKey = (name || '').toLowerCase().replace(/[-_\s]/g, '');
+  const IconComponent = ICON_MAP[normalizedKey] || Tag;
 
   const iconColor = color === 'inherit' ? 'currentColor' : color;
   return <IconComponent size={size} color={iconColor} className={className} />;
