@@ -12,6 +12,8 @@ import { AccountManagerModal } from '../accounts/AccountManagerModal';
 import { TransactionHistorySheet } from '../transactions/TransactionHistorySheet';
 import { EditTransactionModal } from '../transactions/EditTransactionModal';
 import { BudgetModal } from '../budgets/BudgetModal';
+import { ExpenseBreakdownView } from '../analytics/ExpenseBreakdownView';
+import { PieChart, BarChart3 } from 'lucide-react';
 import type { Category, Transaction, TransactionType } from '../../types';
 
 export const MonefyDashboard: React.FC = () => {
@@ -55,6 +57,7 @@ export const MonefyDashboard: React.FC = () => {
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [viewMode, setViewMode] = useState<'wheel' | 'analytics'>('wheel');
 
   // Compute category expense breakdown for the donut chart using the current period transactions
   const categoryExpenses = useMemo(() => {
@@ -106,79 +109,147 @@ export const MonefyDashboard: React.FC = () => {
         onOpenManager={() => setIsAccountManagerOpen(true)}
       />
 
-      {/* Signature Monefy Donut Wheel Card */}
+      {/* View Switcher: Donut Wheel vs Analytics */}
       <div
-        className="glass-panel"
         style={{
-          padding: '24px 16px',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(180deg, rgba(22, 27, 39, 0.85) 0%, rgba(14, 18, 27, 0.95) 100%)',
-          position: 'relative',
+          background: 'rgba(22, 27, 39, 0.6)',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-full)',
+          padding: '3px',
+          alignSelf: 'center',
+          gap: '4px',
         }}
       >
-        <CircularChart
-          categories={categories}
-          categoryExpenses={categoryExpenses}
-          totalExpense={totalExpense}
-          currency={currency}
-          selectedCategoryId={selectedCategory?.id}
-          onSelectCategory={(cat) => handleOpenExpenseKeypad(cat)}
+        <button
+          type="button"
+          data-testid="tab-wheel"
+          onClick={() => setViewMode('wheel')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 14px',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '12px',
+            fontWeight: 700,
+            background: viewMode === 'wheel' ? 'var(--color-primary)' : 'transparent',
+            color: viewMode === 'wheel' ? '#FFFFFF' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all var(--transition-fast)',
+          }}
         >
-          <CenterBalance
-            netBalance={netBalance}
-            totalIncome={totalIncome}
-            totalExpense={totalExpense}
-            currency={currency}
-            onOpenExpenseKeypad={() => handleOpenExpenseKeypad()}
-            onOpenIncomeKeypad={() => handleOpenIncomeKeypad()}
-            onOpenTransferModal={() => setIsTransferOpen(true)}
-          />
-        </CircularChart>
-
-        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
-          Tap slices or +/- to record transactions
-        </div>
+          <PieChart size={14} /> Wheel
+        </button>
+        <button
+          type="button"
+          data-testid="tab-analytics"
+          onClick={() => setViewMode('analytics')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 14px',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '12px',
+            fontWeight: 700,
+            background: viewMode === 'analytics' ? 'var(--color-primary)' : 'transparent',
+            color: viewMode === 'analytics' ? '#FFFFFF' : 'var(--text-muted)',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all var(--transition-fast)',
+          }}
+        >
+          <BarChart3 size={14} /> Analytics
+        </button>
       </div>
 
-      {/* Radial Category Grid Section with Budgets Trigger */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Categories
-          </span>
-          <button
-            type="button"
-            data-testid="btn-open-budgets"
-            onClick={() => setIsBudgetModalOpen(true)}
+      {viewMode === 'wheel' ? (
+        <>
+          {/* Signature Monefy Donut Wheel Card */}
+          <div
+            className="glass-panel"
             style={{
-              fontSize: '11px',
-              fontWeight: 600,
-              color: '#F59E0B',
-              background: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.25)',
-              padding: '3px 8px',
-              borderRadius: 'var(--radius-full)',
+              padding: '24px 16px',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              gap: '4px',
+              justifyContent: 'center',
+              background: 'linear-gradient(180deg, rgba(22, 27, 39, 0.85) 0%, rgba(14, 18, 27, 0.95) 100%)',
+              position: 'relative',
             }}
           >
-            🎯 Monthly Budgets
-          </button>
-        </div>
+            <CircularChart
+              categories={categories}
+              categoryExpenses={categoryExpenses}
+              totalExpense={totalExpense}
+              currency={currency}
+              selectedCategoryId={selectedCategory?.id}
+              onSelectCategory={(cat) => handleOpenExpenseKeypad(cat)}
+            >
+              <CenterBalance
+                netBalance={netBalance}
+                totalIncome={totalIncome}
+                totalExpense={totalExpense}
+                currency={currency}
+                onOpenExpenseKeypad={() => handleOpenExpenseKeypad()}
+                onOpenIncomeKeypad={() => handleOpenIncomeKeypad()}
+                onOpenTransferModal={() => setIsTransferOpen(true)}
+              />
+            </CircularChart>
 
-        <RadialCategoryGrid
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
+              Tap slices or +/- to record transactions
+            </div>
+          </div>
+
+          {/* Radial Category Grid Section with Budgets Trigger */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Categories
+              </span>
+              <button
+                type="button"
+                data-testid="btn-open-budgets"
+                onClick={() => setIsBudgetModalOpen(true)}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: '#F59E0B',
+                  background: 'rgba(245, 158, 11, 0.12)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  padding: '3px 8px',
+                  borderRadius: 'var(--radius-full)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                🎯 Monthly Budgets
+              </button>
+            </div>
+
+            <RadialCategoryGrid
+              categories={categories}
+              categoryExpenses={categoryExpenses}
+              categoryBudgets={categoryBudgets}
+              currency={currency}
+              onCategoryTap={(cat) => handleOpenExpenseKeypad(cat)}
+              onOpenCustomizer={() => setIsCustomizerOpen(true)}
+            />
+          </div>
+        </>
+      ) : (
+        <ExpenseBreakdownView
+          transactions={periodTransactions}
           categories={categories}
-          categoryExpenses={categoryExpenses}
-          categoryBudgets={categoryBudgets}
+          accounts={accounts}
           currency={currency}
-          onCategoryTap={(cat) => handleOpenExpenseKeypad(cat)}
-          onOpenCustomizer={() => setIsCustomizerOpen(true)}
+          onSelectTransaction={(tx) => setEditingTransaction(tx)}
         />
-      </div>
+      )}
 
       {/* Transaction History Sheet with Real-time Search */}
       <TransactionHistorySheet
