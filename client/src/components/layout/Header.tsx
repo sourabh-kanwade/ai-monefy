@@ -59,13 +59,15 @@ export const Header: React.FC<HeaderProps> = ({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div
+          <img
+            src="/favicon.svg"
+            alt="AI Monefy Logo"
             style={{
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              background: 'var(--color-primary)',
-              boxShadow: '0 0 10px var(--color-primary)',
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
+              display: 'block',
+              filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))',
             }}
           />
           <h1

@@ -25,6 +25,7 @@ export interface CsvParseResult {
   rows: ParsedCsvRow[];
   errors: CsvRowError[];
   totalLines: number;
+  detectedCurrency?: string;
 }
 
 /**
@@ -125,12 +126,15 @@ function parseDateToISO(rawDate: string): string | null {
     }
   }
 
-  // Check DD/MM/YYYY or DD-MM-YYYY format
-  const dmyMatch = str.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+  // Check DD/MM/YYYY or DD-MM-YYYY format (supporting 2 or 4 digit years)
+  const dmyMatch = str.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
   if (dmyMatch) {
     const day = parseInt(dmyMatch[1], 10);
     const month = parseInt(dmyMatch[2], 10) - 1; // 0-indexed
-    const year = parseInt(dmyMatch[3], 10);
+    let year = parseInt(dmyMatch[3], 10);
+    if (year < 100) {
+      year = year < 50 ? 2000 + year : 1900 + year;
+    }
     const hour = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 12;
     const minute = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
     const second = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
@@ -151,16 +155,64 @@ function parseDateToISO(rawDate: string): string | null {
 
 /**
  * Normalizes numeric amount strings by stripping currency symbols, handling signs, and trimming.
+ * Supports Indian number formatting (e.g. "1,80,000"), Western formatting (e.g. "1,000,000.00"),
+ * European decimal commas (e.g. "1.250,50"), accounting parentheses (e.g. "(500)"), and plain numbers (-40).
  */
-function parseAmount(rawAmount: string): { amount: number; isNegative: boolean } | null {
+export function parseAmount(rawAmount: string): { amount: number; isNegative: boolean } | null {
   if (!rawAmount || !rawAmount.trim()) return null;
 
-  // Clean currency symbols and spaces: $, €, £, ₹, ¥
-  let cleaned = rawAmount.trim().replace(/[$€£₹¥]/g, '').trim();
+  let str = rawAmount.trim();
 
-  // Handle commas as thousands separators (e.g. "1,250.50")
-  if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(cleaned)) {
-    cleaned = cleaned.replace(/,/g, '');
+  // Accounting negative notation: (1,000.00) or ($50)
+  let isExplicitNegative = false;
+  if (/^\(.*\)$/.test(str)) {
+    isExplicitNegative = true;
+    str = str.slice(1, -1).trim();
+  }
+
+  if (str.startsWith('-') || str.endsWith('-')) {
+    isExplicitNegative = true;
+  }
+
+  // Remove currency symbols ($, €, £, ₹, ¥) and 3-letter currency codes (INR, USD, EUR, etc.)
+  let cleaned = str
+    .replace(/[$€£₹¥]/g, '')
+    .replace(/\b[A-Z]{3}\b/g, '')
+    .trim();
+
+  if (cleaned.startsWith('-') || cleaned.endsWith('-')) {
+    isExplicitNegative = true;
+    cleaned = cleaned.replace(/-/g, '').trim();
+  }
+
+  if (!cleaned) return null;
+
+  // Handle commas and dots
+  const hasComma = cleaned.includes(',');
+  const hasDot = cleaned.includes('.');
+
+  if (hasComma && hasDot) {
+    const lastComma = cleaned.lastIndexOf(',');
+    const lastDot = cleaned.lastIndexOf('.');
+    if (lastComma < lastDot) {
+      // 1,80,000.50 or 1,250.50 -> comma is grouping separator, dot is decimal
+      cleaned = cleaned.replace(/,/g, '');
+    } else {
+      // 1.80.000,50 or 1.250,50 -> dot is grouping separator, comma is decimal
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    }
+  } else if (hasComma && !hasDot) {
+    const commasCount = (cleaned.match(/,/g) || []).length;
+    // If multiple commas, or ends with ,ddd, or matches Indian/Western grouping
+    if (commasCount > 1 || /,\d{3}$/.test(cleaned) || /^\d{1,3}(,\d{2,3})*,\d{3}$/.test(cleaned)) {
+      cleaned = cleaned.replace(/,/g, '');
+    } else if (/^\d+,\d{1,2}$/.test(cleaned)) {
+      // European decimal like 12,5 or 12,50
+      cleaned = cleaned.replace(',', '.');
+    } else {
+      // General fallback: strip grouping commas
+      cleaned = cleaned.replace(/,/g, '');
+    }
   }
 
   const val = parseFloat(cleaned);
@@ -170,7 +222,7 @@ function parseAmount(rawAmount: string): { amount: number; isNegative: boolean }
 
   return {
     amount: Math.abs(val),
-    isNegative: val < 0,
+    isNegative: isExplicitNegative || val < 0,
   };
 }
 
@@ -238,10 +290,13 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
   const accCol = findColumnIndex(headers, ['account', 'source account', 'account name']);
   const toAccCol = findColumnIndex(headers, ['toaccount', 'to account', 'destination account']);
   const amountCol = findColumnIndex(headers, ['amount', 'converted amount', 'sum', 'value']);
+  const convertedAmountCol = findColumnIndex(headers, ['converted amount', 'convertedamount']);
   const noteCol = findColumnIndex(headers, ['note', 'description', 'memo', 'comment']);
+  const currencyCol = findColumnIndex(headers, ['currency', 'curr']);
 
   const rows: ParsedCsvRow[] = [];
   const errors: CsvRowError[] = [];
+  let detectedCurrency: string | undefined = undefined;
 
   for (let r = 1; r < grid.length; r++) {
     const row = grid[r];
@@ -254,6 +309,10 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
     // Skip empty lines
     if (row.every((val) => val.trim() === '')) {
       continue;
+    }
+
+    if (!detectedCurrency && currencyCol !== -1 && row[currencyCol]) {
+      detectedCurrency = row[currencyCol].trim();
     }
 
     // Date validation
@@ -269,7 +328,11 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
     }
 
     // Amount validation
-    const rawAmount = amountCol !== -1 ? row[amountCol] : '';
+    let rawAmount = amountCol !== -1 ? row[amountCol] : '';
+    if ((!rawAmount || !rawAmount.trim()) && convertedAmountCol !== -1) {
+      rawAmount = row[convertedAmountCol] || '';
+    }
+
     const parsedAmountResult = parseAmount(rawAmount);
     if (!parsedAmountResult) {
       errors.push({
@@ -310,7 +373,7 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
     } else if (format === 'monefy-mobile') {
       // Classic Monefy export:
       // Transfers have category formatted as: "Payment -> <Account>" or "Transfer -> <Account>"
-      const transferMatch = rawCategory.match(/^(?:Payment|Transfer)\s*->\s*(.+)$/i);
+      const transferMatch = rawCategory.match(/^(?:Payment|Transfer)\s*(?:->|to)\s*(.+)$/i);
       if (transferMatch) {
         determinedType = 'transfer';
         rawToAccount = transferMatch[1].trim();
@@ -367,5 +430,6 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
     rows,
     errors,
     totalLines: grid.length - 1,
+    detectedCurrency,
   };
 }
