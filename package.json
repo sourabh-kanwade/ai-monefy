@@ -1,0 +1,20 @@
+{
+  "name": "ai-monefy",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=client",
+    "test": "npm run test --workspace=client",
+    "server:dev": "npm run dev --workspace=server",
+    "server:build": "npm run build --workspace=server",
+    "server:test": "npm run test --workspace=server"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

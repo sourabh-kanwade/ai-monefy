@@ -1,0 +1,243 @@
+/* ===================================================================
+   AI MONEFY DESIGN SYSTEM (Obsidian Slate & Emerald Radiance)
+   =================================================================== */
+
+:root {
+  /* Color Tokens - Obsidian Slate Dark Theme (Default) */
+  --bg-primary: #0a0d14;
+  --bg-secondary: #121722;
+  --bg-card: rgba(22, 27, 39, 0.75);
+  --bg-card-hover: rgba(30, 38, 54, 0.85);
+  --bg-elevated: #1a2233;
+  --bg-glass: rgba(18, 23, 34, 0.65);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(16, 185, 129, 0.4);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  /* Financial Accent Colors */
+  --color-surplus: #10b981;
+  --color-surplus-glow: rgba(16, 185, 129, 0.25);
+  --color-deficit: #ef4444;
+  --color-deficit-glow: rgba(239, 68, 68, 0.25);
+  --color-accent: #38bdf8;
+  --color-accent-hover: #0284c7;
+
+  /* Typography */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Shadows & Glass */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.2);
+  --backdrop-blur: blur(16px);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+[data-theme='light'] {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(248, 250, 252, 0.95);
+  --bg-elevated: #e2e8f0;
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(16, 185, 129, 0.6);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --color-surplus: #059669;
+  --color-surplus-glow: rgba(5, 150, 105, 0.2);
+  --color-deficit: #dc2626;
+  --color-deficit-glow: rgba(220, 38, 38, 0.2);
+  --color-accent: #0284c7;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.font-num {
+  font-family: var(--font-display);
+  font-feature-settings: "tnum";
+}
+
+/* Glass Surface Container */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* App Shell Layout */
+.app-container {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 900px;
+  }
+}
+
+/* Buttons & Interactive Elements */
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+  transition: all var(--transition-fast);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-weight: 600;
+  font-family: var(--font-display);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  font-weight: 600;
+  font-family: var(--font-display);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-icon:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 16px var(--color-surplus-glow); }
+  50% { box-shadow: 0 0 28px var(--color-surplus-glow); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease forwards;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
