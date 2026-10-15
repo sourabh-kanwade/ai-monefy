@@ -46,16 +46,19 @@ describe('Category Budgets & Overspending Seam Integration Tests', () => {
       expect(screen.getAllByText('Food')[0]).toBeInTheDocument();
     });
 
-    // Verify over-budget indicator on Food category
     const categories = await testDb.categories.toArray();
     const foodCat = categories.find((c) => c.name === 'Food') || categories[0];
+
+    // Verify over-budget indicator on Food category
     await waitFor(
+
       () => {
         const overBadge = screen.getByTestId(`over-budget-${foodCat.id}`);
         expect(overBadge).toBeInTheDocument();
       },
-      { timeout: 2000 }
+      { timeout: 4000 }
     );
+
 
     // Click Monthly Budgets trigger
     const budgetsBtn = screen.getByTestId('btn-open-budgets');

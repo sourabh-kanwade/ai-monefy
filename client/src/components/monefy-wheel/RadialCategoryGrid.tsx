@@ -25,8 +25,18 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
 
   const expenseCategories = categories.filter((c) => c.type === 'expense' && !c.isDeleted);
-  const primaryCategories = expenseCategories.slice(0, maxPrimaryRing);
-  const overflowCategories = expenseCategories.slice(maxPrimaryRing);
+  const sortedExpenseCategories = [...expenseCategories].sort((a, b) => {
+    const spendA = categoryExpenses[a.id] || 0;
+    const spendB = categoryExpenses[b.id] || 0;
+    if (spendA !== spendB) return spendB - spendA;
+    const budgetA = categoryBudgets?.[a.id] ? 1 : 0;
+    const budgetB = categoryBudgets?.[b.id] ? 1 : 0;
+    if (budgetA !== budgetB) return budgetB - budgetA;
+    return 0;
+  });
+  const primaryCategories = sortedExpenseCategories.slice(0, maxPrimaryRing);
+  const overflowCategories = sortedExpenseCategories.slice(maxPrimaryRing);
+
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
