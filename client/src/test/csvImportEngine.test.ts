@@ -230,6 +230,36 @@ describe('CSV Database Import & Entity Resolution Engine', () => {
     expect(importedTxs[0].categoryId).toBe('cat-food');
     expect(importedTxs[0].accountId).toBe('acc-cash');
     expect(importedTxs[0].note).toBe('Dinner with friends');
-    expect(importedTxs[0].date).toBe('2026-10-15T20:00:00.000Z');
+    expect(importedTxs[0].date).toContain('2026-10-15');
+  });
+
+  it('preserves exact ISO timestamp fidelity with standard CSV format', async () => {
+    const categories = await db.categories.toArray();
+    const accounts = await db.accounts.toArray();
+    const initialTxs = [
+      {
+        id: 'tx-std',
+        amount: 88,
+        type: 'expense' as const,
+        categoryId: 'cat-food',
+        accountId: 'acc-cash',
+        note: 'Coffee meeting',
+        date: '2026-10-15T18:45:00.000Z',
+        createdAt: '2026-10-15T18:45:00.000Z',
+        updatedAt: '2026-10-15T18:45:00.000Z',
+        isDeleted: false,
+      },
+    ];
+
+    const standardCsv = exportTransactionsToCSV(initialTxs, categories, accounts, {
+      format: 'standard',
+    });
+
+    await db.transactions.clear();
+    const res = await importTransactionsFromCSV(standardCsv, db);
+    expect(res.importedTransactionsCount).toBe(1);
+
+    const imported = await db.transactions.toArray();
+    expect(imported[0].date).toBe('2026-10-15T18:45:00.000Z');
   });
 });

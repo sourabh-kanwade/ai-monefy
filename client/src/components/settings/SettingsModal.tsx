@@ -64,10 +64,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       onExportCSV();
       return;
     }
-    const csvContent = exportTransactionsToCSV(transactions, categories, accounts);
-    const dateStr = new Date().toISOString().split('T')[0];
-    triggerFileDownload(csvContent, `monefy-transactions-${dateStr}.csv`, 'text/csv');
-    setStatusMessage({ type: 'success', text: 'Transactions CSV exported successfully!' });
+    const csvContent = exportTransactionsToCSV(transactions, categories, accounts, currency);
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year2 = String(now.getFullYear()).slice(-2);
+    const filename = `Monefy.Data.${day}-${month}-${year2}.csv`;
+    triggerFileDownload(csvContent, filename, 'text/csv');
+    setStatusMessage({
+      type: 'success',
+      text: `Exported ${transactions.length} transactions as ${filename} in Monefy format!`,
+    });
   };
 
   const handleBackupJSON = async () => {
@@ -144,24 +151,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     reader.onload = async (event) => {
       try {
         const content = event.target?.result as string;
+        let res: CsvImportResult | void = undefined;
         if (onImportCSV) {
-          const res = await onImportCSV(content);
-          if (res && typeof res === 'object' && 'importedTransactionsCount' in res) {
-            setStatusMessage({
-              type: 'success',
-              text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts)!`,
-            });
-          } else {
-            setStatusMessage({
-              type: 'success',
-              text: 'Transactions CSV imported successfully!',
-            });
-          }
+          res = await onImportCSV(content);
         } else if (db) {
-          const res = await importTransactionsFromCSV(content, db, { skipDuplicates: true });
+          res = await importTransactionsFromCSV(content, db, { skipDuplicates: true });
+        }
+
+        if (res && typeof res === 'object' && 'importedTransactionsCount' in res) {
+          let currMsg = '';
+          if (res.detectedCurrency) {
+            const matched = CURRENCIES.find(
+              (c) =>
+                c.code.toLowerCase() === res.detectedCurrency?.toLowerCase() ||
+                c.symbol === res.detectedCurrency
+            );
+            if (matched) {
+              onSetCurrency(matched.symbol);
+              currMsg = `, currency set to ${matched.symbol} (${matched.code})`;
+            }
+          }
+          const dupMsg = res.skippedDuplicatesCount > 0 ? `, ${res.skippedDuplicatesCount} duplicates skipped` : '';
           setStatusMessage({
             type: 'success',
-            text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts)!`,
+            text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts${dupMsg}${currMsg})!`,
+          });
+        } else {
+          setStatusMessage({
+            type: 'success',
+            text: 'Transactions CSV imported successfully!',
           });
         }
       } catch (err) {
@@ -187,32 +205,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
 
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-      }}
-    >
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
       <div
-        className="glass-panel"
+        className="modal-sheet glass-panel"
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
           maxWidth: '460px',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
           background: 'var(--bg-secondary)',
         }}
       >
+        <div className="modal-drag-handle" />
         {/* Header */}
         <div
           style={{

@@ -32,13 +32,16 @@ export const AccountBar: React.FC<AccountBarProps> = ({
 
   return (
     <div
+      className="no-scrollbar"
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         overflowX: 'auto',
         padding: '2px 0 6px',
-        scrollbarWidth: 'none',
+        WebkitOverflowScrolling: 'touch',
+        overscrollBehaviorX: 'contain',
+        touchAction: 'pan-x',
       }}
     >
       {/* "All Accounts" Filter Pill */}
@@ -50,6 +53,7 @@ export const AccountBar: React.FC<AccountBarProps> = ({
           alignItems: 'center',
           gap: '8px',
           padding: '8px 14px',
+          minHeight: '38px',
           borderRadius: 'var(--radius-full)',
           background: selectedAccountId === null ? 'var(--color-primary)' : 'var(--bg-elevated)',
           color: selectedAccountId === null ? '#ffffff' : 'var(--text-primary)',
@@ -58,6 +62,7 @@ export const AccountBar: React.FC<AccountBarProps> = ({
           whiteSpace: 'nowrap',
           fontSize: '12px',
           fontWeight: 600,
+          flexShrink: 0,
           transition: 'all var(--transition-fast)',
         }}
       >
@@ -91,6 +96,7 @@ export const AccountBar: React.FC<AccountBarProps> = ({
               alignItems: 'center',
               gap: '8px',
               padding: '8px 14px',
+              minHeight: '38px',
               borderRadius: 'var(--radius-full)',
               background: isSelected ? 'var(--color-primary)' : 'var(--bg-elevated)',
               color: isSelected ? '#ffffff' : 'var(--text-primary)',
@@ -99,6 +105,7 @@ export const AccountBar: React.FC<AccountBarProps> = ({
               whiteSpace: 'nowrap',
               fontSize: '12px',
               fontWeight: 600,
+              flexShrink: 0,
               transition: 'all var(--transition-fast)',
             }}
           >
@@ -136,17 +143,17 @@ export const AccountBar: React.FC<AccountBarProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '8px 10px',
+          width: '38px',
+          height: '38px',
           borderRadius: 'var(--radius-full)',
           background: 'var(--bg-elevated)',
           border: '1px solid var(--border-subtle)',
           color: 'var(--text-secondary)',
-          fontSize: '12px',
-          whiteSpace: 'nowrap',
-          gap: '6px',
+          flexShrink: 0,
+          transition: 'all var(--transition-fast)',
         }}
       >
-        <Settings2 size={14} />
+        <Settings2 size={16} />
       </button>
     </div>
   );

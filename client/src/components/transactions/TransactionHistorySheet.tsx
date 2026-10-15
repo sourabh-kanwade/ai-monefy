@@ -156,12 +156,12 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
             alignItems: 'center',
             gap: '8px',
             background: 'var(--bg-elevated)',
-            padding: '8px 12px',
+            padding: '10px 12px',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-subtle)',
           }}
         >
-          <Search size={16} color="var(--text-muted)" />
+          <Search size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search transactions by note, category, or account..."
@@ -172,7 +172,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
               background: 'transparent',
               border: 'none',
               outline: 'none',
-              fontSize: '13px',
+              fontSize: '14px',
               color: 'var(--text-primary)',
             }}
           />
@@ -181,9 +181,17 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
               type="button"
               aria-label="Clear search"
               onClick={() => setSearchQuery('')}
-              style={{ color: 'var(--text-muted)', padding: '2px' }}
+              style={{
+                color: 'var(--text-muted)',
+                width: '28px',
+                height: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+              }}
             >
-              <X size={14} />
+              <X size={15} />
             </button>
           )}
         </div>
@@ -252,6 +260,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                             background: 'var(--bg-elevated)',
                             border: '1px solid var(--border-subtle)',
                             cursor: 'pointer',
+                            touchAction: 'manipulation',
                             transition: 'background var(--transition-fast)',
                           }}
                         >
@@ -298,7 +307,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                             </div>
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{ textAlign: 'right' }}>
                               <div
                                 className="font-num"
@@ -326,13 +335,18 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                               }}
                               style={{
                                 color: 'var(--text-muted)',
-                                padding: '4px',
+                                width: '36px',
+                                height: '36px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                                 borderRadius: 'var(--radius-sm)',
-                                opacity: 0.6,
+                                opacity: 0.7,
+                                touchAction: 'manipulation',
                                 transition: 'opacity var(--transition-fast)',
                               }}
                             >
-                              <Trash2 size={15} />
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </div>

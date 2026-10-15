@@ -70,34 +70,18 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1100,
-        background: 'rgba(5, 8, 14, 0.8)',
-        backdropFilter: 'blur(8px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-      }}
-    >
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1100 }}>
       <div
-        className="glass-panel"
+        className="modal-sheet glass-panel"
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
           maxWidth: '460px',
           background: 'var(--bg-secondary)',
-          borderRadius: '24px',
-          padding: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
+          padding: '16px 20px',
+          gap: '16px',
         }}
       >
+        <div className="modal-drag-handle" />
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

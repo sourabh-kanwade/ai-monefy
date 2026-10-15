@@ -196,7 +196,7 @@ export const MonefyDashboard: React.FC = () => {
   };
 
   return (
-    <div className="app-container" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="app-container">
       {/* Period Navigation Header */}
       <Header
         currentInterval={interval}
@@ -242,18 +242,19 @@ export const MonefyDashboard: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '6px 14px',
+            padding: '7px 16px',
             borderRadius: 'var(--radius-full)',
-            fontSize: '12px',
+            fontSize: '13px',
             fontWeight: 700,
             background: viewMode === 'wheel' ? 'var(--color-primary)' : 'transparent',
             color: viewMode === 'wheel' ? '#FFFFFF' : 'var(--text-muted)',
             border: 'none',
             cursor: 'pointer',
+            touchAction: 'manipulation',
             transition: 'all var(--transition-fast)',
           }}
         >
-          <PieChart size={14} /> Wheel
+          <PieChart size={15} /> Wheel
         </button>
         <button
           type="button"
@@ -263,18 +264,19 @@ export const MonefyDashboard: React.FC = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '6px 14px',
+            padding: '7px 16px',
             borderRadius: 'var(--radius-full)',
-            fontSize: '12px',
+            fontSize: '13px',
             fontWeight: 700,
             background: viewMode === 'analytics' ? 'var(--color-primary)' : 'transparent',
             color: viewMode === 'analytics' ? '#FFFFFF' : 'var(--text-muted)',
             border: 'none',
             cursor: 'pointer',
+            touchAction: 'manipulation',
             transition: 'all var(--transition-fast)',
           }}
         >
-          <BarChart3 size={14} /> Analytics
+          <BarChart3 size={15} /> Analytics
         </button>
       </div>
 
@@ -284,7 +286,7 @@ export const MonefyDashboard: React.FC = () => {
           <div
             className="glass-panel"
             style={{
-              padding: '24px 16px',
+              padding: 'clamp(14px, 3.5vw, 24px) clamp(10px, 2.5vw, 16px)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -480,6 +482,23 @@ export const MonefyDashboard: React.FC = () => {
         }}
         onImportCSV={async (csv) => {
           const res = await importTransactionsFromCSV(csv, dbInstance, { skipDuplicates: true });
+          if (res.detectedCurrency) {
+            const currencyMap: Record<string, string> = {
+              INR: '₹',
+              USD: '$',
+              EUR: '€',
+              GBP: '£',
+              JPY: '¥',
+              CAD: 'CA$',
+              AUD: 'AU$',
+            };
+            const upper = res.detectedCurrency.toUpperCase();
+            if (currencyMap[upper]) {
+              setCurrency(currencyMap[upper]);
+            } else if (['$', '€', '£', '₹', '¥', 'CA$', 'AU$'].includes(res.detectedCurrency)) {
+              setCurrency(res.detectedCurrency);
+            }
+          }
           await refreshData();
           return res;
         }}

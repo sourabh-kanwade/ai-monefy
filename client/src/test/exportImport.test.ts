@@ -70,8 +70,19 @@ describe('Data Export and Import Utilities', () => {
     await db.delete();
   });
 
-  it('exports transactions to RFC-4180 compliant CSV format', () => {
-    const csv = exportTransactionsToCSV(mockTransactions, mockCategories, mockAccounts);
+  it('exports transactions to Monefy CSV format by default', () => {
+    const csv = exportTransactionsToCSV(mockTransactions, mockCategories, mockAccounts, 'INR');
+    expect(csv).toContain('date,account,category,amount,currency,converted amount,currency,description');
+    expect(csv).toContain('Cash,Food & Dining,-45.5,INR,-45.5,INR,"Lunch, with coffee ""special"""');
+    expect(csv).toContain('Bank Card,Salary,"3,000",INR,"3,000",INR,October paycheck');
+    expect(csv).toContain('Payment -> Cash');
+    expect(csv).toContain('15/10/2026');
+  });
+
+  it('exports transactions to standard CSV format when requested', () => {
+    const csv = exportTransactionsToCSV(mockTransactions, mockCategories, mockAccounts, {
+      format: 'standard',
+    });
     expect(csv).toContain('Date,Type,Category,Account,ToAccount,Amount,Note');
     expect(csv).toContain('Food & Dining');
     expect(csv).toContain('Salary');

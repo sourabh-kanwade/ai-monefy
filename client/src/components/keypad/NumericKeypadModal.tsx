@@ -106,6 +106,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
       return;
     }
 
+    triggerHapticFeedback();
     onSave({
       amount: finalAmount,
       type,
@@ -122,45 +123,24 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
   const categoryColor = initialCategory?.color || (isExpense ? 'var(--color-deficit)' : 'var(--color-surplus)');
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        background: 'rgba(5, 8, 14, 0.75)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-        padding: 0,
-      }}
-    >
+    <div className="modal-overlay" onClick={onClose}>
       <div
-        className="glass-panel"
+        className="modal-sheet glass-panel"
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
-          maxWidth: '520px',
           background: 'var(--bg-secondary)',
-          borderTopLeftRadius: '28px',
-          borderTopRightRadius: '28px',
-          borderBottomLeftRadius: 0,
-          borderBottomRightRadius: 0,
-          border: '1px solid var(--border-subtle)',
-          boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.6)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '92vh',
+          maxHeight: '94dvh',
         }}
       >
+        <div className="modal-drag-handle" />
+
         {/* Modal Header */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: '16px 20px',
+            padding: '12px 20px',
             borderBottom: '1px solid var(--border-subtle)',
             background: 'var(--bg-elevated)',
           }}
@@ -205,24 +185,24 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
         {/* Display Area (Expression & Result) */}
         <div
           style={{
-            padding: '20px 24px',
+            padding: '16px 20px',
             background: 'var(--bg-primary)',
             textAlign: 'right',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            minHeight: '100px',
+            minHeight: '80px',
             borderBottom: '1px solid var(--border-subtle)',
           }}
         >
           <div
             className="font-num"
             style={{
-              fontSize: '32px',
+              fontSize: 'clamp(26px, 7.5vw, 34px)',
               fontWeight: 800,
               color: 'var(--text-primary)',
               wordBreak: 'break-all',
-              minHeight: '40px',
+              minHeight: '36px',
             }}
           >
             {expression || '0'}
@@ -232,10 +212,10 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             data-testid="calculator-subtotal"
             className="font-num"
             style={{
-              fontSize: '18px',
+              fontSize: 'clamp(15px, 4.5vw, 18px)',
               fontWeight: 600,
               color: isExpense ? 'var(--color-deficit)' : 'var(--color-surplus)',
-              marginTop: '4px',
+              marginTop: '2px',
             }}
           >
             ={currency}{currentResult.toFixed(2)}
@@ -243,22 +223,22 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
         </div>
 
         {/* Controls: Account, Date, Note */}
-        <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'var(--bg-secondary)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-secondary)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {/* Account Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)' }}>
-              <Wallet size={16} color="var(--text-muted)" style={{ marginRight: '6px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)', minHeight: '42px' }}>
+              <Wallet size={16} color="var(--text-muted)" style={{ marginRight: '6px', flexShrink: 0 }} />
               <select
                 value={selectedAccountId}
                 onChange={(e) => setSelectedAccountId(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 0',
+                  padding: '8px 0',
                   background: 'transparent',
                   color: 'var(--text-primary)',
                   border: 'none',
                   outline: 'none',
-                  fontSize: '13px',
+                  fontSize: '14px',
                 }}
               >
                 {accounts.map((a) => (
@@ -270,20 +250,20 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             </div>
 
             {/* Date Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)' }}>
-              <Calendar size={16} color="var(--text-muted)" style={{ marginRight: '6px' }} />
+            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)', minHeight: '42px' }}>
+              <Calendar size={16} color="var(--text-muted)" style={{ marginRight: '6px', flexShrink: 0 }} />
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '10px 0',
+                  padding: '8px 0',
                   background: 'transparent',
                   color: 'var(--text-primary)',
                   border: 'none',
                   outline: 'none',
-                  fontSize: '13px',
+                  fontSize: '14px',
                 }}
               />
             </div>
@@ -298,11 +278,12 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             style={{
               width: '100%',
               padding: '10px 14px',
+              minHeight: '42px',
               borderRadius: 'var(--radius-md)',
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border-subtle)',
               color: 'var(--text-primary)',
-              fontSize: '13px',
+              fontSize: '14px',
               outline: 'none',
             }}
           />
@@ -314,7 +295,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             display: 'grid',
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '8px',
-            padding: '16px 20px 24px',
+            padding: '12px 18px max(20px, var(--safe-bottom))',
             background: 'var(--bg-secondary)',
           }}
         >
@@ -331,14 +312,16 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             className={isExpense ? 'btn-danger' : 'btn-primary'}
             style={{
               gridColumn: 'span 4',
-              padding: '16px',
-              marginTop: '6px',
-              fontSize: '17px',
+              padding: 'clamp(13px, 2vh, 16px)',
+              minHeight: '50px',
+              marginTop: '4px',
+              fontSize: 'clamp(15px, 4.2vw, 17px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '10px',
               borderRadius: 'var(--radius-md)',
+              touchAction: 'manipulation',
             }}
           >
             <Check size={20} />
@@ -361,17 +344,20 @@ function renderKey(key: string, onKeyPress: (k: string) => void) {
       onClick={() => onKeyPress(key)}
       aria-label={isBackspace ? 'Backspace' : key}
       style={{
-        padding: '16px 0',
+        padding: 'clamp(11px, 2vh, 16px) 0',
+        minHeight: '46px',
         borderRadius: 'var(--radius-md)',
         background: isOperator ? 'var(--bg-card-hover)' : 'var(--bg-elevated)',
         color: isOperator ? 'var(--color-accent)' : 'var(--text-primary)',
-        fontSize: '22px',
+        fontSize: 'clamp(20px, 5.5vw, 24px)',
         fontWeight: isOperator ? 700 : 600,
         fontFamily: 'var(--font-display)',
         border: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        touchAction: 'manipulation',
+        userSelect: 'none',
         transition: 'transform 100ms ease, background 150ms ease',
       }}
     >

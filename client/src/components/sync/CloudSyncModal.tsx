@@ -84,31 +84,16 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(8px)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-      }}
-    >
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
       <div
-        className="glass-panel"
+        className="modal-sheet glass-panel"
+        onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
           maxWidth: '440px',
-          borderRadius: 'var(--radius-lg)',
-          overflow: 'hidden',
           background: 'var(--bg-secondary)',
-          display: 'flex',
-          flexDirection: 'column',
         }}
       >
+        <div className="modal-drag-handle" />
         {/* Header */}
         <div
           style={{

@@ -50,15 +50,8 @@ export const Header: React.FC<HeaderProps> = ({
       }}
     >
       {/* Top Bar: Brand, Stepper & Theme Toggle */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '8px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="header-top-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
           <img
             src="/favicon.svg"
             alt="AI Monefy Logo"
@@ -85,70 +78,75 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Date Stepper Center */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: 'var(--bg-elevated)',
-            padding: '4px 8px',
-            borderRadius: 'var(--radius-full)',
-            border: '1px solid var(--border-subtle)',
-          }}
-        >
-          <button
-            type="button"
-            aria-label="Previous period"
-            onClick={onStepPrev}
-            disabled={currentInterval === 'ALL'}
+        <div className="header-stepper-row">
+          <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              color: currentInterval === 'ALL' ? 'var(--text-muted)' : 'var(--text-primary)',
-              opacity: currentInterval === 'ALL' ? 0.4 : 1,
-              transition: 'background var(--transition-fast)',
+              justifyContent: 'space-between',
+              gap: '6px',
+              background: 'var(--bg-elevated)',
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-full)',
+              border: '1px solid var(--border-subtle)',
+              minWidth: '150px',
             }}
           >
-            <ChevronLeft size={16} />
-          </button>
+            <button
+              type="button"
+              aria-label="Previous period"
+              onClick={onStepPrev}
+              disabled={currentInterval === 'ALL'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                color: currentInterval === 'ALL' ? 'var(--text-muted)' : 'var(--text-primary)',
+                opacity: currentInterval === 'ALL' ? 0.4 : 1,
+                transition: 'background var(--transition-fast)',
+              }}
+            >
+              <ChevronLeft size={18} />
+            </button>
 
-          <span
-            data-testid="period-label"
-            style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: 'var(--text-primary)',
-              minWidth: '90px',
-              textAlign: 'center',
-              userSelect: 'none',
-            }}
-          >
-            {periodLabel}
-          </span>
+            <span
+              data-testid="period-label"
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                minWidth: '84px',
+                textAlign: 'center',
+                userSelect: 'none',
+                padding: '0 4px',
+              }}
+            >
+              {periodLabel}
+            </span>
 
-          <button
-            type="button"
-            aria-label="Next period"
-            onClick={onStepNext}
-            disabled={currentInterval === 'ALL'}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              color: currentInterval === 'ALL' ? 'var(--text-muted)' : 'var(--text-primary)',
-              opacity: currentInterval === 'ALL' ? 0.4 : 1,
-              transition: 'background var(--transition-fast)',
-            }}
-          >
-            <ChevronRight size={16} />
-          </button>
+            <button
+              type="button"
+              aria-label="Next period"
+              onClick={onStepNext}
+              disabled={currentInterval === 'ALL'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '30px',
+                height: '30px',
+                borderRadius: '50%',
+                color: currentInterval === 'ALL' ? 'var(--text-muted)' : 'var(--text-primary)',
+                opacity: currentInterval === 'ALL' ? 0.4 : 1,
+                transition: 'background var(--transition-fast)',
+              }}
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -161,8 +159,8 @@ export const Header: React.FC<HeaderProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: 'var(--radius-full)',
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border-subtle)',
@@ -170,7 +168,7 @@ export const Header: React.FC<HeaderProps> = ({
               cursor: 'pointer',
             }}
           >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
           {/* Settings / Data Management Button */}
@@ -183,8 +181,8 @@ export const Header: React.FC<HeaderProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: 'var(--radius-full)',
               background: 'var(--bg-elevated)',
               border: '1px solid var(--border-subtle)',
@@ -192,7 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
               cursor: 'pointer',
             }}
           >
-            <Settings size={16} />
+            <Settings size={17} />
           </button>
 
           {/* Cloud Sync Status Indicator */}
@@ -205,8 +203,8 @@ export const Header: React.FC<HeaderProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               borderRadius: 'var(--radius-full)',
               background:
                 syncStatus === 'synced'
@@ -231,11 +229,11 @@ export const Header: React.FC<HeaderProps> = ({
             }}
           >
             {syncStatus === 'syncing' ? (
-              <RefreshCw size={15} />
+              <RefreshCw size={16} />
             ) : syncStatus === 'synced' ? (
-              <Cloud size={16} />
+              <Cloud size={17} />
             ) : (
-              <CloudOff size={16} />
+              <CloudOff size={17} />
             )}
           </button>
         </div>
@@ -250,6 +248,7 @@ export const Header: React.FC<HeaderProps> = ({
           borderRadius: 'var(--radius-md)',
           padding: '3px',
           gap: '4px',
+          width: '100%',
         }}
       >
         {INTERVALS.map((item) => {
@@ -261,9 +260,10 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => onIntervalChange(item.key)}
               style={{
                 flex: 1,
-                padding: '6px 0',
+                padding: '8px 0',
+                minHeight: '34px',
                 borderRadius: 'var(--radius-sm)',
-                fontSize: '11px',
+                fontSize: '12px',
                 fontWeight: isActive ? 700 : 500,
                 color: isActive ? '#ffffff' : 'var(--text-secondary)',
                 background: isActive ? 'var(--color-primary)' : 'transparent',

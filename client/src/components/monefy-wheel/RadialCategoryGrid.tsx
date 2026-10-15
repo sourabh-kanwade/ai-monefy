@@ -45,7 +45,7 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '10px',
+          gap: 'clamp(6px, 2vw, 10px)',
         }}
       >
         {primaryCategories.map((cat) => {
@@ -61,13 +61,14 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '10px 4px',
+                padding: 'clamp(8px, 2vw, 10px) 4px',
                 borderRadius: 'var(--radius-md)',
                 background: 'var(--bg-elevated)',
                 border: '1px solid var(--border-subtle)',
                 transition: 'all var(--transition-fast)',
                 position: 'relative',
                 overflow: 'hidden',
+                touchAction: 'manipulation',
               }}
             >
               {categoryBudgets && categoryBudgets[cat.id] && spend > categoryBudgets[cat.id] && (
@@ -88,15 +89,15 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               )}
               <div
                 style={{
-                  width: '38px',
-                  height: '38px',
+                  width: 'clamp(34px, 9vw, 38px)',
+                  height: 'clamp(34px, 9vw, 38px)',
                   borderRadius: '50%',
                   background: `${cat.color}20`,
                   border: `1.5px solid ${cat.color}`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  marginBottom: '6px',
+                  marginBottom: '5px',
                   boxShadow: `0 0 10px ${cat.color}25`,
                 }}
               >
@@ -104,10 +105,10 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               </div>
               <span
                 style={{
-                  fontSize: '11px',
+                  fontSize: 'clamp(10px, 2.7vw, 11px)',
                   fontWeight: 600,
                   color: 'var(--text-primary)',
-                  maxWidth: '90%',
+                  maxWidth: '92%',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -118,7 +119,7 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               <span
                 className="font-num"
                 style={{
-                  fontSize: '10px',
+                  fontSize: 'clamp(9px, 2.4vw, 10px)',
                   color: spend > 0 ? 'var(--color-deficit)' : 'var(--text-muted)',
                   fontWeight: 600,
                   marginTop: '1px',
@@ -141,29 +142,30 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '10px 4px',
+              padding: 'clamp(8px, 2vw, 10px) 4px',
               borderRadius: 'var(--radius-md)',
               background: 'var(--bg-card)',
               border: '1px dashed var(--border-subtle)',
               color: 'var(--text-secondary)',
+              touchAction: 'manipulation',
             }}
           >
             <div
               style={{
-                width: '38px',
-                height: '38px',
+                width: 'clamp(34px, 9vw, 38px)',
+                height: 'clamp(34px, 9vw, 38px)',
                 borderRadius: '50%',
                 background: 'var(--bg-elevated)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '6px',
+                marginBottom: '5px',
               }}
             >
               <MoreHorizontal size={18} />
             </div>
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>More...</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>+{overflowCategories.length}</span>
+            <span style={{ fontSize: 'clamp(10px, 2.7vw, 11px)', fontWeight: 600 }}>More...</span>
+            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>+{overflowCategories.length}</span>
           </button>
         )}
 
@@ -178,76 +180,60 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '10px 4px',
+              padding: 'clamp(8px, 2vw, 10px) 4px',
               borderRadius: 'var(--radius-md)',
               background: 'var(--bg-card)',
               border: '1px dashed var(--border-subtle)',
               color: 'var(--color-accent)',
+              touchAction: 'manipulation',
             }}
           >
             <div
               style={{
-                width: '38px',
-                height: '38px',
+                width: 'clamp(34px, 9vw, 38px)',
+                height: 'clamp(34px, 9vw, 38px)',
                 borderRadius: '50%',
                 background: 'rgba(56, 189, 248, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginBottom: '6px',
+                marginBottom: '5px',
                 border: '1px solid rgba(56, 189, 248, 0.3)',
               }}
             >
               <Plus size={18} />
             </div>
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>Custom</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>New</span>
+            <span style={{ fontSize: 'clamp(10px, 2.7vw, 11px)', fontWeight: 600 }}>Custom</span>
+            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>New</span>
           </button>
         )}
       </div>
 
       {/* Overflow Category Drawer Modal */}
       {isOverflowOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 1050,
-            background: 'rgba(5, 8, 14, 0.8)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-          }}
-        >
+        <div className="modal-overlay" onClick={() => setIsOverflowOpen(false)}>
           <div
-            className="glass-panel"
+            className="modal-sheet glass-panel"
+            onClick={(e) => e.stopPropagation()}
             style={{
-              width: '100%',
-              maxWidth: '520px',
-              maxHeight: '75vh',
               background: 'var(--bg-secondary)',
-              borderTopLeftRadius: '24px',
-              borderTopRightRadius: '24px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-              overflowY: 'auto',
+              padding: '16px 20px',
+              gap: '14px',
             }}
           >
+            <div className="modal-drag-handle" />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 700 }}>All Categories</h3>
               <button
                 onClick={() => setIsOverflowOpen(false)}
                 aria-label="Close overflow"
-                style={{ color: 'var(--text-muted)', padding: '4px' }}
+                style={{ color: 'var(--text-muted)', padding: '6px' }}
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
               {expenseCategories.map((cat) => {
                 const spend = categoryExpenses[cat.id] || 0;
                 return (

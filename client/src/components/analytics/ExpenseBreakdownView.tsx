@@ -86,13 +86,13 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 'var(--radius-lg)',
-        padding: '20px',
+        padding: 'clamp(14px, 4vw, 20px)',
         gap: '16px',
         width: '100%',
       }}
     >
       {/* Analytics Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
@@ -167,6 +167,7 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                     padding: '12px 14px',
                     gap: '8px',
                     cursor: 'pointer',
+                    touchAction: 'manipulation',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

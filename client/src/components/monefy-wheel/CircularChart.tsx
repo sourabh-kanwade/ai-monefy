@@ -153,7 +153,7 @@ export const CircularChart: React.FC<CircularChartProps> = ({
         <div
           style={{
             position: 'absolute',
-            top: '8px',
+            top: '4px',
             background: 'var(--bg-elevated)',
             border: `1px solid ${activeCategory.color}`,
             boxShadow: `0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px ${activeCategory.color}40`,
@@ -166,6 +166,10 @@ export const CircularChart: React.FC<CircularChartProps> = ({
             gap: '6px',
             zIndex: 10,
             animation: 'fadeIn 150ms ease forwards',
+            maxWidth: '92%',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
         >
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: activeCategory.color }} />

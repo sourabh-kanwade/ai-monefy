@@ -16,13 +16,108 @@ export interface CsvImportOptions {
   skipDuplicates?: boolean;
 }
 
+export interface CsvExportOptions {
+  format?: 'monefy' | 'standard';
+  currency?: string;
+}
+
 export interface CsvImportResult {
   importedTransactionsCount: number;
   skippedDuplicatesCount: number;
   createdAccountsCount: number;
   createdCategoriesCount: number;
   detectedFormat: CsvFormatDetected;
+  detectedCurrency?: string;
   errors: CsvRowError[];
+}
+
+export const MONEFY_CATEGORY_DEFAULTS: Record<string, { icon: string; color: string }> = {
+  food: { icon: 'Utensils', color: '#FF6B6B' },
+  'food & dining': { icon: 'Utensils', color: '#FF6B6B' },
+  'eating out': { icon: 'Utensils', color: '#E67E22' },
+  car: { icon: 'Car', color: '#4ECDC4' },
+  transport: { icon: 'Car', color: '#4ECDC4' },
+  taxi: { icon: 'Car', color: '#F1C40F' },
+  bills: { icon: 'Zap', color: '#F15BB5' },
+  health: { icon: 'HeartPulse', color: '#00BBF9' },
+  house: { icon: 'Home', color: '#2EC4B6' },
+  home: { icon: 'Home', color: '#2EC4B6' },
+  gifts: { icon: 'Gift', color: '#E71D36' },
+  toiletry: { icon: 'Smile', color: '#00BBF9' },
+  clothes: { icon: 'Shirt', color: '#9B5DE5' },
+  sports: { icon: 'Award', color: '#FF9F1C' },
+  communications: { icon: 'Smartphone', color: '#3A86FF' },
+  entertainment: { icon: 'Film', color: '#9B5DE5' },
+  shopping: { icon: 'ShoppingBag', color: '#FFE66D' },
+  groceries: { icon: 'ShoppingCart', color: '#FF9F1C' },
+  salary: { icon: 'Briefcase', color: '#2ECC71' },
+  savings: { icon: 'PiggyBank', color: '#16A085' },
+  deposits: { icon: 'TrendingUp', color: '#1ABC9C' },
+  investments: { icon: 'TrendingUp', color: '#1ABC9C' },
+  freelance: { icon: 'Award', color: '#27AE60' },
+  education: { icon: 'GraduationCap', color: '#00F5D4' },
+  travel: { icon: 'Plane', color: '#3A86FF' },
+  pets: { icon: 'Smile', color: '#E67E22' },
+  other: { icon: 'MoreHorizontal', color: '#8338EC' },
+};
+
+/**
+ * Maps currency symbols or 3-letter codes to standard 3-letter currency codes.
+ */
+export function resolveCurrencyCode(currency: string = '$'): string {
+  const map: Record<string, string> = {
+    '₹': 'INR',
+    '$': 'USD',
+    '€': 'EUR',
+    '£': 'GBP',
+    '¥': 'JPY',
+    'CA$': 'CAD',
+    'AU$': 'AUD',
+  };
+  if (map[currency]) return map[currency];
+  if (/^[A-Z]{3}$/i.test(currency)) return currency.toUpperCase();
+  return 'INR';
+}
+
+/**
+ * Normalizes ISO date string or YYYY-MM-DD into DD/MM/YYYY format used by Monefy exports.
+ */
+export function formatDateToMonefy(isoDate: string): string {
+  if (!isoDate) return '';
+  const match = isoDate.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  const d = new Date(isoDate);
+  if (isNaN(d.getTime())) return isoDate;
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Formats a transaction amount with proper sign and locale-based thousands separators (e.g. "-1,000", "1,80,000", "-40").
+ */
+export function formatMonefyAmount(
+  amount: number,
+  isNegative: boolean,
+  currencyCode: string = 'INR'
+): string {
+  const sign = isNegative ? -1 : 1;
+  const signedVal = sign * Math.abs(amount);
+  const localeMap: Record<string, string> = {
+    INR: 'en-IN',
+    USD: 'en-US',
+    EUR: 'de-DE',
+    GBP: 'en-GB',
+    JPY: 'ja-JP',
+    CAD: 'en-CA',
+    AUD: 'en-AU',
+  };
+  const locale = localeMap[currencyCode.toUpperCase()] || 'en-IN';
+  return signedVal.toLocaleString(locale, { maximumFractionDigits: 2 });
 }
 
 /**
@@ -85,12 +180,15 @@ export async function importTransactionsFromCSV(
     } else {
       categoryId = generateUuid();
       const isIncome = row.type === 'income';
+      const knownDef = MONEFY_CATEGORY_DEFAULTS[catKey];
+      const icon = knownDef ? knownDef.icon : (isIncome ? 'TrendingUp' : 'Tag');
+      const color = knownDef ? knownDef.color : (isIncome ? '#10B981' : '#FF6B6B');
       const createdCategory: Category = {
         id: categoryId,
         userId: null,
         name: row.categoryName.trim(),
-        icon: isIncome ? 'TrendingUp' : 'Tag',
-        color: isIncome ? '#10B981' : '#FF6B6B',
+        icon,
+        color,
         type: isIncome ? 'income' : 'expense',
         isDefault: false,
         isDeleted: false,
@@ -235,6 +333,7 @@ export async function importTransactionsFromCSV(
     createdAccountsCount: newAccounts.length,
     createdCategoriesCount: newCategories.length,
     detectedFormat: parseResult.format,
+    detectedCurrency: parseResult.detectedCurrency,
     errors: parseResult.errors,
   };
 }
@@ -253,29 +352,87 @@ function escapeCsvField(val: string | number | null | undefined): string {
 }
 
 /**
- * Exports transaction list to a standard CSV string.
+ * Exports transaction list to a CSV string.
+ * Defaults to Monefy format: date,account,category,amount,currency,converted amount,currency,description
+ * Supports legacy format if format: 'standard' is specified.
  */
 export function exportTransactionsToCSV(
   transactions: Transaction[],
   categories: Category[],
-  accounts: Account[]
+  accounts: Account[],
+  currencyOrOptions?: string | CsvExportOptions
 ): string {
+  let format: 'monefy' | 'standard' = 'monefy';
+  let currencyCode = 'INR';
+
+  if (typeof currencyOrOptions === 'string') {
+    currencyCode = resolveCurrencyCode(currencyOrOptions);
+  } else if (currencyOrOptions && typeof currencyOrOptions === 'object') {
+    if (currencyOrOptions.format) format = currencyOrOptions.format;
+    if (currencyOrOptions.currency) currencyCode = resolveCurrencyCode(currencyOrOptions.currency);
+  }
+
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
   const accMap = new Map(accounts.map((a) => [a.id, a.name]));
 
-  const headers = ['Date', 'Type', 'Category', 'Account', 'ToAccount', 'Amount', 'Note'];
-  const rows = transactions.map((tx) => {
-    const catName = catMap.get(tx.categoryId) || 'Unknown';
-    const accName = accMap.get(tx.accountId) || 'Unknown';
-    const toAccName = tx.toAccountId ? accMap.get(tx.toAccountId) || 'Unknown' : '';
+  // Sort chronologically ascending
+  const sortedTxs = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  if (format === 'standard') {
+    const headers = ['Date', 'Type', 'Category', 'Account', 'ToAccount', 'Amount', 'Note'];
+    const rows = sortedTxs.map((tx) => {
+      const catName = catMap.get(tx.categoryId) || 'Unknown';
+      const accName = accMap.get(tx.accountId) || 'Unknown';
+      const toAccName = tx.toAccountId ? accMap.get(tx.toAccountId) || 'Unknown' : '';
+      return [
+        escapeCsvField(tx.date),
+        escapeCsvField(tx.type),
+        escapeCsvField(catName),
+        escapeCsvField(accName),
+        escapeCsvField(toAccName),
+        escapeCsvField(tx.amount),
+        escapeCsvField(tx.note || ''),
+      ].join(',');
+    });
+
+    return [headers.join(','), ...rows].join('\n');
+  }
+
+  // Native Monefy export format:
+  // date,account,category,amount,currency,converted amount,currency,description
+  const headers = [
+    'date',
+    'account',
+    'category',
+    'amount',
+    'currency',
+    'converted amount',
+    'currency',
+    'description',
+  ];
+
+  const rows = sortedTxs.map((tx) => {
+    const dStr = formatDateToMonefy(tx.date);
+    const accName = accMap.get(tx.accountId) || 'Cash';
+    let catName = catMap.get(tx.categoryId) || 'General';
+    if (tx.type === 'transfer' && tx.toAccountId) {
+      catName = `Payment -> ${accMap.get(tx.toAccountId) || 'Unknown'}`;
+    }
+    const isNegative = tx.type === 'expense' || tx.type === 'transfer';
+    const formattedAmt = escapeCsvField(formatMonefyAmount(tx.amount, isNegative, currencyCode));
+    const desc = escapeCsvField(tx.note || '');
+
     return [
-      escapeCsvField(tx.date),
-      escapeCsvField(tx.type),
-      escapeCsvField(catName),
+      dStr,
       escapeCsvField(accName),
-      escapeCsvField(toAccName),
-      escapeCsvField(tx.amount),
-      escapeCsvField(tx.note || ''),
+      escapeCsvField(catName),
+      formattedAmt,
+      currencyCode,
+      formattedAmt,
+      currencyCode,
+      desc,
     ].join(',');
   });
 
