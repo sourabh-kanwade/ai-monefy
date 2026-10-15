@@ -1,0 +1,33 @@
+import pg from 'pg';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const { Pool } = pg;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const connectionString =
+  process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/ai_monefy';
+
+export const pool = new Pool({
+  connectionString,
+  max: 10,
+  idleTimeoutMillis: 30000,
+});
+
+export async function query<T extends pg.QueryResultRow = pg.QueryResultRow>(
+  text: string,
+  params?: unknown[]
+): Promise<pg.QueryResult<T>> {
+  return pool.query<T>(text, params);
+}
+
+export async function initDb(): Promise<void> {
+  const schemaPath = path.join(__dirname, 'schema.sql');
+  if (fs.existsSync(schemaPath)) {
+    const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
+    await pool.query(schemaSql);
+  }
+}
