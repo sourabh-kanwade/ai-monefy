@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { PlusCircle, MinusCircle, Wallet, Tag, ArrowUpRight, ArrowDownLeft, Sun, Moon } from 'lucide-react';
+import { PlusCircle, MinusCircle, Wallet, Tag, ArrowUpRight, ArrowDownLeft, Sun, Moon, Calculator } from 'lucide-react';
+import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
 
 export const WalkingSkeletonView: React.FC = () => {
   const {
@@ -23,6 +24,7 @@ export const WalkingSkeletonView: React.FC = () => {
   const [accountId, setAccountId] = useState('');
   const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isKeypadOpen, setIsKeypadOpen] = useState(false);
 
   // Set default account and category if not selected
   const activeCategories = categories.filter((c) => c.type === type);
@@ -307,7 +309,42 @@ export const WalkingSkeletonView: React.FC = () => {
         >
           {type === 'expense' ? `Save Expense (${currency}${amountStr || '0.00'})` : `Save Income (${currency}${amountStr || '0.00'})`}
         </button>
+
+        <button
+          type="button"
+          id="btn-open-keypad"
+          onClick={() => setIsKeypadOpen(true)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-subtle)',
+            color: 'var(--color-accent)',
+            fontWeight: 600,
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+          }}
+        >
+          <Calculator size={16} /> Open Monefy Calculator Keypad
+        </button>
       </form>
+
+      {/* Monefy Calculator Keypad Modal */}
+      <NumericKeypadModal
+        isOpen={isKeypadOpen}
+        onClose={() => setIsKeypadOpen(false)}
+        onSave={async (txData) => {
+          await addTransaction(txData);
+        }}
+        initialCategory={categories.find((c) => c.id === selectedCatId) || activeCategories[0] || null}
+        accounts={accounts}
+        currency={currency}
+        type={type}
+      />
 
       {/* Transaction History Section */}
       <section className="glass-panel" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
