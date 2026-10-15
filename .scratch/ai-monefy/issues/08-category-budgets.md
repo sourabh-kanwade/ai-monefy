@@ -4,8 +4,8 @@
 
 **Blocked by:** 04: Radial Category Grid & Category Customizer, 05: Time Interval Navigation & Period Filtering
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] User can set a monthly spending budget cap for any expense category.
-- [ ] A progress meter displays budget consumption with visual states: green (<70%), amber (70-90%), and red warning (>100%).
-- [ ] When spending exceeds the defined limit, a visual warning badge indicates overspending on the category view and dashboard.
+- [x] User can set a monthly spending budget cap for any expense category.
+- [x] A progress meter displays budget consumption with visual states: green (<70%), amber (70-90%), and red warning (>100%).
+- [x] When spending exceeds the defined limit, a visual warning badge indicates overspending on the category view and dashboard.
