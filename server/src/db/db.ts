@@ -25,6 +25,10 @@ export async function query<T extends pg.QueryResultRow = pg.QueryResultRow>(
 }
 
 export async function initDb(): Promise<void> {
+  const check = await pool.query("SELECT to_regclass('public.users') as exists");
+  if (check.rows[0]?.exists) {
+    return;
+  }
   const schemaPath = path.join(__dirname, 'schema.sql');
   if (fs.existsSync(schemaPath)) {
     const schemaSql = fs.readFileSync(schemaPath, 'utf-8');

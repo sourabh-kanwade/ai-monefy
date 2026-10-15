@@ -14,6 +14,8 @@ import { EditTransactionModal } from '../transactions/EditTransactionModal';
 import { BudgetModal } from '../budgets/BudgetModal';
 import { ExpenseBreakdownView } from '../analytics/ExpenseBreakdownView';
 import { SettingsModal } from '../settings/SettingsModal';
+import { CloudSyncModal } from '../sync/CloudSyncModal';
+import { syncEngine, type AuthUser } from '../../db/syncEngine';
 import { importDatabaseFromJSON } from '../../utils/exportImport';
 import { PieChart, BarChart3 } from 'lucide-react';
 import type { Category, Transaction, TransactionType } from '../../types';
@@ -61,10 +63,55 @@ export const MonefyDashboard: React.FC = () => {
   const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => syncEngine.getAuthUser());
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>(() =>
+    syncEngine.getAuthToken() ? 'synced' : 'offline'
+  );
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(() =>
+    syncEngine.getLastSyncTime()
+  );
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [viewMode, setViewMode] = useState<'wheel' | 'analytics'>('wheel');
+
+  const handleSyncNow = async () => {
+    setSyncStatus('syncing');
+    const res = await syncEngine.sync(dbInstance);
+    if (res.status === 'success') {
+      setSyncStatus('synced');
+      setLastSyncTime(syncEngine.getLastSyncTime());
+      await refreshData();
+    } else {
+      setSyncStatus('error');
+    }
+  };
+
+  const handleLogin = async (email: string, pass: string) => {
+    setSyncStatus('syncing');
+    const user = await syncEngine.login(email, pass, dbInstance);
+    setAuthUser(user);
+    setSyncStatus('synced');
+    setLastSyncTime(syncEngine.getLastSyncTime());
+    await refreshData();
+  };
+
+  const handleRegister = async (email: string, pass: string, name?: string) => {
+    setSyncStatus('syncing');
+    const user = await syncEngine.register(email, pass, name, dbInstance);
+    setAuthUser(user);
+    setSyncStatus('synced');
+    setLastSyncTime(syncEngine.getLastSyncTime());
+    await refreshData();
+  };
+
+  const handleLogout = () => {
+    syncEngine.logout();
+    setAuthUser(null);
+    setSyncStatus('offline');
+    setLastSyncTime(null);
+  };
 
   // Compute category expense breakdown for the donut chart using the current period transactions
   const categoryExpenses = useMemo(() => {
@@ -104,6 +151,8 @@ export const MonefyDashboard: React.FC = () => {
         onStepNext={stepNextPeriod}
         onToggleTheme={toggleTheme}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        syncStatus={syncStatus}
+        onOpenSync={() => setIsSyncModalOpen(true)}
       />
 
       {/* Account Breakdown Bar */}
@@ -373,6 +422,18 @@ export const MonefyDashboard: React.FC = () => {
           await importDatabaseFromJSON(json, dbInstance);
           await refreshData();
         }}
+      />
+
+      {/* Cloud Sync & Migration Modal */}
+      <CloudSyncModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        user={authUser}
+        lastSyncTime={lastSyncTime}
+        onSyncNow={handleSyncNow}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+        onLogout={handleLogout}
       />
     </div>
   );

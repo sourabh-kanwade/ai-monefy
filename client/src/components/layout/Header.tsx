@@ -1,16 +1,18 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Sun, Moon, Settings } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Moon, Settings, Cloud, CloudOff, RefreshCw } from 'lucide-react';
 import type { TimeInterval } from '../../types';
 
 interface HeaderProps {
   currentInterval: TimeInterval;
   periodLabel: string;
   theme: 'dark' | 'light';
+  syncStatus?: 'synced' | 'syncing' | 'offline' | 'error';
   onIntervalChange: (interval: TimeInterval) => void;
   onStepPrev: () => void;
   onStepNext: () => void;
   onToggleTheme: () => void;
   onOpenSettings?: () => void;
+  onOpenSync?: () => void;
 }
 
 const INTERVALS: { key: TimeInterval; label: string }[] = [
@@ -25,11 +27,13 @@ export const Header: React.FC<HeaderProps> = ({
   currentInterval,
   periodLabel,
   theme,
+  syncStatus = 'offline',
   onIntervalChange,
   onStepPrev,
   onStepNext,
   onToggleTheme,
   onOpenSettings,
+  onOpenSync,
 }) => {
   return (
     <header
@@ -187,6 +191,50 @@ export const Header: React.FC<HeaderProps> = ({
             }}
           >
             <Settings size={16} />
+          </button>
+
+          {/* Cloud Sync Status Indicator */}
+          <button
+            type="button"
+            data-testid="btn-open-sync"
+            aria-label={`Cloud sync status: ${syncStatus}`}
+            onClick={onOpenSync}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-full)',
+              background:
+                syncStatus === 'synced'
+                  ? 'rgba(16, 185, 129, 0.15)'
+                  : syncStatus === 'syncing'
+                  ? 'rgba(59, 130, 246, 0.15)'
+                  : 'var(--bg-elevated)',
+              border: `1px solid ${
+                syncStatus === 'synced'
+                  ? 'rgba(16, 185, 129, 0.4)'
+                  : syncStatus === 'syncing'
+                  ? 'rgba(59, 130, 246, 0.4)'
+                  : 'var(--border-subtle)'
+              }`,
+              color:
+                syncStatus === 'synced'
+                  ? '#10B981'
+                  : syncStatus === 'syncing'
+                  ? '#3B82F6'
+                  : 'var(--text-secondary)',
+              cursor: 'pointer',
+            }}
+          >
+            {syncStatus === 'syncing' ? (
+              <RefreshCw size={15} />
+            ) : syncStatus === 'synced' ? (
+              <Cloud size={16} />
+            ) : (
+              <CloudOff size={16} />
+            )}
           </button>
         </div>
       </div>
