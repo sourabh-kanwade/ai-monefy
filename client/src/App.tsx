@@ -1,11 +1,11 @@
 import React from 'react';
 import { FinanceProvider } from './context/FinanceContext';
-import { WalkingSkeletonView } from './components/skeleton/WalkingSkeletonView';
+import { MonefyDashboard } from './components/dashboard/MonefyDashboard';
 
 export const App: React.FC = () => {
   return (
     <FinanceProvider>
-      <WalkingSkeletonView />
+      <MonefyDashboard />
     </FinanceProvider>
   );
 };
