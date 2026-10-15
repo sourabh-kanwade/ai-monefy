@@ -1,5 +1,6 @@
 import type { MonefyDatabase } from '../db/localDb';
 import type { Transaction, Category, Account, Budget } from '../types';
+export * from './csvParser';
 
 export interface BackupData {
   version: number;
