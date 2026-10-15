@@ -4,10 +4,10 @@
 
 **Blocked by:** 06: Multi-Account Management & Account Transfers, 11: Backend PostgreSQL Service & Auth Endpoints
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Local mutations made while offline are recorded in a client change queue.
-- [ ] Reconnecting or triggering sync pushes pending client changes to the server and pulls remote updates using timestamp deltas.
-- [ ] Concurrent edits resolve deterministically using Last-Write-Wins based on modification timestamps.
-- [ ] When a guest user registers or logs into a cloud account, all existing local transactions and categories are claimed by and associated with that user account.
-- [ ] A sync indicator shows current synchronization status (synced, syncing, offline/error).
+- [x] Local mutations made while offline are recorded in a client change queue.
+- [x] Reconnecting or triggering sync pushes pending client changes to the server and pulls remote updates using timestamp deltas.
+- [x] Concurrent edits resolve deterministically using Last-Write-Wins based on modification timestamps.
+- [x] When a guest user registers or logs into a cloud account, all existing local transactions and categories are claimed by and associated with that user account.
+- [x] A sync indicator shows current synchronization status (synced, syncing, offline/error).

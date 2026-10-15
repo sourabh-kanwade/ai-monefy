@@ -4,9 +4,9 @@
 
 **Blocked by:** 01: Walking Skeleton (Local Expense Entry & Storage)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Database schema deploys cleanly with tables for users, accounts, categories, transactions, and budgets with UUID primary keys and soft delete flags.
-- [ ] User registration endpoint registers new credentials and returns a signed authentication token.
-- [ ] User login endpoint authenticates valid credentials and rejects invalid requests with appropriate error codes.
-- [ ] Authenticated health check endpoint verifies database connectivity and token authorization.
+- [x] Database schema deploys cleanly with tables for users, accounts, categories, transactions, and budgets with UUID primary keys and soft delete flags.
+- [x] User registration endpoint registers new credentials and returns a signed authentication token.
+- [x] User login endpoint authenticates valid credentials and rejects invalid requests with appropriate error codes.
+- [x] Authenticated health check endpoint verifies database connectivity and token authorization.
