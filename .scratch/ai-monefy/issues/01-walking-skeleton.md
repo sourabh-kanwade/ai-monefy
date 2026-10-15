@@ -4,9 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] When a user enters an expense amount and note and clicks Save, the transaction is persisted in local browser storage.
-- [ ] The newly added transaction displays immediately in a transaction list and the total balance counter updates.
-- [ ] Refreshing or reopening the browser preserves and reloads the saved transaction and balance.
-- [ ] Default system categories (e.g. Food, Transport, Salary) and accounts (Cash, Card) are initialized automatically on first run.
+- [x] When a user enters an expense amount and note and clicks Save, the transaction is persisted in local browser storage.
+- [x] The newly added transaction displays immediately in a transaction list and the total balance counter updates.
+- [x] Refreshing or reopening the browser preserves and reloads the saved transaction and balance.
+- [x] Default system categories (e.g. Food, Transport, Salary) and accounts (Cash, Card) are initialized automatically on first run.
