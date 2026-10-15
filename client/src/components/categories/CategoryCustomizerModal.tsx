@@ -229,6 +229,7 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
                 <button
                   key={iconName}
                   type="button"
+                  aria-label={`Select ${iconName} icon`}
                   onClick={() => setIcon(iconName)}
                   style={{
                     padding: '8px',
@@ -241,7 +242,7 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
                     color: icon === iconName ? color : 'var(--text-secondary)',
                   }}
                 >
-                  <CategoryIcon name={iconName} size={20} color={icon === iconName ? color : 'inherit'} />
+                  <CategoryIcon name={iconName} size={20} color={icon === iconName ? color : 'currentColor'} />
                 </button>
               ))}
             </div>

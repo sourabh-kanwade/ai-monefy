@@ -18,7 +18,8 @@ export const CategoryIcon: React.FC<CategoryIconProps> = ({
   const normalizedName = name.charAt(0).toUpperCase() + name.slice(1);
   const IconComponent = (Icons as Record<string, any>)[normalizedName] || Icons.Tag;
 
-  return <IconComponent size={size} color={color} className={className} />;
+  const iconColor = color === 'inherit' ? 'currentColor' : color;
+  return <IconComponent size={size} color={iconColor} className={className} />;
 };
 
 export const AVAILABLE_ICONS = [
