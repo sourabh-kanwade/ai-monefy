@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Moon, Settings } from 'lucide-react';
 import type { TimeInterval } from '../../types';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   onStepPrev: () => void;
   onStepNext: () => void;
   onToggleTheme: () => void;
+  onOpenSettings?: () => void;
 }
 
 const INTERVALS: { key: TimeInterval; label: string }[] = [
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onStepPrev,
   onStepNext,
   onToggleTheme,
+  onOpenSettings,
 }) => {
   return (
     <header
@@ -143,25 +145,50 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        {/* Theme Toggle Button */}
-        <button
-          type="button"
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-          onClick={onToggleTheme}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px',
-            borderRadius: 'var(--radius-full)',
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-subtle)',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            onClick={onToggleTheme}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+            }}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* Settings / Data Management Button */}
+          <button
+            type="button"
+            data-testid="btn-open-settings"
+            aria-label="Open settings and data management"
+            onClick={onOpenSettings}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+            }}
+          >
+            <Settings size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Interval Switcher Tabs */}

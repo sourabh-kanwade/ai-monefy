@@ -13,11 +13,14 @@ import { TransactionHistorySheet } from '../transactions/TransactionHistorySheet
 import { EditTransactionModal } from '../transactions/EditTransactionModal';
 import { BudgetModal } from '../budgets/BudgetModal';
 import { ExpenseBreakdownView } from '../analytics/ExpenseBreakdownView';
+import { SettingsModal } from '../settings/SettingsModal';
+import { importDatabaseFromJSON } from '../../utils/exportImport';
 import { PieChart, BarChart3 } from 'lucide-react';
 import type { Category, Transaction, TransactionType } from '../../types';
 
 export const MonefyDashboard: React.FC = () => {
   const {
+    transactions,
     periodTransactions,
     categories,
     accounts,
@@ -29,6 +32,7 @@ export const MonefyDashboard: React.FC = () => {
     totalIncome,
     totalExpense,
     currency,
+    setCurrency,
     theme,
     toggleTheme,
     interval,
@@ -47,6 +51,8 @@ export const MonefyDashboard: React.FC = () => {
     removeBudget,
     selectedAccountId,
     setSelectedAccountId,
+    refreshData,
+    dbInstance,
   } = useFinance();
 
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
@@ -54,6 +60,7 @@ export const MonefyDashboard: React.FC = () => {
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -96,6 +103,7 @@ export const MonefyDashboard: React.FC = () => {
         onStepPrev={stepPrevPeriod}
         onStepNext={stepNextPeriod}
         onToggleTheme={toggleTheme}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* Account Breakdown Bar */}
@@ -348,6 +356,22 @@ export const MonefyDashboard: React.FC = () => {
         }}
         onRemoveBudget={async (catId) => {
           await removeBudget(catId);
+        }}
+      />
+
+      {/* Settings & Data Management Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        currency={currency}
+        onSetCurrency={setCurrency}
+        transactions={transactions}
+        categories={categories}
+        accounts={accounts}
+        db={dbInstance}
+        onRestoreDatabase={async (json) => {
+          await importDatabaseFromJSON(json, dbInstance);
+          await refreshData();
         }}
       />
     </div>
