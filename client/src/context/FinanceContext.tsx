@@ -8,6 +8,8 @@ interface FinanceContextType {
   periodTransactions: Transaction[];
   categories: Category[];
   accounts: Account[];
+  accountBalances: Record<string, number>;
+  totalBalance: number;
   budgets: Budget[];
   netBalance: number;
   totalIncome: number;
@@ -42,6 +44,14 @@ interface FinanceContextType {
     color: string;
     type: 'expense' | 'income';
   }) => Promise<string>;
+  addAccount: (input: {
+    name: string;
+    icon: string;
+    color: string;
+    initialBalance: number;
+  }) => Promise<string>;
+  updateAccount: (id: string, updates: Partial<Account>) => Promise<void>;
+  deleteAccount: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
   dbInstance: MonefyDatabase;
 }
@@ -215,6 +225,105 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     [database, refreshData]
   );
 
+  const addAccount = useCallback(
+    async (input: { name: string; icon: string; color: string; initialBalance: number }) => {
+      const id = crypto.randomUUID?.() || String(Date.now());
+      const now = new Date().toISOString();
+      const newAcc: Account = {
+        id,
+        name: input.name,
+        icon: input.icon,
+        color: input.color,
+        initialBalance: input.initialBalance,
+        isDefault: false,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+      await database.accounts.add(newAcc);
+      await database.syncQueue.add({
+        id: crypto.randomUUID?.() || String(Date.now()),
+        entityType: 'account',
+        entityId: id,
+        action: 'create',
+        payload: newAcc,
+        timestamp: now,
+      });
+      await refreshData();
+      return id;
+    },
+    [database, refreshData]
+  );
+
+  const updateAccount = useCallback(
+    async (id: string, updates: Partial<Account>) => {
+      const now = new Date().toISOString();
+      await database.accounts.update(id, { ...updates, updatedAt: now });
+      const updatedAcc = await database.accounts.get(id);
+      if (updatedAcc) {
+        await database.syncQueue.add({
+          id: crypto.randomUUID?.() || String(Date.now()),
+          entityType: 'account',
+          entityId: id,
+          action: 'update',
+          payload: updatedAcc,
+          timestamp: now,
+        });
+      }
+      await refreshData();
+    },
+    [database, refreshData]
+  );
+
+  const deleteAccount = useCallback(
+    async (id: string) => {
+      const now = new Date().toISOString();
+      await database.accounts.update(id, { isDeleted: true, updatedAt: now });
+      await database.syncQueue.add({
+        id: crypto.randomUUID?.() || String(Date.now()),
+        entityType: 'account',
+        entityId: id,
+        action: 'delete',
+        payload: { id },
+        timestamp: now,
+      });
+      if (selectedAccountId === id) {
+        setSelectedAccountId(null);
+      }
+      await refreshData();
+    },
+    [database, refreshData, selectedAccountId]
+  );
+
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    for (const acc of accounts) {
+      balances[acc.id] = acc.initialBalance;
+    }
+    for (const tx of transactions) {
+      if (tx.type === 'expense' && balances[tx.accountId] !== undefined) {
+        balances[tx.accountId] -= tx.amount;
+      } else if (tx.type === 'income' && balances[tx.accountId] !== undefined) {
+        balances[tx.accountId] += tx.amount;
+      } else if (tx.type === 'transfer') {
+        if (balances[tx.accountId] !== undefined) {
+          balances[tx.accountId] -= tx.amount;
+        }
+        if (tx.toAccountId && balances[tx.toAccountId] !== undefined) {
+          balances[tx.toAccountId] += tx.amount;
+        }
+      }
+    }
+    for (const id of Object.keys(balances)) {
+      balances[id] = Math.round(balances[id] * 100) / 100;
+    }
+    return balances;
+  }, [accounts, transactions]);
+
+  const totalBalance = useMemo(() => {
+    return Math.round(Object.values(accountBalances).reduce((a, b) => a + b, 0) * 100) / 100;
+  }, [accountBalances]);
+
   const periodTransactions = useMemo(() => {
     return filterTransactionsByPeriod(transactions, interval, referenceDate);
   }, [transactions, interval, referenceDate]);
@@ -245,6 +354,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         periodTransactions,
         categories,
         accounts,
+        accountBalances,
+        totalBalance,
         budgets,
         netBalance,
         totalIncome,
@@ -266,6 +377,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         deleteTransaction,
         updateTransaction,
         addCategory,
+        addAccount,
+        updateAccount,
+        deleteAccount,
         refreshData,
         dbInstance: database,
       }}

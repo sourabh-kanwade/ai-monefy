@@ -6,6 +6,9 @@ import { RadialCategoryGrid } from '../monefy-wheel/RadialCategoryGrid';
 import { CategoryCustomizerModal } from '../categories/CategoryCustomizerModal';
 import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
 import { Header } from '../layout/Header';
+import { AccountBar } from '../accounts/AccountBar';
+import { TransferModal } from '../accounts/TransferModal';
+import { AccountManagerModal } from '../accounts/AccountManagerModal';
 import type { Category, TransactionType } from '../../types';
 import {
   Wallet,
@@ -18,6 +21,8 @@ export const MonefyDashboard: React.FC = () => {
     periodTransactions,
     categories,
     accounts,
+    accountBalances,
+    totalBalance,
     netBalance,
     totalIncome,
     totalExpense,
@@ -31,12 +36,18 @@ export const MonefyDashboard: React.FC = () => {
     stepNextPeriod,
     addTransaction,
     addCategory,
+    addAccount,
+    updateAccount,
+    deleteAccount,
     deleteTransaction,
     selectedAccountId,
+    setSelectedAccountId,
   } = useFinance();
 
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
@@ -82,6 +93,17 @@ export const MonefyDashboard: React.FC = () => {
         onToggleTheme={toggleTheme}
       />
 
+      {/* Account Breakdown Bar */}
+      <AccountBar
+        accounts={accounts}
+        accountBalances={accountBalances}
+        selectedAccountId={selectedAccountId}
+        totalBalance={totalBalance}
+        currency={currency}
+        onSelectAccount={setSelectedAccountId}
+        onOpenManager={() => setIsAccountManagerOpen(true)}
+      />
+
       {/* Signature Monefy Donut Wheel Card */}
       <div
         className="glass-panel"
@@ -110,6 +132,7 @@ export const MonefyDashboard: React.FC = () => {
             currency={currency}
             onOpenExpenseKeypad={() => handleOpenExpenseKeypad()}
             onOpenIncomeKeypad={() => handleOpenIncomeKeypad()}
+            onOpenTransferModal={() => setIsTransferOpen(true)}
           />
         </CircularChart>
 
@@ -234,6 +257,40 @@ export const MonefyDashboard: React.FC = () => {
         onClose={() => setIsCustomizerOpen(false)}
         onSave={async (catData) => {
           await addCategory(catData);
+        }}
+      />
+
+      {/* Account Transfer Modal */}
+      <TransferModal
+        isOpen={isTransferOpen}
+        onClose={() => setIsTransferOpen(false)}
+        accounts={accounts}
+        currency={currency}
+        defaultAccountId={selectedAccountId}
+        onSave={async (transferData) => {
+          const generalCat = categories[0]?.id || 'cat-transfer';
+          await addTransaction({
+            ...transferData,
+            categoryId: generalCat,
+          });
+        }}
+      />
+
+      {/* Account Manager Modal */}
+      <AccountManagerModal
+        isOpen={isAccountManagerOpen}
+        onClose={() => setIsAccountManagerOpen(false)}
+        accounts={accounts}
+        accountBalances={accountBalances}
+        currency={currency}
+        onAddAccount={async (accData) => {
+          await addAccount(accData);
+        }}
+        onUpdateAccount={async (id, updates) => {
+          await updateAccount(id, updates);
+        }}
+        onDeleteAccount={async (id) => {
+          await deleteAccount(id);
         }}
       />
     </div>
