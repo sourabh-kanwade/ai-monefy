@@ -1,5 +1,6 @@
-import type { MonefyDatabase } from '../db/localDb';
-import type { Transaction, Category, Account, Budget } from '../types';
+import { MonefyDatabase, generateUuid } from '../db/localDb';
+import type { Transaction, Category, Account, Budget, SyncQueueItem } from '../types';
+import { parseTransactionsCsv, type CsvFormatDetected, type CsvRowError } from './csvParser';
 export * from './csvParser';
 
 export interface BackupData {
@@ -10,6 +11,234 @@ export interface BackupData {
   transactions: Transaction[];
   budgets: Budget[];
 }
+
+export interface CsvImportOptions {
+  skipDuplicates?: boolean;
+}
+
+export interface CsvImportResult {
+  importedTransactionsCount: number;
+  skippedDuplicatesCount: number;
+  createdAccountsCount: number;
+  createdCategoriesCount: number;
+  detectedFormat: CsvFormatDetected;
+  errors: CsvRowError[];
+}
+
+/**
+ * Parses and atomically imports transactions from a CSV string into the local database,
+ * resolving/auto-creating accounts and categories, and populating the sync queue.
+ */
+export async function importTransactionsFromCSV(
+  csvString: string,
+  db: MonefyDatabase,
+  options: CsvImportOptions = {}
+): Promise<CsvImportResult> {
+  const parseResult = parseTransactionsCsv(csvString);
+
+  if (parseResult.rows.length === 0 && parseResult.errors.length > 0) {
+    throw new Error(
+      `Failed to parse CSV: ${parseResult.errors[0].reason} (Line ${parseResult.errors[0].rowNumber})`
+    );
+  }
+
+  const [existingCategories, existingAccounts, existingTransactions] = await Promise.all([
+    db.categories.toArray(),
+    db.accounts.toArray(),
+    options.skipDuplicates ? db.transactions.toArray() : Promise.resolve([]),
+  ]);
+
+  const catMap = new Map<string, Category>();
+  for (const cat of existingCategories) {
+    catMap.set(cat.name.trim().toLowerCase(), cat);
+  }
+
+  const accMap = new Map<string, Account>();
+  for (const acc of existingAccounts) {
+    accMap.set(acc.name.trim().toLowerCase(), acc);
+  }
+
+  const existingFingerprints = new Set<string>();
+  if (options.skipDuplicates) {
+    for (const tx of existingTransactions) {
+      if (!tx.isDeleted) {
+        existingFingerprints.add(`${tx.date}_${tx.amount}_${tx.accountId}_${tx.categoryId}_${tx.note || ''}`);
+      }
+    }
+  }
+
+  const now = new Date().toISOString();
+  const newCategories: Category[] = [];
+  const newAccounts: Account[] = [];
+  const newTransactions: Transaction[] = [];
+  const newSyncItems: SyncQueueItem[] = [];
+  let skippedDuplicatesCount = 0;
+
+  for (const row of parseResult.rows) {
+    // 1. Resolve or create Category
+    let categoryId = '';
+    const catKey = row.categoryName.trim().toLowerCase();
+    const existingCat = catMap.get(catKey);
+
+    if (existingCat) {
+      categoryId = existingCat.id;
+    } else {
+      categoryId = generateUuid();
+      const isIncome = row.type === 'income';
+      const createdCategory: Category = {
+        id: categoryId,
+        userId: null,
+        name: row.categoryName.trim(),
+        icon: isIncome ? 'TrendingUp' : 'Tag',
+        color: isIncome ? '#10B981' : '#FF6B6B',
+        type: isIncome ? 'income' : 'expense',
+        isDefault: false,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+      catMap.set(catKey, createdCategory);
+      newCategories.push(createdCategory);
+      newSyncItems.push({
+        id: generateUuid(),
+        entityType: 'category',
+        entityId: categoryId,
+        action: 'create',
+        payload: createdCategory,
+        timestamp: now,
+      });
+    }
+
+    // 2. Resolve or create Source Account
+    let accountId = '';
+    const accKey = row.accountName.trim().toLowerCase();
+    const existingAcc = accMap.get(accKey);
+
+    if (existingAcc) {
+      accountId = existingAcc.id;
+    } else {
+      accountId = generateUuid();
+      const createdAccount: Account = {
+        id: accountId,
+        userId: null,
+        name: row.accountName.trim(),
+        icon: 'Wallet',
+        color: '#3B82F6',
+        initialBalance: 0,
+        isDefault: false,
+        isDeleted: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+      accMap.set(accKey, createdAccount);
+      newAccounts.push(createdAccount);
+      newSyncItems.push({
+        id: generateUuid(),
+        entityType: 'account',
+        entityId: accountId,
+        action: 'create',
+        payload: createdAccount,
+        timestamp: now,
+      });
+    }
+
+    // 3. Resolve or create Destination Account (if transfer)
+    let toAccountId: string | null = null;
+    if (row.type === 'transfer' && row.toAccountName) {
+      const toAccKey = row.toAccountName.trim().toLowerCase();
+      const existingToAcc = accMap.get(toAccKey);
+      if (existingToAcc) {
+        toAccountId = existingToAcc.id;
+      } else {
+        toAccountId = generateUuid();
+        const createdToAccount: Account = {
+          id: toAccountId,
+          userId: null,
+          name: row.toAccountName.trim(),
+          icon: 'Wallet',
+          color: '#8B5CF6',
+          initialBalance: 0,
+          isDefault: false,
+          isDeleted: false,
+          createdAt: now,
+          updatedAt: now,
+        };
+        accMap.set(toAccKey, createdToAccount);
+        newAccounts.push(createdToAccount);
+        newSyncItems.push({
+          id: generateUuid(),
+          entityType: 'account',
+          entityId: toAccountId,
+          action: 'create',
+          payload: createdToAccount,
+          timestamp: now,
+        });
+      }
+    }
+
+    // 4. Duplicate Check
+    if (options.skipDuplicates) {
+      const fp = `${row.date}_${row.amount}_${accountId}_${categoryId}_${row.note || ''}`;
+      if (existingFingerprints.has(fp)) {
+        skippedDuplicatesCount++;
+        continue;
+      }
+      existingFingerprints.add(fp);
+    }
+
+    // 5. Create Transaction
+    const txId = generateUuid();
+    const transaction: Transaction = {
+      id: txId,
+      userId: null,
+      accountId,
+      toAccountId,
+      categoryId,
+      amount: row.amount,
+      type: row.type,
+      note: row.note,
+      date: row.date,
+      createdAt: now,
+      updatedAt: now,
+      isDeleted: false,
+    };
+    newTransactions.push(transaction);
+    newSyncItems.push({
+      id: generateUuid(),
+      entityType: 'transaction',
+      entityId: txId,
+      action: 'create',
+      payload: transaction,
+      timestamp: now,
+    });
+  }
+
+  // Atomically commit to IndexedDB
+  await db.transaction('rw', [db.accounts, db.categories, db.transactions, db.syncQueue], async () => {
+    if (newCategories.length > 0) {
+      await db.categories.bulkAdd(newCategories);
+    }
+    if (newAccounts.length > 0) {
+      await db.accounts.bulkAdd(newAccounts);
+    }
+    if (newTransactions.length > 0) {
+      await db.transactions.bulkAdd(newTransactions);
+    }
+    if (newSyncItems.length > 0) {
+      await db.syncQueue.bulkAdd(newSyncItems);
+    }
+  });
+
+  return {
+    importedTransactionsCount: newTransactions.length,
+    skippedDuplicatesCount,
+    createdAccountsCount: newAccounts.length,
+    createdCategoriesCount: newCategories.length,
+    detectedFormat: parseResult.format,
+    errors: parseResult.errors,
+  };
+}
+
 
 /**
  * Escapes a field according to RFC-4180 CSV standard.
