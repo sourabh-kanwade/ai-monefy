@@ -11,6 +11,7 @@ interface FinanceContextType {
   accountBalances: Record<string, number>;
   totalBalance: number;
   budgets: Budget[];
+  categoryBudgets: Record<string, number>;
   netBalance: number;
   totalIncome: number;
   totalExpense: number;
@@ -52,6 +53,8 @@ interface FinanceContextType {
   }) => Promise<string>;
   updateAccount: (id: string, updates: Partial<Account>) => Promise<void>;
   deleteAccount: (id: string) => Promise<void>;
+  setBudget: (categoryId: string, monthlyLimit: number) => Promise<void>;
+  removeBudget: (categoryId: string) => Promise<void>;
   refreshData: () => Promise<void>;
   dbInstance: MonefyDatabase;
 }
@@ -320,6 +323,72 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     return balances;
   }, [accounts, transactions]);
 
+  const setBudget = useCallback(
+    async (categoryId: string, monthlyLimit: number) => {
+      const existing = await database.budgets.where('categoryId').equals(categoryId).first();
+      const now = new Date().toISOString();
+      if (existing) {
+        await database.budgets.update(existing.id, { monthlyLimit, updatedAt: now });
+        await database.syncQueue.add({
+          id: crypto.randomUUID?.() || String(Date.now()),
+          entityType: 'budget',
+          entityId: existing.id,
+          action: 'update',
+          payload: { ...existing, monthlyLimit, updatedAt: now },
+          timestamp: now,
+        });
+      } else {
+        const id = crypto.randomUUID?.() || String(Date.now());
+        const newBudget: Budget = {
+          id,
+          categoryId,
+          monthlyLimit,
+          createdAt: now,
+          updatedAt: now,
+        };
+        await database.budgets.add(newBudget);
+        await database.syncQueue.add({
+          id: crypto.randomUUID?.() || String(Date.now()),
+          entityType: 'budget',
+          entityId: id,
+          action: 'create',
+          payload: newBudget,
+          timestamp: now,
+        });
+      }
+      await refreshData();
+    },
+    [database, refreshData]
+  );
+
+  const removeBudget = useCallback(
+    async (categoryId: string) => {
+      const existing = await database.budgets.where('categoryId').equals(categoryId).first();
+      if (existing) {
+        const now = new Date().toISOString();
+        await database.budgets.delete(existing.id);
+        await database.syncQueue.add({
+          id: crypto.randomUUID?.() || String(Date.now()),
+          entityType: 'budget',
+          entityId: existing.id,
+          action: 'delete',
+          payload: { id: existing.id },
+          timestamp: now,
+        });
+        await refreshData();
+      }
+    },
+    [database, refreshData]
+  );
+
+  const categoryBudgets = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const b of budgets) {
+      map[b.categoryId] = b.monthlyLimit;
+    }
+    return map;
+  }, [budgets]);
+
   const totalBalance = useMemo(() => {
     return Math.round(Object.values(accountBalances).reduce((a, b) => a + b, 0) * 100) / 100;
   }, [accountBalances]);
@@ -357,6 +426,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         accountBalances,
         totalBalance,
         budgets,
+        categoryBudgets,
         netBalance,
         totalIncome,
         totalExpense,
@@ -380,6 +450,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         addAccount,
         updateAccount,
         deleteAccount,
+        setBudget,
+        removeBudget,
         refreshData,
         dbInstance: database,
       }}

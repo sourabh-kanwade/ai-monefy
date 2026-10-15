@@ -11,6 +11,7 @@ import { TransferModal } from '../accounts/TransferModal';
 import { AccountManagerModal } from '../accounts/AccountManagerModal';
 import { TransactionHistorySheet } from '../transactions/TransactionHistorySheet';
 import { EditTransactionModal } from '../transactions/EditTransactionModal';
+import { BudgetModal } from '../budgets/BudgetModal';
 import type { Category, Transaction, TransactionType } from '../../types';
 
 export const MonefyDashboard: React.FC = () => {
@@ -20,6 +21,8 @@ export const MonefyDashboard: React.FC = () => {
     accounts,
     accountBalances,
     totalBalance,
+    budgets,
+    categoryBudgets,
     netBalance,
     totalIncome,
     totalExpense,
@@ -38,6 +41,8 @@ export const MonefyDashboard: React.FC = () => {
     deleteAccount,
     updateTransaction,
     deleteTransaction,
+    setBudget,
+    removeBudget,
     selectedAccountId,
     setSelectedAccountId,
   } = useFinance();
@@ -46,6 +51,7 @@ export const MonefyDashboard: React.FC = () => {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -137,14 +143,42 @@ export const MonefyDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Radial Category Grid Section */}
-      <RadialCategoryGrid
-        categories={categories}
-        categoryExpenses={categoryExpenses}
-        currency={currency}
-        onCategoryTap={(cat) => handleOpenExpenseKeypad(cat)}
-        onOpenCustomizer={() => setIsCustomizerOpen(true)}
-      />
+      {/* Radial Category Grid Section with Budgets Trigger */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Categories
+          </span>
+          <button
+            type="button"
+            data-testid="btn-open-budgets"
+            onClick={() => setIsBudgetModalOpen(true)}
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: '#F59E0B',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              padding: '3px 8px',
+              borderRadius: 'var(--radius-full)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            🎯 Monthly Budgets
+          </button>
+        </div>
+
+        <RadialCategoryGrid
+          categories={categories}
+          categoryExpenses={categoryExpenses}
+          categoryBudgets={categoryBudgets}
+          currency={currency}
+          onCategoryTap={(cat) => handleOpenExpenseKeypad(cat)}
+          onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        />
+      </div>
 
       {/* Transaction History Sheet with Real-time Search */}
       <TransactionHistorySheet
@@ -227,6 +261,22 @@ export const MonefyDashboard: React.FC = () => {
         }}
         onDelete={async (id) => {
           await deleteTransaction(id);
+        }}
+      />
+
+      {/* Category Budgets Modal */}
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        categories={categories}
+        budgets={budgets}
+        categoryExpenses={categoryExpenses}
+        currency={currency}
+        onSetBudget={async (catId, limit) => {
+          await setBudget(catId, limit);
+        }}
+        onRemoveBudget={async (catId) => {
+          await removeBudget(catId);
         }}
       />
     </div>

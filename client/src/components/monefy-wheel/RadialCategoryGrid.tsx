@@ -6,6 +6,7 @@ import { MoreHorizontal, Plus, X } from 'lucide-react';
 interface RadialCategoryGridProps {
   categories: Category[];
   categoryExpenses: Record<string, number>;
+  categoryBudgets?: Record<string, number>;
   currency?: string;
   onCategoryTap: (category: Category) => void;
   onOpenCustomizer?: () => void;
@@ -15,6 +16,7 @@ interface RadialCategoryGridProps {
 export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
   categories,
   categoryExpenses,
+  categoryBudgets,
   currency = '$',
   onCategoryTap,
   onOpenCustomizer,
@@ -58,6 +60,22 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                 overflow: 'hidden',
               }}
             >
+              {categoryBudgets && categoryBudgets[cat.id] && spend > categoryBudgets[cat.id] && (
+                <div
+                  title={`Over budget by ${currency}${(spend - categoryBudgets[cat.id]).toFixed(2)}`}
+                  data-testid={`over-budget-${cat.id}`}
+                  style={{
+                    position: 'absolute',
+                    top: '5px',
+                    right: '5px',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: 'var(--color-deficit)',
+                    boxShadow: '0 0 6px var(--color-deficit)',
+                  }}
+                />
+              )}
               <div
                 style={{
                   width: '38px',
@@ -237,8 +255,24 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                       borderRadius: 'var(--radius-md)',
                       background: 'var(--bg-elevated)',
                       border: '1px solid var(--border-subtle)',
+                      position: 'relative',
                     }}
                   >
+                    {categoryBudgets && categoryBudgets[cat.id] && spend > categoryBudgets[cat.id] && (
+                      <div
+                        title={`Over budget by ${currency}${(spend - categoryBudgets[cat.id]).toFixed(2)}`}
+                        style={{
+                          position: 'absolute',
+                          top: '6px',
+                          right: '6px',
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: 'var(--color-deficit)',
+                          boxShadow: '0 0 6px var(--color-deficit)',
+                        }}
+                      />
+                    )}
                     <div
                       style={{
                         width: '36px',
