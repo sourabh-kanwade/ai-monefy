@@ -9,12 +9,9 @@ import { Header } from '../layout/Header';
 import { AccountBar } from '../accounts/AccountBar';
 import { TransferModal } from '../accounts/TransferModal';
 import { AccountManagerModal } from '../accounts/AccountManagerModal';
-import type { Category, TransactionType } from '../../types';
-import {
-  Wallet,
-  PlusCircle,
-  MinusCircle,
-} from 'lucide-react';
+import { TransactionHistorySheet } from '../transactions/TransactionHistorySheet';
+import { EditTransactionModal } from '../transactions/EditTransactionModal';
+import type { Category, Transaction, TransactionType } from '../../types';
 
 export const MonefyDashboard: React.FC = () => {
   const {
@@ -39,6 +36,7 @@ export const MonefyDashboard: React.FC = () => {
     addAccount,
     updateAccount,
     deleteAccount,
+    updateTransaction,
     deleteTransaction,
     selectedAccountId,
     setSelectedAccountId,
@@ -48,6 +46,7 @@ export const MonefyDashboard: React.FC = () => {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
@@ -76,9 +75,6 @@ export const MonefyDashboard: React.FC = () => {
     setSelectedCategory(category || categories.find((c) => c.type === 'income') || null);
     setIsKeypadOpen(true);
   };
-
-  const getCategoryName = (catId: string) => categories.find((c) => c.id === catId)?.name || 'General';
-  const getAccountName = (accId: string) => accounts.find((a) => a.id === accId)?.name || 'Default';
 
   return (
     <div className="app-container" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -150,93 +146,17 @@ export const MonefyDashboard: React.FC = () => {
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
       />
 
-      {/* Recent Transactions Section */}
-      <section className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 700 }}>Recent Transactions</h3>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{periodTransactions.length} records</span>
-        </div>
-
-        {periodTransactions.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px 16px', color: 'var(--text-muted)' }}>
-            <Wallet size={32} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
-            <p style={{ fontSize: '13px' }}>No transactions recorded for this period.</p>
-          </div>
-        ) : (
-          <div id="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {periodTransactions.slice(0, 15).map((tx) => {
-              const isExp = tx.type === 'expense';
-              return (
-                <div
-                  key={tx.id}
-                  className="transaction-item"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 12px',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div
-                      style={{
-                        width: '34px',
-                        height: '34px',
-                        borderRadius: 'var(--radius-md)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: isExp ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                        color: isExp ? 'var(--color-deficit)' : 'var(--color-surplus)',
-                      }}
-                    >
-                      {isExp ? <MinusCircle size={18} /> : <PlusCircle size={18} />}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)' }}>
-                        {getCategoryName(tx.categoryId)}
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', gap: '6px' }}>
-                        <span>{getAccountName(tx.accountId)}</span>
-                        {tx.note && <span>• {tx.note}</span>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div>
-                      <div
-                        className="font-num"
-                        style={{
-                          fontWeight: 700,
-                          fontSize: '14px',
-                          color: isExp ? 'var(--color-deficit)' : 'var(--color-surplus)',
-                        }}
-                      >
-                        {isExp ? '-' : '+'}{currency}{tx.amount.toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        {new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => deleteTransaction(tx.id)}
-                      title="Delete transaction"
-                      aria-label="Delete transaction"
-                      style={{ color: 'var(--text-muted)', padding: '2px 4px', fontSize: '12px' }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {/* Transaction History Sheet with Real-time Search */}
+      <TransactionHistorySheet
+        transactions={periodTransactions}
+        categories={categories}
+        accounts={accounts}
+        currency={currency}
+        onEditTransaction={(tx) => setEditingTransaction(tx)}
+        onDeleteTransaction={async (id) => {
+          await deleteTransaction(id);
+        }}
+      />
 
       {/* Monefy Calculator Keypad Modal */}
       <NumericKeypadModal
@@ -291,6 +211,22 @@ export const MonefyDashboard: React.FC = () => {
         }}
         onDeleteAccount={async (id) => {
           await deleteAccount(id);
+        }}
+      />
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        isOpen={!!editingTransaction}
+        transaction={editingTransaction}
+        categories={categories}
+        accounts={accounts}
+        currency={currency}
+        onClose={() => setEditingTransaction(null)}
+        onSave={async (id, updates) => {
+          await updateTransaction(id, updates);
+        }}
+        onDelete={async (id) => {
+          await deleteTransaction(id);
         }}
       />
     </div>
