@@ -4,9 +4,9 @@
 
 **Blocked by:** 02: Monefy Calculator Keypad
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] The donut chart dynamically calculates and renders colored arc segments proportional to each category's total expenses for the period.
-- [ ] Hovering or tapping a slice highlights the category name, spend amount, and percentage share.
-- [ ] The center hub displays the net balance with clear visual state (positive surplus vs negative deficit).
-- [ ] Tapping the `+` button opens the keypad in Income mode; tapping the `-` button opens the keypad in Expense mode.
+- [x] The donut chart dynamically calculates and renders colored arc segments proportional to each category's total expenses for the period.
+- [x] Hovering or tapping a slice highlights the category name, spend amount, and percentage share.
+- [x] The center hub displays the net balance with clear visual state (positive surplus vs negative deficit).
+- [x] Tapping the `+` button opens the keypad in Income mode; tapping the `-` button opens the keypad in Expense mode.
