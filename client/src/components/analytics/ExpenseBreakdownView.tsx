@@ -241,7 +241,7 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                       width: '100%',
                       height: '6px',
                       borderRadius: 'var(--radius-full)',
-                      background: 'rgba(255, 255, 255, 0.06)',
+                      background: 'var(--border-subtle)',
                       overflow: 'hidden',
                     }}
                   >
@@ -265,7 +265,7 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                       flexDirection: 'column',
                       gap: '4px',
                       padding: '8px 14px 12px',
-                      background: 'rgba(0, 0, 0, 0.2)',
+                      background: 'var(--bg-card)',
                       borderTop: '1px solid var(--border-subtle)',
                     }}
                   >

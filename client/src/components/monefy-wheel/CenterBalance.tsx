@@ -41,8 +41,8 @@ export const CenterBalance: React.FC<CenterBalanceProps> = ({
         height: '180px',
         borderRadius: '50%',
         background: isSurplus
-          ? 'radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(18, 23, 34, 0.85) 75%)'
-          : 'radial-gradient(circle, rgba(239, 68, 68, 0.16) 0%, rgba(18, 23, 34, 0.85) 75%)',
+          ? 'radial-gradient(circle, var(--color-surplus-glow) 0%, var(--bg-secondary) 75%)'
+          : 'radial-gradient(circle, var(--color-deficit-glow) 0%, var(--bg-secondary) 75%)',
         border: `1.5px solid ${isSurplus ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'}`,
         boxShadow: isSurplus
           ? '0 0 24px rgba(16, 185, 129, 0.2), inset 0 0 16px rgba(16, 185, 129, 0.1)'

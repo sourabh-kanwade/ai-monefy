@@ -226,7 +226,7 @@ export const MonefyDashboard: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          background: 'rgba(22, 27, 39, 0.6)',
+          background: 'var(--bg-elevated)',
           border: '1px solid var(--border-subtle)',
           borderRadius: 'var(--radius-full)',
           padding: '3px',
@@ -289,7 +289,7 @@ export const MonefyDashboard: React.FC = () => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'linear-gradient(180deg, rgba(22, 27, 39, 0.85) 0%, rgba(14, 18, 27, 0.95) 100%)',
+              background: 'var(--bg-card)',
               position: 'relative',
             }}
           >

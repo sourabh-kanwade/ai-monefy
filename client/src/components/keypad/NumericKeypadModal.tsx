@@ -262,7 +262,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
                 }}
               >
                 {accounts.map((a) => (
-                  <option key={a.id} value={a.id} style={{ background: '#1a2233' }}>
+                  <option key={a.id} value={a.id} style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
                     {a.name}
                   </option>
                 ))}

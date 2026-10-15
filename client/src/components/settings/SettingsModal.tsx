@@ -150,7 +150,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           flexDirection: 'column',
           borderRadius: 'var(--radius-lg)',
           overflow: 'hidden',
-          background: 'var(--bg-surface)',
+          background: 'var(--bg-secondary)',
         }}
       >
         {/* Header */}
@@ -439,7 +439,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   gap: '8px',
                   padding: '10px 14px',
                   borderRadius: 'var(--radius-md)',
-                  background: 'rgba(255, 255, 255, 0.08)',
+                  background: 'var(--bg-elevated)',
                   border: '1px solid var(--border-subtle)',
                   color: 'var(--text-primary)',
                   fontSize: '13px',

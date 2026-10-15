@@ -104,7 +104,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
           maxWidth: '440px',
           borderRadius: 'var(--radius-lg)',
           overflow: 'hidden',
-          background: 'var(--bg-surface)',
+          background: 'var(--bg-secondary)',
           display: 'flex',
           flexDirection: 'column',
         }}
