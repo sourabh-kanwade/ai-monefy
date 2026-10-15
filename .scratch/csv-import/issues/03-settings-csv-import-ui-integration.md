@@ -4,11 +4,17 @@
 
 **Blocked by:** 02: CSV Database Import & Entity Resolution Engine
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] "Import Transactions (CSV)" card and action button in `SettingsModal` adjacent to JSON backup/restore.
-- [ ] Hidden file input supporting `.csv` and `text/csv` with clear accessibility labels and test IDs.
-- [ ] Loading indicator while parsing and executing database transaction.
-- [ ] High-contrast status banner displaying import results (e.g. number of transactions imported, new accounts/categories created, or detailed error if invalid).
-- [ ] Integrates with `MonefyDashboard` to invoke `refreshData()` so the donut chart, net balance, account list, and transaction history update immediately.
-- [ ] Component unit tests verifying file upload, success feedback, and error reporting.
+- [x] "Import Transactions (CSV)" card and action button in `SettingsModal` adjacent to JSON backup/restore.
+- [x] Hidden file input supporting `.csv` and `text/csv` with clear accessibility labels and test IDs.
+- [x] Loading indicator while parsing and executing database transaction.
+- [x] High-contrast status banner displaying import results (e.g. number of transactions imported, new accounts/categories created, or detailed error if invalid).
+- [x] Integrates with `MonefyDashboard` to invoke `refreshData()` so the donut chart, net balance, account list, and transaction history update immediately.
+- [x] Component unit tests verifying file upload, success feedback, and error reporting.
+
+## Comments
+- Added "Import Transactions (CSV)" section to `SettingsModal` with accessible file input, loading states, and feedback banners.
+- Connected `onImportCSV` in `MonefyDashboard` to `importTransactionsFromCSV` with automatic duplicate skipping and `refreshData()` invocation.
+- Verified with unit tests in `client/src/test/SettingsModalCsvImport.test.tsx` and existing `SettingsModal.test.tsx`.
+

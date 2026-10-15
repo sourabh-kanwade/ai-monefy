@@ -1,12 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { X, Globe, Download, Upload, FileText, Database, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, Globe, Download, Upload, FileText, Database, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import type { Category, Account, Transaction } from '../../types';
 import type { MonefyDatabase } from '../../db/localDb';
 import {
   exportTransactionsToCSV,
   exportDatabaseToJSON,
   importDatabaseFromJSON,
+  importTransactionsFromCSV,
   triggerFileDownload,
+  type CsvImportResult,
 } from '../../utils/exportImport';
 
 export interface SettingsModalProps {
@@ -19,6 +21,7 @@ export interface SettingsModalProps {
   accounts: Account[];
   db?: MonefyDatabase;
   onRestoreDatabase?: (jsonString: string) => Promise<void>;
+  onImportCSV?: (csvString: string) => Promise<CsvImportResult | void>;
   onExportCSV?: () => void;
   onBackupJSON?: () => void;
 }
@@ -43,14 +46,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   accounts,
   db,
   onRestoreDatabase,
+  onImportCSV,
   onExportCSV,
   onBackupJSON,
 }) => {
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [isImportingCsv, setIsImportingCsv] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const csvInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
+
 
   const handleExportCSV = () => {
     if (onExportCSV) {
@@ -126,7 +133,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     reader.readAsText(file);
   };
 
+  const handleCsvFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImportingCsv(true);
+    setStatusMessage(null);
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const content = event.target?.result as string;
+        if (onImportCSV) {
+          const res = await onImportCSV(content);
+          if (res && typeof res === 'object' && 'importedTransactionsCount' in res) {
+            setStatusMessage({
+              type: 'success',
+              text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts)!`,
+            });
+          } else {
+            setStatusMessage({
+              type: 'success',
+              text: 'Transactions CSV imported successfully!',
+            });
+          }
+        } else if (db) {
+          const res = await importTransactionsFromCSV(content, db, { skipDuplicates: true });
+          setStatusMessage({
+            type: 'success',
+            text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts)!`,
+          });
+        }
+      } catch (err) {
+        setStatusMessage({
+          type: 'error',
+          text: `Import failed: ${err instanceof Error ? err.message : String(err)}`,
+        });
+      } finally {
+        setIsImportingCsv(false);
+        if (csvInputRef.current) {
+          csvInputRef.current.value = '';
+        }
+      }
+    };
+
+    reader.onerror = () => {
+      setStatusMessage({ type: 'error', text: 'Error reading file.' });
+      setIsImportingCsv(false);
+    };
+
+    reader.readAsText(file);
+  };
+
   return (
+
     <div
       style={{
         position: 'fixed',
@@ -387,8 +447,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           </div>
 
+          {/* CSV Data Import Section */}
+          <div>
+            <div
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                color: 'var(--text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '10px',
+              }}
+            >
+              Import Transactions
+            </div>
+
+            <div
+              style={{
+                padding: '14px',
+                borderRadius: 'var(--radius-md)',
+                background: 'rgba(16, 185, 129, 0.05)',
+                border: '1px dashed rgba(16, 185, 129, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}
+            >
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Import transactions from a spreadsheet CSV file (AI Monefy, classic Monefy, or generic format). Missing categories and accounts will be created automatically.
+              </div>
+
+              <input
+                type="file"
+                ref={csvInputRef}
+                accept=".csv,text/csv"
+                onChange={handleCsvFileChange}
+                style={{ display: 'none' }}
+                data-testid="input-import-csv"
+              />
+
+              <button
+                type="button"
+                data-testid="btn-trigger-import-csv"
+                disabled={isImportingCsv}
+                onClick={() => csvInputRef.current?.click()}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-subtle)',
+                  color: 'var(--text-primary)',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  cursor: isImportingCsv ? 'not-allowed' : 'pointer',
+                }}
+              >
+                <FileSpreadsheet size={16} color="#10B981" />
+                {isImportingCsv ? 'Importing CSV...' : 'Import Transactions (CSV)'}
+              </button>
+            </div>
+          </div>
+
           {/* Database Restore Section */}
           <div>
+
             <div
               style={{
                 fontSize: '12px',
