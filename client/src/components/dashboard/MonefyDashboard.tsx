@@ -5,10 +5,9 @@ import { CenterBalance } from '../monefy-wheel/CenterBalance';
 import { RadialCategoryGrid } from '../monefy-wheel/RadialCategoryGrid';
 import { CategoryCustomizerModal } from '../categories/CategoryCustomizerModal';
 import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
+import { Header } from '../layout/Header';
 import type { Category, TransactionType } from '../../types';
 import {
-  Sun,
-  Moon,
   Wallet,
   PlusCircle,
   MinusCircle,
@@ -16,7 +15,7 @@ import {
 
 export const MonefyDashboard: React.FC = () => {
   const {
-    transactions,
+    periodTransactions,
     categories,
     accounts,
     netBalance,
@@ -25,6 +24,11 @@ export const MonefyDashboard: React.FC = () => {
     currency,
     theme,
     toggleTheme,
+    interval,
+    setInterval,
+    periodLabel,
+    stepPrevPeriod,
+    stepNextPeriod,
     addTransaction,
     addCategory,
     deleteTransaction,
@@ -36,10 +40,10 @@ export const MonefyDashboard: React.FC = () => {
   const [keypadType, setKeypadType] = useState<TransactionType>('expense');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-  // Compute category expense breakdown for the donut chart
+  // Compute category expense breakdown for the donut chart using the current period transactions
   const categoryExpenses = useMemo(() => {
     const expenses: Record<string, number> = {};
-    for (const tx of transactions) {
+    for (const tx of periodTransactions) {
       if (selectedAccountId && tx.accountId !== selectedAccountId && tx.toAccountId !== selectedAccountId) {
         continue;
       }
@@ -48,7 +52,7 @@ export const MonefyDashboard: React.FC = () => {
       }
     }
     return expenses;
-  }, [transactions, selectedAccountId]);
+  }, [periodTransactions, selectedAccountId]);
 
   const handleOpenExpenseKeypad = (category?: Category) => {
     setKeypadType('expense');
@@ -67,34 +71,16 @@ export const MonefyDashboard: React.FC = () => {
 
   return (
     <div className="app-container" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      {/* Top Header Bar */}
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '8px 4px',
-        }}
-      >
-        <div>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-muted)', fontWeight: 700 }}>
-            AI Monefy
-          </span>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)' }}>Overview</h1>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            onClick={toggleTheme}
-            className="btn-icon"
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            aria-label="Toggle theme"
-            id="btn-theme-toggle"
-          >
-            {theme === 'dark' ? <Sun size={18} color="#FFE66D" /> : <Moon size={18} color="#38bdf8" />}
-          </button>
-        </div>
-      </header>
+      {/* Period Navigation Header */}
+      <Header
+        currentInterval={interval}
+        periodLabel={periodLabel}
+        theme={theme}
+        onIntervalChange={setInterval}
+        onStepPrev={stepPrevPeriod}
+        onStepNext={stepNextPeriod}
+        onToggleTheme={toggleTheme}
+      />
 
       {/* Signature Monefy Donut Wheel Card */}
       <div
@@ -145,17 +131,17 @@ export const MonefyDashboard: React.FC = () => {
       <section className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 700 }}>Recent Transactions</h3>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{transactions.length} records</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{periodTransactions.length} records</span>
         </div>
 
-        {transactions.length === 0 ? (
+        {periodTransactions.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px 16px', color: 'var(--text-muted)' }}>
             <Wallet size={32} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
-            <p style={{ fontSize: '13px' }}>No transactions recorded yet.</p>
+            <p style={{ fontSize: '13px' }}>No transactions recorded for this period.</p>
           </div>
         ) : (
           <div id="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {transactions.slice(0, 15).map((tx) => {
+            {periodTransactions.slice(0, 15).map((tx) => {
               const isExp = tx.type === 'expense';
               return (
                 <div

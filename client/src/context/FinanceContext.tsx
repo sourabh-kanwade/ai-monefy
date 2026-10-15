@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { db, MonefyDatabase } from '../db/localDb';
-import type { Transaction, Category, Account, Budget } from '../types';
+import type { Transaction, Category, Account, Budget, TimeInterval } from '../types';
+import { getPeriodBounds, stepPeriod, filterTransactionsByPeriod } from '../utils/dateFilters';
 
 interface FinanceContextType {
   transactions: Transaction[];
+  periodTransactions: Transaction[];
   categories: Category[];
   accounts: Account[];
   budgets: Budget[];
@@ -16,6 +18,13 @@ interface FinanceContextType {
   setCurrency: (c: string) => void;
   theme: 'dark' | 'light';
   toggleTheme: () => void;
+  interval: TimeInterval;
+  setInterval: (i: TimeInterval) => void;
+  referenceDate: Date;
+  setReferenceDate: (d: Date) => void;
+  periodLabel: string;
+  stepPrevPeriod: () => void;
+  stepNextPeriod: () => void;
   addTransaction: (input: {
     amount: number;
     type: 'expense' | 'income' | 'transfer';
@@ -49,12 +58,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [netBalance, setNetBalance] = useState<number>(0);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [interval, setInterval] = useState<TimeInterval>('MONTH');
+  const [referenceDate, setReferenceDate] = useState<Date>(() => new Date());
   const [currency, setCurrencyState] = useState<string>(() => {
     return localStorage.getItem('ai_monefy_currency') || '$';
   });
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('ai_monefy_theme') as 'dark' | 'light') || 'dark';
   });
+
+  const stepPrevPeriod = useCallback(() => {
+    setReferenceDate((prev) => stepPeriod(interval, prev, 'prev'));
+  }, [interval]);
+
+  const stepNextPeriod = useCallback(() => {
+    setReferenceDate((prev) => stepPeriod(interval, prev, 'next'));
+  }, [interval]);
+
+  const periodLabel = useMemo(() => {
+    return getPeriodBounds(interval, referenceDate).label;
+  }, [interval, referenceDate]);
 
   const setCurrency = useCallback((c: string) => {
     setCurrencyState(c);
@@ -192,10 +215,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     [database, refreshData]
   );
 
+  const periodTransactions = useMemo(() => {
+    return filterTransactionsByPeriod(transactions, interval, referenceDate);
+  }, [transactions, interval, referenceDate]);
+
   const { totalIncome, totalExpense } = useMemo(() => {
     let inc = 0;
     let exp = 0;
-    for (const tx of transactions) {
+    for (const tx of periodTransactions) {
       if (selectedAccountId && tx.accountId !== selectedAccountId && tx.toAccountId !== selectedAccountId) {
         continue;
       }
@@ -209,12 +236,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
       totalIncome: Math.round(inc * 100) / 100,
       totalExpense: Math.round(exp * 100) / 100,
     };
-  }, [transactions, selectedAccountId]);
+  }, [periodTransactions, selectedAccountId]);
 
   return (
     <FinanceContext.Provider
       value={{
         transactions,
+        periodTransactions,
         categories,
         accounts,
         budgets,
@@ -227,6 +255,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         setCurrency,
         theme,
         toggleTheme,
+        interval,
+        setInterval,
+        referenceDate,
+        setReferenceDate,
+        periodLabel,
+        stepPrevPeriod,
+        stepNextPeriod,
         addTransaction,
         deleteTransaction,
         updateTransaction,
