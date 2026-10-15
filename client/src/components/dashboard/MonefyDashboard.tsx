@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { syncNativeStatusBar, registerBackButtonHandler } from '../../utils/nativePlatform';
 import { useFinance } from '../../context/FinanceContext';
 import { CircularChart } from '../monefy-wheel/CircularChart';
 import { CenterBalance } from '../monefy-wheel/CenterBalance';
@@ -112,6 +113,61 @@ export const MonefyDashboard: React.FC = () => {
     setSyncStatus('offline');
     setLastSyncTime(null);
   };
+
+  // Sync native mobile status bar with active theme
+  useEffect(() => {
+    syncNativeStatusBar(theme);
+  }, [theme]);
+
+  // Handle hardware back-button on mobile devices gracefully
+  useEffect(() => {
+    const unregister = registerBackButtonHandler(() => {
+      if (isKeypadOpen) {
+        setIsKeypadOpen(false);
+        return true;
+      }
+      if (isCustomizerOpen) {
+        setIsCustomizerOpen(false);
+        return true;
+      }
+      if (isTransferOpen) {
+        setIsTransferOpen(false);
+        return true;
+      }
+      if (isAccountManagerOpen) {
+        setIsAccountManagerOpen(false);
+        return true;
+      }
+      if (isBudgetModalOpen) {
+        setIsBudgetModalOpen(false);
+        return true;
+      }
+      if (isSettingsOpen) {
+        setIsSettingsOpen(false);
+        return true;
+      }
+      if (isSyncModalOpen) {
+        setIsSyncModalOpen(false);
+        return true;
+      }
+      if (editingTransaction) {
+        setEditingTransaction(null);
+        return true;
+      }
+      return false;
+    });
+
+    return () => unregister();
+  }, [
+    isKeypadOpen,
+    isCustomizerOpen,
+    isTransferOpen,
+    isAccountManagerOpen,
+    isBudgetModalOpen,
+    isSettingsOpen,
+    isSyncModalOpen,
+    editingTransaction,
+  ]);
 
   // Compute category expense breakdown for the donut chart using the current period transactions
   const categoryExpenses = useMemo(() => {

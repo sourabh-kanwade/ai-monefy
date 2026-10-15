@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Category, Account, TransactionType } from '../../types';
 import { evaluateExpression } from '../../utils/calculator';
+import { triggerHapticFeedback } from '../../utils/nativePlatform';
 import { X, Check, Delete, Calendar, Wallet } from 'lucide-react';
 
 interface NumericKeypadModalProps {
@@ -56,6 +57,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
   const currentResult = evaluateExpression(expression);
 
   const handleKeyPress = (val: string) => {
+    triggerHapticFeedback();
     if (val === 'backspace') {
       setExpression((prev) => prev.slice(0, -1));
       return;
