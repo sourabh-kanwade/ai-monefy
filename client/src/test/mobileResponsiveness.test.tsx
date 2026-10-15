@@ -34,7 +34,7 @@ describe('Mobile Phone Responsiveness & Touch Optimization Seam Tests', () => {
     expect(cssContent).not.toMatch(/html,\s*body\s*\{[^}]*overscroll-behavior-y:\s*none/);
   });
 
-  it('renders Header with responsive top bar and stepper row classes', () => {
+  it('renders Header with responsive top bar, stepper row, and menu container classes aligned in one line on mobile', () => {
     const { container } = render(
       <Header
         currentInterval="MONTH"
@@ -49,8 +49,16 @@ describe('Mobile Phone Responsiveness & Touch Optimization Seam Tests', () => {
 
     const topBar = container.querySelector('.header-top-bar');
     expect(topBar).not.toBeNull();
+    const brand = container.querySelector('.header-brand');
+    expect(brand).not.toBeNull();
     const stepperRow = container.querySelector('.header-stepper-row');
     expect(stepperRow).not.toBeNull();
+    const menuContainer = container.querySelector('.header-menu-container');
+    expect(menuContainer).not.toBeNull();
+
+    // Verify CSS rules place stepper and hamburger menu in one line on mobile
+    expect(cssContent).toMatch(/\.header-stepper-row\s*\{[^}]*grid-column:\s*1/);
+    expect(cssContent).toMatch(/\.header-menu-container\s*\{[^}]*grid-column:\s*2/);
   });
 
   it('renders AccountBar with no-scrollbar class and momentum touch scroll properties', () => {

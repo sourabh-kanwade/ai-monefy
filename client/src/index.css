@@ -394,16 +394,36 @@ button:active {
   width: 100%;
 }
 
-@media (max-width: 440px) {
+@media (max-width: 480px) {
   .header-top-bar {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 10px;
+    align-items: center;
+    gap: 8px 10px;
   }
-  .header-stepper-row {
+  .header-brand {
     grid-column: 1 / -1;
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .header-stepper-row {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
+    min-width: 0;
+  }
+  .header-stepper-row > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .header-menu-container {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
   }
 }
+

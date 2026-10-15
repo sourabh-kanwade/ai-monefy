@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
     >
       {/* Top Bar: Brand, Stepper & Hamburger Menu */}
       <div className="header-top-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
+        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
           <img
             src="/favicon.svg"
             alt="AI Monefy Logo"
@@ -191,7 +191,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Hamburger Menu Trigger & Dropdown Container */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', zIndex: isMenuOpen ? 2002 : 'auto' }}>
+        <div
+          className="header-menu-container"
+          style={{ position: 'relative', display: 'flex', alignItems: 'center', zIndex: isMenuOpen ? 2002 : 'auto' }}
+        >
           <button
             type="button"
             data-testid="btn-hamburger-menu"
