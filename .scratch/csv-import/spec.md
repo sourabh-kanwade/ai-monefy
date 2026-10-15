@@ -1,7 +1,8 @@
-<!-- triage: ready-for-agent -->
+<!-- triage: done -->
 # Spec: CSV Data Import for Transactions, Accounts, and Categories
 
-**Status:** ready-for-agent
+**Status:** resolved
+
 
 ## Problem Statement
 
