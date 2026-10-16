@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import istanbul from 'vite-plugin-istanbul';
-
+import { cloudflare } from '@cloudflare/vite-plugin';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -12,6 +12,7 @@ export default defineConfig({
       extension: ['.js', '.ts', '.tsx'],
       requireEnv: true,
     }),
+    cloudflare(),
   ],
   server: {
     port: 5173,
