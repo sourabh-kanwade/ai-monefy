@@ -40,17 +40,17 @@ export default tseslint.config(
     },
     rules: {
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/exhaustive-deps': 'error',
       'react-refresh/only-export-components': [
-        'warn',
+        'error',
         {
           allowConstantExport: true,
           allowExportNames: ['useFinance', 'AVAILABLE_ICONS', 'MONEFY_PALETTE'],
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
     },
@@ -65,9 +65,9 @@ export default tseslint.config(
     },
     rules: {
       '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
     },
@@ -88,9 +88,12 @@ export default tseslint.config(
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/no-empty-object-type': 'error',
     },
   },
   prettier

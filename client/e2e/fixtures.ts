@@ -2,12 +2,14 @@ import { test as baseTest, expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export const test = baseTest.extend<{}>({
+export const test = baseTest.extend({
   page: async ({ page }, use, testInfo) => {
     await use(page);
 
     try {
-      const coverage = await page.evaluate(() => (window as any).__coverage__);
+      const coverage = await page.evaluate(
+        () => (window as unknown as { __coverage__?: unknown }).__coverage__
+      );
       if (coverage) {
         const nycOutputDir = path.resolve(process.cwd(), '.nyc_output');
         if (!fs.existsSync(nycOutputDir)) {

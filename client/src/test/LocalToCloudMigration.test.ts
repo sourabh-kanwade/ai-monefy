@@ -131,7 +131,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
     syncEngine.setAuthToken('jwt-user-cloud-token');
     syncEngine.setGuestMigrated(false);
 
-    let pushedPayload: any = null;
+    let pushedPayload: { accounts?: unknown[] } | null = null;
 
     // Mock fetch for push & pull
     globalThis.fetch = vi.fn().mockImplementation((url: string, init?: RequestInit) => {
@@ -166,7 +166,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     const syncResult = await syncEngine.sync(db);
     expect(syncResult.status).toBe('success');
-    expect(pushedPayload.accounts).toHaveLength(4);
+    expect(pushedPayload?.accounts).toHaveLength(4);
 
     // Verify pulled accounts are saved with numeric initialBalance
     const accountsAfter = await db.accounts.toArray();
@@ -189,7 +189,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
         name: 'Card 1',
         icon: 'CreditCard',
         color: '#3498DB',
-        initialBalance: '0.00' as any,
+        initialBalance: '0.00' as unknown as number,
         isDefault: false,
         isDeleted: false,
         createdAt: '2026-10-15T10:00:00Z',
@@ -200,7 +200,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
         name: 'Card 2',
         icon: 'CreditCard',
         color: '#3498DB',
-        initialBalance: '0.00' as any,
+        initialBalance: '0.00' as unknown as number,
         isDefault: false,
         isDeleted: false,
         createdAt: '2026-10-15T10:00:00Z',
@@ -211,7 +211,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
         name: 'Cash',
         icon: 'Wallet',
         color: '#2ECC71',
-        initialBalance: '500.00' as any,
+        initialBalance: '500.00' as unknown as number,
         isDefault: true,
         isDeleted: false,
         createdAt: '2026-10-15T10:00:00Z',

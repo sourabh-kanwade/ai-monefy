@@ -101,7 +101,7 @@ describe('Ticket 01: Walking Skeleton Seam Tests', () => {
       isDeleted: false,
       createdAt: '2026-10-01T00:00:00Z',
       updatedAt: '2026-10-01T00:00:00Z',
-    } as any);
+    } as unknown as Parameters<typeof legacyDb.categories.add>[0]);
 
     await legacyDb.initializeDefaults();
 
@@ -113,12 +113,13 @@ describe('Ticket 01: Walking Skeleton Seam Tests', () => {
 
   it('falls back to regex uuid generation when crypto.randomUUID is unavailable', () => {
     const origCrypto = globalThis.crypto;
-    delete (globalThis as any).crypto;
+    const target = globalThis as { crypto?: Crypto };
+    delete target.crypto;
     try {
       const id = generateUuid();
       expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     } finally {
-      (globalThis as any).crypto = origCrypto;
+      target.crypto = origCrypto;
     }
   });
 });

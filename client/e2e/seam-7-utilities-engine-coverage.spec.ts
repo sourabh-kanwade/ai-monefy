@@ -11,7 +11,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
   }) => {
     const results = await page.evaluate(async () => {
       const nativeMod = await import('/src/utils/nativePlatform.ts');
-      const { Capacitor, Haptics, StatusBar, App } = nativeMod;
+      const { Capacitor, StatusBar, App } = nativeMod;
 
       const logs: string[] = [];
       let vibrateCount = 0;
@@ -37,21 +37,25 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       Capacitor.isNativePlatform = () => true;
 
       let statusStyle = '';
-      StatusBar.setStyle = (async ({ style }: any) => {
+      StatusBar.setStyle = (async ({ style }: { style: string }) => {
         statusStyle = style;
-      }) as any;
-      StatusBar.setBackgroundColor = (async () => {}) as any;
+      }) as unknown as typeof StatusBar.setStyle;
+      StatusBar.setBackgroundColor =
+        (async () => {}) as unknown as typeof StatusBar.setBackgroundColor;
 
-      let backListener: ((event: any) => void) | null = null;
+      let backListener: ((event: { canGoBack: boolean }) => void) | null = null;
       let removedListener = false;
-      App.addListener = (async (eventName: string, handler: any) => {
+      App.addListener = (async (
+        _eventName: string,
+        handler: (event: { canGoBack: boolean }) => void
+      ) => {
         backListener = handler;
         return {
           remove: async () => {
             removedListener = true;
           },
         };
-      }) as any;
+      }) as unknown as typeof App.addListener;
 
       await nativeMod.triggerHapticFeedback();
       await nativeMod.syncNativeStatusBar('dark');
@@ -64,13 +68,13 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       });
 
       if (backListener) {
-        (backListener as any)({ canGoBack: true });
+        backListener({ canGoBack: true });
       }
 
       // Also test back handler returning false
       const unregNative2 = nativeMod.registerBackButtonHandler(() => false);
       if (backListener) {
-        (backListener as any)({ canGoBack: false });
+        backListener({ canGoBack: false });
       }
 
       unregNative();
@@ -79,7 +83,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       // 3. Error throwing branches
       StatusBar.setStyle = (async () => {
         throw new Error('StatusBar fail');
-      }) as any;
+      }) as unknown as typeof StatusBar.setStyle;
       await nativeMod.syncNativeStatusBar('dark');
 
       // Reset
@@ -103,7 +107,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
 
       return {
         empty: evaluateExpression(''),
-        nullExpr: evaluateExpression(null as any),
+        nullExpr: evaluateExpression(null as unknown as string),
         simpleNum: evaluateExpression('42'),
         addition: evaluateExpression('10 + 20'),
         subtraction: evaluateExpression('100 - 30'),
@@ -151,14 +155,14 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       const boundsYear = getPeriodBounds('YEAR', ref);
       const boundsAll = getPeriodBounds('ALL', ref);
 
-      const stepDayPrev = stepPeriod('DAY', ref, 'prev');
-      const stepDayNext = stepPeriod('DAY', ref, 'next');
-      const stepWeekPrev = stepPeriod('WEEK', ref, 'prev');
-      const stepWeekNext = stepPeriod('WEEK', ref, 'next');
-      const stepMonthPrev = stepPeriod('MONTH', ref, 'prev');
-      const stepMonthNext = stepPeriod('MONTH', ref, 'next');
-      const stepYearPrev = stepPeriod('YEAR', ref, 'prev');
-      const stepYearNext = stepPeriod('YEAR', ref, 'next');
+      stepPeriod('DAY', ref, 'prev');
+      stepPeriod('DAY', ref, 'next');
+      stepPeriod('WEEK', ref, 'prev');
+      stepPeriod('WEEK', ref, 'next');
+      stepPeriod('MONTH', ref, 'prev');
+      stepPeriod('MONTH', ref, 'next');
+      stepPeriod('YEAR', ref, 'prev');
+      stepPeriod('YEAR', ref, 'next');
       const stepAll = stepPeriod('ALL', ref, 'next');
 
       const localStr = getLocalDateString(ref);
@@ -168,7 +172,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       const canStepAll = canStepNextPeriod('ALL', ref, ref);
       const canStepPast = canStepNextPeriod('MONTH', new Date('2025-01-01'), ref);
 
-      const dummyTx: any[] = [
+      const dummyTx = [
         { id: '1', date: '2026-08-15T10:00:00Z', amount: 50 },
         { id: '2', date: '2025-01-01T10:00:00Z', amount: 100 },
       ];
@@ -213,14 +217,14 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
         'date,amount,category\n15/08/2026,50,"Groceries, Food"\n16/08/2026,20,Taxi'
       );
       const semiGrid = tokenizeCsv('date;amount;category\n15/08/2026;50;Food\n16/08/2026;20;Taxi');
-      const quotedQuotes = tokenizeCsv('"He said ""hello""";10;Note');
+      tokenizeCsv('"He said ""hello""";10;Note');
 
       // 2. Empty validation errors
       let emptyErr = '';
       try {
         parseTransactionsCsv('');
-      } catch (e: any) {
-        emptyErr = e.message;
+      } catch (e) {
+        emptyErr = (e as Error).message;
       }
 
       // 3. Monefy export formats (mobile and native desktop)
@@ -297,8 +301,8 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       const fallback = resolveCurrencyCode('???');
 
       const formattedIso = formatDateToMonefy('2026-10-15');
-      const formattedIsoLong = formatDateToMonefy('2026-10-15T12:00:00Z');
-      const formattedInvalid = formatDateToMonefy('invalid');
+      formatDateToMonefy('2026-10-15T12:00:00Z');
+      formatDateToMonefy('invalid');
       const formattedEmpty = formatDateToMonefy('');
 
       const amtInr = formatMonefyAmount(180000, false, 'INR');
@@ -308,12 +312,12 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       const emptyCsv = exportTransactionsToCSV([], [], []);
 
       // Test export populated transactions including transfer
-      const sampleTxs: any[] = [
+      const sampleTxs = [
         {
           id: 'tx-1',
           date: '2026-10-15',
           amount: 50,
-          type: 'expense',
+          type: 'expense' as const,
           categoryId: 'cat-1',
           accountId: 'acc-1',
           note: 'Groceries, apples',
@@ -322,7 +326,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
           id: 'tx-2',
           date: '2026-10-15',
           amount: 200,
-          type: 'income',
+          type: 'income' as const,
           categoryId: 'cat-2',
           accountId: 'acc-1',
         },
@@ -330,17 +334,17 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
           id: 'tx-3',
           date: '2026-10-15',
           amount: 100,
-          type: 'transfer',
+          type: 'transfer' as const,
           categoryId: 'cat-transfer',
           accountId: 'acc-1',
           toAccountId: 'acc-2',
         },
       ];
-      const sampleCats: any[] = [
+      const sampleCats = [
         { id: 'cat-1', name: 'Food' },
         { id: 'cat-2', name: 'Salary' },
       ];
-      const sampleAccs: any[] = [
+      const sampleAccs = [
         { id: 'acc-1', name: 'Cash' },
         { id: 'acc-2', name: 'Card' },
       ];
@@ -350,15 +354,15 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
       let invalidJsonErr = '';
       try {
         await importDatabaseFromJSON('invalid json string', db);
-      } catch (e: any) {
-        invalidJsonErr = e.message;
+      } catch (e) {
+        invalidJsonErr = (e as Error).message;
       }
 
       let schemaErr = '';
       try {
         await importDatabaseFromJSON(JSON.stringify({ version: 999 }), db);
-      } catch (e: any) {
-        schemaErr = e.message;
+      } catch (e) {
+        schemaErr = (e as Error).message;
       }
 
       return {
@@ -418,7 +422,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
         isDeleted: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      } as any);
+      } as unknown as Parameters<typeof testDb.categories.add>[0]);
 
       await testDb.categories.add({
         id: 'cat-migration-2',
@@ -431,7 +435,7 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
         isDeleted: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-      } as any);
+      } as unknown as Parameters<typeof testDb.categories.add>[0]);
 
       // Call initializeDefaults to trigger displayOrder / isVisible auto-migration
       await testDb.initializeDefaults();
@@ -519,7 +523,6 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
   }) => {
     const syncResults = await page.evaluate(async () => {
       const { syncEngine } = await import('/src/db/syncEngine.ts');
-      const { db } = await import('/src/db/localDb.ts');
 
       // Set and get last sync time
       syncEngine.setLastSyncTime('2026-10-15T10:00:00Z');

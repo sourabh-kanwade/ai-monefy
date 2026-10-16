@@ -189,7 +189,7 @@ describe('SettingsModal Seam Tests', () => {
       this: FileReader
     ) {
       if (this.onerror) {
-        this.onerror(new ProgressEvent('error') as any);
+        this.onerror(new ProgressEvent('error') as ProgressEvent<FileReader>);
       }
     });
 
@@ -344,7 +344,7 @@ describe('SettingsModal Seam Tests', () => {
       this: FileReader
     ) {
       if (this.onerror) {
-        this.onerror(new ProgressEvent('error') as any);
+        this.onerror(new ProgressEvent('error') as ProgressEvent<FileReader>);
       }
     });
     fireEvent.change(jsonInput, { target: { files: [validJsonFile] } });

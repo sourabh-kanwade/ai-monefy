@@ -67,7 +67,7 @@ describe('Native Platform Integration Seam Tests', () => {
 
   it('triggers native haptics when on native platform', async () => {
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
-    const impactSpy = vi.spyOn(Haptics, 'impact').mockResolvedValue(undefined as any);
+    const impactSpy = vi.spyOn(Haptics, 'impact').mockResolvedValue();
 
     await triggerHapticFeedback();
     expect(impactSpy).toHaveBeenCalledWith({ style: ImpactStyle.Light });
@@ -79,8 +79,8 @@ describe('Native Platform Integration Seam Tests', () => {
 
   it('syncs status bar styling on native platform', async () => {
     vi.spyOn(Capacitor, 'isNativePlatform').mockReturnValue(true);
-    const styleSpy = vi.spyOn(StatusBar, 'setStyle').mockResolvedValue(undefined as any);
-    const bgSpy = vi.spyOn(StatusBar, 'setBackgroundColor').mockResolvedValue(undefined as any);
+    const styleSpy = vi.spyOn(StatusBar, 'setStyle').mockResolvedValue();
+    const bgSpy = vi.spyOn(StatusBar, 'setBackgroundColor').mockResolvedValue();
 
     await syncNativeStatusBar('dark');
     expect(styleSpy).toHaveBeenCalledWith({ style: Style.Dark });
@@ -101,12 +101,14 @@ describe('Native Platform Integration Seam Tests', () => {
     let registeredCallback: ((event: { canGoBack: boolean }) => void) | null = null;
     const removeSpy = vi.fn().mockResolvedValue(undefined);
 
-    vi.spyOn(App, 'addListener').mockImplementation((event: string, callback: any) => {
-      if (event === 'backButton') {
-        registeredCallback = callback;
+    vi.spyOn(App, 'addListener').mockImplementation(
+      (event: string, callback: (info: { canGoBack: boolean }) => void) => {
+        if (event === 'backButton') {
+          registeredCallback = callback;
+        }
+        return Promise.resolve({ remove: removeSpy });
       }
-      return Promise.resolve({ remove: removeSpy }) as any;
-    });
+    );
 
     const backSpy = vi.spyOn(window.history, 'back').mockImplementation(() => {});
 
