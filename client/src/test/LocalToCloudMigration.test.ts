@@ -166,7 +166,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     const syncResult = await syncEngine.sync(db);
     expect(syncResult.status).toBe('success');
-    expect(pushedPayload?.accounts).toHaveLength(4);
+    expect((pushedPayload as { accounts?: unknown[] } | null)?.accounts).toHaveLength(4);
 
     // Verify pulled accounts are saved with numeric initialBalance
     const accountsAfter = await db.accounts.toArray();

@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import React from 'react';
 import { CategoryPickerModal } from '../components/categories/CategoryPickerModal';
 import type { Category } from '../types';
 
@@ -15,6 +14,9 @@ describe('CategoryPickerModal Seam Tests', () => {
       displayOrder: 2,
       isVisible: true,
       isDeleted: false,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
     },
     {
       id: 'cat-food',
@@ -25,6 +27,9 @@ describe('CategoryPickerModal Seam Tests', () => {
       displayOrder: 1,
       isVisible: true,
       isDeleted: false,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
     },
     {
       id: 'cat-hidden',
@@ -35,6 +40,9 @@ describe('CategoryPickerModal Seam Tests', () => {
       displayOrder: 3,
       isVisible: false,
       isDeleted: false,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
     },
     {
       id: 'cat-deleted',
@@ -45,6 +53,9 @@ describe('CategoryPickerModal Seam Tests', () => {
       displayOrder: 0,
       isVisible: true,
       isDeleted: true,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
     },
     {
       id: 'cat-salary',
@@ -55,6 +66,9 @@ describe('CategoryPickerModal Seam Tests', () => {
       displayOrder: 1,
       isVisible: true,
       isDeleted: false,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
     },
   ];
 
