@@ -64,4 +64,81 @@ describe('CloudSyncModal Seam Tests', () => {
     fireEvent.click(logoutBtn);
     expect(handleLogout).toHaveBeenCalledTimes(1);
   });
+
+  it('renders error notification banner on auth error, handles null sync time, and closed state', async () => {
+    const handleClose = vi.fn();
+    const handleLoginError = vi.fn().mockRejectedValue(new Error('Invalid password credentials'));
+
+    const { rerender } = render(
+      <CloudSyncModal
+        isOpen={false}
+        onClose={handleClose}
+        user={null}
+        onLogin={handleLoginError}
+        onRegister={vi.fn()}
+        onSyncNow={vi.fn()}
+        onLogout={vi.fn()}
+      />
+    );
+    expect(screen.queryByText('Cloud Sync')).not.toBeInTheDocument();
+
+    rerender(
+      <CloudSyncModal
+        isOpen={true}
+        onClose={handleClose}
+        user={null}
+        onLogin={handleLoginError}
+        onRegister={vi.fn()}
+        onSyncNow={vi.fn()}
+        onLogout={vi.fn()}
+      />
+    );
+
+    // Enter email & password and submit
+    fireEvent.change(screen.getByPlaceholderText(/you@domain.com/i), { target: { value: 'test@user.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), { target: { value: 'secret' } });
+    fireEvent.click(screen.getByTestId('btn-submit-auth'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Invalid password credentials/i)).toBeInTheDocument();
+    });
+
+    // Close button
+    fireEvent.click(screen.getByTestId('btn-close-cloud-sync'));
+    expect(handleClose).toHaveBeenCalled();
+
+    // Rerender with user and lastSyncTime=null -> displays 'Just now'
+    rerender(
+      <CloudSyncModal
+        isOpen={true}
+        onClose={handleClose}
+        user={{ id: 'u1', email: 'justnow@user.com' }}
+        lastSyncTime={null}
+        onLogin={vi.fn()}
+        onRegister={vi.fn()}
+        onSyncNow={vi.fn()}
+        onLogout={vi.fn()}
+      />
+    );
+    expect(screen.getByText('Just now')).toBeInTheDocument();
+
+    // Test onSyncNow failure banner (line 80)
+    const handleSyncError = vi.fn().mockRejectedValue(new Error('Sync failed. Please check connection.'));
+    rerender(
+      <CloudSyncModal
+        isOpen={true}
+        onClose={handleClose}
+        user={{ id: 'u1', email: 'syncerr@user.com' }}
+        lastSyncTime={null}
+        onLogin={vi.fn()}
+        onRegister={vi.fn()}
+        onSyncNow={handleSyncError}
+        onLogout={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByTestId('btn-sync-now'));
+    await waitFor(() => {
+      expect(screen.getByText(/Sync failed. Please check connection/i)).toBeInTheDocument();
+    });
+  });
 });

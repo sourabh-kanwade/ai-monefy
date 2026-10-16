@@ -69,6 +69,13 @@ describe('Date Filters & Period Navigation Seam Tests', () => {
       const nextYear = stepPeriod('YEAR', baseDate, 'next');
       expect(nextYear.getFullYear()).toBe(2027);
     });
+
+    it('returns unmodified date when stepping ALL interval', () => {
+      const prevAll = stepPeriod('ALL', baseDate, 'prev');
+      expect(prevAll.getTime()).toBe(baseDate.getTime());
+      const nextAll = stepPeriod('ALL', baseDate, 'next');
+      expect(nextAll.getTime()).toBe(baseDate.getTime());
+    });
   });
 
   describe('filterTransactionsByPeriod', () => {

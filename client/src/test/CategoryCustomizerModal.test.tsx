@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CategoryCustomizerModal } from '../components/categories/CategoryCustomizerModal';
-import { AVAILABLE_ICONS, MONEFY_PALETTE } from '../components/categories/CategoryIcon';
+import { CategoryIcon, AVAILABLE_ICONS, MONEFY_PALETTE } from '../components/categories/CategoryIcon';
 
 describe('CategoryCustomizerModal Seam Tests', () => {
   it('creates a custom category with title, icon, and color', () => {
@@ -84,5 +84,40 @@ describe('CategoryCustomizerModal Seam Tests', () => {
     // The previously selected icon ('Utensils') now reverts to 'currentColor'
     const prevSelectedSvg = selectedBtn.querySelector('svg');
     expect(prevSelectedSvg?.getAttribute('stroke')).toBe('currentColor');
+  });
+
+  it('validates empty name, closed state, and CategoryIcon edge cases', () => {
+    const handleSave = vi.fn();
+    const handleClose = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { rerender } = render(
+      <CategoryCustomizerModal isOpen={false} onClose={handleClose} onSave={handleSave} />
+    );
+    expect(screen.queryByText(/Category Name/i)).not.toBeInTheDocument();
+
+    rerender(
+      <CategoryCustomizerModal isOpen={true} onClose={handleClose} onSave={handleSave} />
+    );
+
+    // Click save with empty name
+    const submitBtn = screen.getByRole('button', { name: /Save Category/i });
+    fireEvent.submit(submitBtn.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a category title');
+    expect(handleSave).not.toHaveBeenCalled();
+
+    // Close button
+    fireEvent.click(screen.getByLabelText(/Close/i));
+    expect(handleClose).toHaveBeenCalled();
+  });
+});
+
+describe('CategoryIcon Component Unit Tests', () => {
+  it('renders with inherit color and unknown icon fallback', () => {
+    const { container: inheritContainer } = render(<CategoryIcon name="food" color="inherit" />);
+    expect(inheritContainer.querySelector('svg')?.getAttribute('stroke')).toBe('currentColor');
+
+    const { container: fallbackContainer } = render(<CategoryIcon name="unknown-mystery-icon" />);
+    expect(fallbackContainer.querySelector('svg')).toBeInTheDocument();
   });
 });

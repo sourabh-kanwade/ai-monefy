@@ -49,4 +49,11 @@ describe('BudgetProgressMeter Seam Tests', () => {
     expect(screen.getByText(/Over Budget/i)).toBeInTheDocument();
     expect(screen.getByText(/130%/)).toBeInTheDocument();
   });
+
+  it('returns null when limit is 0 or negative', () => {
+    const { container } = render(<BudgetProgressMeter spent={50} limit={0} />);
+    expect(container.firstChild).toBeNull();
+    const { container: negContainer } = render(<BudgetProgressMeter spent={50} limit={-10} />);
+    expect(negContainer.firstChild).toBeNull();
+  });
 });

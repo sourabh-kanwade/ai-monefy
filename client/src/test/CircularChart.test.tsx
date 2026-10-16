@@ -73,5 +73,41 @@ describe('CircularChart Component Seam Tests', () => {
 
     expect(screen.getByText(/Food/)).toBeInTheDocument();
     expect(screen.getByText(/60%/)).toBeInTheDocument();
+
+    // Hover and unhover on slice
+    fireEvent.mouseEnter(transportSlice);
+    expect(screen.getByText(/Transport/)).toBeInTheDocument();
+    fireEvent.mouseLeave(transportSlice);
+  });
+
+  it('renders full circle for single category and handles tiny slice angles', () => {
+    const handleSelectCategory = vi.fn();
+    const { rerender } = render(
+      <CircularChart
+        categories={mockCategories}
+        categoryExpenses={{ 'cat-food': 100 }}
+        totalExpense={100}
+        currency="$"
+        onSelectCategory={handleSelectCategory}
+      />
+    );
+
+    const singleSlice = screen.getByTestId('slice-cat-food');
+    expect(singleSlice).toBeInTheDocument();
+    fireEvent.mouseEnter(singleSlice);
+    fireEvent.mouseLeave(singleSlice);
+    fireEvent.click(singleSlice);
+    expect(handleSelectCategory).toHaveBeenCalled();
+
+    // Tiny slice angle (<= 4 degrees)
+    rerender(
+      <CircularChart
+        categories={mockCategories}
+        categoryExpenses={{ 'cat-food': 99.5, 'cat-transport': 0.5 }}
+        totalExpense={100}
+        currency="$"
+      />
+    );
+    expect(screen.getByTestId('slice-cat-transport')).toBeInTheDocument();
   });
 });

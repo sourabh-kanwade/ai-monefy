@@ -79,4 +79,60 @@ describe('BudgetModal Seam Tests', () => {
 
     expect(handleSetBudget).toHaveBeenCalledWith('cat-2', 300);
   });
+
+  it('validates budget input, removes budget, and handles closed state', () => {
+    const handleSetBudget = vi.fn();
+    const handleRemoveBudget = vi.fn();
+    const handleClose = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { rerender } = render(
+      <BudgetModal
+        isOpen={false}
+        onClose={handleClose}
+        categories={mockCategories}
+        budgets={mockBudgets}
+        categoryExpenses={mockExpenses}
+        currency="$"
+        onSetBudget={handleSetBudget}
+        onRemoveBudget={handleRemoveBudget}
+      />
+    );
+    expect(screen.queryByText('Category Budgets')).not.toBeInTheDocument();
+
+    rerender(
+      <BudgetModal
+        isOpen={true}
+        onClose={handleClose}
+        categories={mockCategories}
+        budgets={mockBudgets}
+        categoryExpenses={mockExpenses}
+        currency="$"
+        onSetBudget={handleSetBudget}
+        onRemoveBudget={handleRemoveBudget}
+      />
+    );
+
+    // Edit food budget with invalid value
+    const editFoodBtn = screen.getByLabelText(/Set budget for Food/i);
+    fireEvent.click(editFoodBtn);
+    const limitInput = screen.getByPlaceholderText(/Enter monthly limit/i);
+    fireEvent.change(limitInput, { target: { value: '0' } });
+    const saveBtn = screen.getByRole('button', { name: /Save Budget/i });
+    fireEvent.click(saveBtn);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a valid monthly limit');
+
+    // Cancel editing
+    const cancelBtn = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelBtn);
+
+    // Remove Food budget
+    const removeFoodBtn = screen.getByLabelText(/Remove budget for Food/i);
+    fireEvent.click(removeFoodBtn);
+    expect(handleRemoveBudget).toHaveBeenCalledWith('cat-1');
+
+    // Close button
+    fireEvent.click(screen.getByLabelText(/Close/i));
+    expect(handleClose).toHaveBeenCalled();
+  });
 });

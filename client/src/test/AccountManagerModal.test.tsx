@@ -65,4 +65,82 @@ describe('AccountManagerModal Seam Tests', () => {
       })
     );
   });
+
+  it('handles empty name validation, editing account name, and archiving account', () => {
+    const handleClose = vi.fn();
+    const handleAddAccount = vi.fn();
+    const handleUpdateAccount = vi.fn();
+    const handleDeleteAccount = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+
+    const multiAccounts: Account[] = [
+      ...mockAccounts,
+      {
+        id: 'acc-2',
+        name: 'Card',
+        icon: 'credit-card',
+        color: '#3B82F6',
+        initialBalance: 1000,
+        isDefault: false,
+        isDeleted: false,
+        createdAt: '2026-10-01T00:00:00Z',
+        updatedAt: '2026-10-01T00:00:00Z',
+      },
+    ];
+
+    const { rerender } = render(
+      <AccountManagerModal
+        isOpen={false}
+        onClose={handleClose}
+        accounts={multiAccounts}
+        accountBalances={mockBalances}
+        currency="$"
+        onAddAccount={handleAddAccount}
+        onUpdateAccount={handleUpdateAccount}
+        onDeleteAccount={handleDeleteAccount}
+      />
+    );
+    expect(screen.queryByText('Manage Accounts')).not.toBeInTheDocument();
+
+    rerender(
+      <AccountManagerModal
+        isOpen={true}
+        onClose={handleClose}
+        accounts={multiAccounts}
+        accountBalances={mockBalances}
+        currency="$"
+        onAddAccount={handleAddAccount}
+        onUpdateAccount={handleUpdateAccount}
+        onDeleteAccount={handleDeleteAccount}
+      />
+    );
+
+    // Empty name alert
+    fireEvent.click(screen.getByRole('button', { name: /Add Another Account/i }));
+    const createBtn = screen.getByRole('button', { name: /Add Account/i });
+    fireEvent.submit(createBtn.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter an account name');
+
+    // Edit account name
+    const editBtn = screen.getByLabelText('Edit Cash');
+    fireEvent.click(editBtn);
+
+    const renameInput = screen.getByDisplayValue('Cash');
+    fireEvent.change(renameInput, { target: { value: 'Pocket Cash' } });
+
+    const saveRenameBtn = screen.getByLabelText('Save name');
+    fireEvent.click(saveRenameBtn);
+    expect(handleUpdateAccount).toHaveBeenCalledWith('acc-1', { name: 'Pocket Cash' });
+
+    // Archive account
+    const archiveBtn = screen.getByLabelText('Archive Card');
+    fireEvent.click(archiveBtn);
+    expect(confirmSpy).toHaveBeenCalledWith('Archive account "Card"?');
+    expect(handleDeleteAccount).toHaveBeenCalledWith('acc-2');
+
+    // Close button
+    fireEvent.click(screen.getByLabelText('Close'));
+    expect(handleClose).toHaveBeenCalled();
+  });
 });

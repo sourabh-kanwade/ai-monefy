@@ -80,6 +80,11 @@ describe('EditTransactionModal Seam Tests', () => {
     const amountInput = screen.getByLabelText(/Amount/i);
     fireEvent.change(amountInput, { target: { value: '55.5' } });
 
+    // Switch types to exercise active styling branches (lines 160-162)
+    fireEvent.click(screen.getByRole('button', { name: 'income' }));
+    fireEvent.click(screen.getByRole('button', { name: 'transfer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'expense' }));
+
     // Modify note
     const noteInput = screen.getByLabelText(/Note/i);
     fireEvent.change(noteInput, { target: { value: 'Dinner and drinks' } });
@@ -98,6 +103,60 @@ describe('EditTransactionModal Seam Tests', () => {
         type: 'expense',
       })
     );
+    expect(handleClose).toHaveBeenCalled();
+  });
+
+  it('validates amount, clamps future dates, handles delete confirmation, and closed state', () => {
+    const handleSave = vi.fn();
+    const handleDelete = vi.fn();
+    const handleClose = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+
+    const { rerender } = render(
+      <EditTransactionModal
+        isOpen={false}
+        transaction={null}
+        categories={mockCategories}
+        accounts={mockAccounts}
+        currency="$"
+        onClose={handleClose}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+    );
+    expect(screen.queryByText('Edit Transaction')).not.toBeInTheDocument();
+
+    rerender(
+      <EditTransactionModal
+        isOpen={true}
+        transaction={mockTx}
+        categories={mockCategories}
+        accounts={mockAccounts}
+        currency="$"
+        onClose={handleClose}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+    );
+
+    // Invalid amount alert
+    const amountInput = screen.getByLabelText(/Amount/i);
+    fireEvent.change(amountInput, { target: { value: '0' } });
+    const saveBtn = screen.getByRole('button', { name: /Save Changes/i });
+    fireEvent.submit(saveBtn.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a valid amount');
+
+    // Future date clamping
+    const dateInput = screen.getByLabelText(/Date/i);
+    fireEvent.change(dateInput, { target: { value: '2099-12-31' } });
+    expect(dateInput).not.toHaveValue('2099-12-31');
+
+    // Delete transaction
+    const deleteBtn = screen.getByRole('button', { name: /Delete/i });
+    fireEvent.click(deleteBtn);
+    expect(confirmSpy).toHaveBeenCalledWith('Delete this transaction?');
+    expect(handleDelete).toHaveBeenCalledWith('tx-123');
     expect(handleClose).toHaveBeenCalled();
   });
 });

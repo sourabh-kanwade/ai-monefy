@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseTransactionsCsv, tokenizeCsv } from '../utils/csvParser';
+import { parseTransactionsCsv, tokenizeCsv, parseAmount } from '../utils/csvParser';
 
 describe('CSV Tokenizer (RFC-4180 Compliance)', () => {
   it('parses simple unquoted comma-separated rows', () => {
@@ -114,6 +114,35 @@ describe('parseTransactionsCsv (Schema Detection & Row Normalization)', () => {
     expect(result.rows[0].type).toBe('expense');
   });
 
+  it('handles generic format with unassigned type, negative amount, and missing account', () => {
+    const csv = [
+      'Date,Category,Amount,Type',
+      '2026-10-12,Food,30.00,Debit', // typeCol provided, value != income/transfer -> expense (line 392)
+      '2026-10-13,Transport,-15.50,', // empty type, negative amount -> expense
+    ].join('\n');
+
+    const result = parseTransactionsCsv(csv);
+    expect(result.errors).toHaveLength(0);
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows[0].type).toBe('expense');
+    expect(result.rows[0].accountName).toBe('Cash'); // default account
+    expect(result.rows[1].type).toBe('expense');
+    expect(result.rows[1].amount).toBe(15.5);
+
+    // Test line 333-334 (amount empty but converted amount present)
+    // and line 394 (no Type column at all, negative amount -> expense)
+    const convertedCsv = [
+      'Date,Category,Amount,Converted amount',
+      '2026-10-14,Food,,75.00',
+      '2026-10-15,Bills,-40.00,',
+    ].join('\n');
+    const convertedResult = parseTransactionsCsv(convertedCsv);
+    expect(convertedResult.errors).toHaveLength(0);
+    expect(convertedResult.rows[0].amount).toBe(75);
+    expect(convertedResult.rows[1].type).toBe('expense');
+    expect(convertedResult.rows[1].amount).toBe(40);
+  });
+
   it('collects detailed row-level errors for malformed or missing required data', () => {
     const invalidCsv = [
       'Date,Category,Account,Amount',
@@ -135,5 +164,39 @@ describe('parseTransactionsCsv (Schema Detection & Row Normalization)', () => {
   it('rejects completely empty or headerless content', () => {
     expect(() => parseTransactionsCsv('')).toThrow(/empty/i);
     expect(() => parseTransactionsCsv('   \n  \n')).toThrow(/empty/i);
+    expect(() => parseTransactionsCsv(',,\n,,')).toThrow(/CSV contains no rows/i);
+  });
+
+  it('supports isolated carriage returns, empty row skipping, 2-digit years, and fallback dates', () => {
+    const macCsv = 'A,B\r1,2';
+    expect(tokenizeCsv(macCsv)).toEqual([
+      ['A', 'B'],
+      ['1', '2'],
+    ]);
+
+    const mixedCsv = [
+      'Date,Category,Account,Amount',
+      '15/10/26,Food,Cash,25',
+      '',
+      '15/10/99,Drinks,Cash,15',
+      'October 15 2026,Snacks,Cash,10',
+    ].join('\n');
+
+    const result = parseTransactionsCsv(mixedCsv);
+    expect(result.errors).toHaveLength(0);
+    expect(result.rows).toHaveLength(3);
+    expect(result.rows[0].date).toContain('2026');
+    expect(result.rows[1].date).toContain('1999');
+    expect(result.rows[2].date).toContain('2026');
+  });
+
+  it('parses diverse international amount formats and accounting notations', () => {
+    expect(parseAmount('(500)')).toEqual({ amount: 500, isNegative: true });
+    expect(parseAmount('1.250,50')).toEqual({ amount: 1250.5, isNegative: false });
+    expect(parseAmount('1,80,000.50')).toEqual({ amount: 180000.5, isNegative: false });
+    expect(parseAmount('12,50')).toEqual({ amount: 12.5, isNegative: false });
+    expect(parseAmount('1,234,567')).toEqual({ amount: 1234567, isNegative: false });
+    expect(parseAmount('99,999')).toEqual({ amount: 99999, isNegative: false });
+    expect(parseAmount('12,1234')).toEqual({ amount: 121234, isNegative: false });
   });
 });

@@ -116,5 +116,53 @@ describe('ExpenseBreakdownView Seam Tests', () => {
     // Tap the contributing transaction
     fireEvent.click(screen.getByText('Electricity bill'));
     expect(handleSelectTx).toHaveBeenCalledWith(mockTransactions[1]);
+
+    // Tap Bills row again to collapse (line 72: toggleExpand)
+    fireEvent.click(rankedRows[0]);
+    expect(screen.queryByText('Electricity bill')).not.toBeInTheDocument();
+  });
+
+  it('renders empty state when no expenses exist for period', () => {
+    render(
+      <ExpenseBreakdownView
+        transactions={[]}
+        categories={mockCategories}
+        accounts={mockAccounts}
+        currency="$"
+        periodLabel="October 2026"
+        selectedAccountId={null}
+      />
+    );
+    expect(screen.getByText(/No expenses recorded for this period/i)).toBeInTheDocument();
+  });
+
+  it('handles transactions with empty notes and unmapped accounts', () => {
+    const txWithoutNote: Transaction = {
+      id: 'tx-empty-note',
+      accountId: 'unknown-acc-id',
+      categoryId: 'cat-food',
+      amount: 80,
+      type: 'expense',
+      note: '',
+      date: '2026-10-15T12:00:00.000Z',
+      createdAt: '2026-10-15T12:00:00.000Z',
+      updatedAt: '2026-10-15T12:00:00.000Z',
+      isDeleted: false,
+    };
+
+    render(
+      <ExpenseBreakdownView
+        transactions={[txWithoutNote]}
+        categories={mockCategories}
+        accounts={mockAccounts}
+        currency="$"
+      />
+    );
+
+    const row = screen.getByTestId('analytics-category-row');
+    fireEvent.click(row);
+    // Should fallback to category name Food and account Default (lines 307-310)
+    expect(screen.getAllByText('Food').length).toBeGreaterThan(1);
+    expect(screen.getByText('Default')).toBeInTheDocument();
   });
 });

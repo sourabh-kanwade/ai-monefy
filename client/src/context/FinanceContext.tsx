@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { db, MonefyDatabase } from '../db/localDb';
 import type { Transaction, Category, Account, Budget, TimeInterval } from '../types';
 import { getPeriodBounds, stepPeriod, filterTransactionsByPeriod, canStepNextPeriod } from '../utils/dateFilters';
@@ -128,6 +128,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const refreshData = useCallback(async () => {
     const [rawCats, rawAccs, allBudgets, rawTxs, balance] = await Promise.all([
       database.categories.toArray(),
@@ -136,6 +144,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
       database.transactions.toArray(),
       database.calculateNetBalance(selectedAccountId || undefined),
     ]);
+
+    if (!isMountedRef.current) return;
 
     const allCats = rawCats.filter((c) => !c.isDeleted);
     const allAccs = rawAccs.filter((a) => !a.isDeleted);
@@ -151,7 +161,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   }, [database, selectedAccountId]);
 
   useEffect(() => {
-    database.initializeDefaults().then(() => refreshData());
+    let isMounted = true;
+    database.initializeDefaults().then(() => {
+      if (isMounted) {
+        refreshData();
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
   }, [database, refreshData]);
 
   const addTransaction = useCallback(

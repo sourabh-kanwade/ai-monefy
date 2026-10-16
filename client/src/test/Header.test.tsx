@@ -59,7 +59,7 @@ describe('Header & Interval Navigation Seam Tests', () => {
     const handleOpenBudgets = vi.fn();
     const handleOpenCategories = vi.fn();
 
-    render(
+    const { rerender } = render(
       <Header
         currentInterval="MONTH"
         periodLabel="October 2026"
@@ -135,6 +135,27 @@ describe('Header & Interval Navigation Seam Tests', () => {
     expect(screen.getByTestId('hamburger-dropdown-menu')).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByTestId('hamburger-dropdown-menu')).not.toBeInTheDocument();
+
+    // Reopen with theme='light' to test light mode dropdown styling (line 334)
+    rerender(
+      <Header
+        currentInterval="MONTH"
+        periodLabel="October 2026"
+        theme="light"
+        syncStatus="synced"
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={vi.fn()}
+        onToggleTheme={vi.fn()}
+        onOpenSettings={handleOpenSettings}
+        onOpenSync={handleOpenSync}
+        onOpenAccounts={handleOpenAccounts}
+        onOpenBudgets={handleOpenBudgets}
+        onOpenCategories={handleOpenCategories}
+      />
+    );
+    fireEvent.click(menuBtn);
+    expect(screen.getByText('Light Mode')).toBeInTheDocument();
   });
 
   it('disables the Next period button when canStepNext is false or interval is ALL', () => {
@@ -194,5 +215,36 @@ describe('Header & Interval Navigation Seam Tests', () => {
       />
     );
     expect(nextBtn).toBeDisabled();
+  });
+
+  it('renders syncing and error status badges in hamburger menu', () => {
+    const { rerender } = render(
+      <Header
+        currentInterval="MONTH"
+        periodLabel="October 2026"
+        theme="dark"
+        syncStatus="syncing"
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={vi.fn()}
+        onToggleTheme={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByTestId('btn-hamburger-menu'));
+    expect(screen.getByText('SYNCING')).toBeInTheDocument();
+
+    rerender(
+      <Header
+        currentInterval="MONTH"
+        periodLabel="October 2026"
+        theme="dark"
+        syncStatus="error"
+        onIntervalChange={vi.fn()}
+        onStepPrev={vi.fn()}
+        onStepNext={vi.fn()}
+        onToggleTheme={vi.fn()}
+      />
+    );
+    expect(screen.getByText('ERROR')).toBeInTheDocument();
   });
 });

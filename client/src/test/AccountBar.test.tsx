@@ -69,4 +69,26 @@ describe('AccountBar Seam Tests', () => {
     fireEvent.click(manageBtn);
     expect(handleOpenManager).toHaveBeenCalled();
   });
+
+  it('highlights selected account and allows reverting to all accounts', () => {
+    const handleSelectAccount = vi.fn();
+    const handleOpenManager = vi.fn();
+
+    render(
+      <AccountBar
+        accounts={mockAccounts}
+        accountBalances={mockBalances}
+        selectedAccountId="acc-1"
+        totalBalance={1550}
+        currency="$"
+        onSelectAccount={handleSelectAccount}
+        onOpenManager={handleOpenManager}
+      />
+    );
+
+    // Clicking All Accounts deselects the account
+    const allBtn = screen.getByRole('button', { name: /All Accounts/i });
+    fireEvent.click(allBtn);
+    expect(handleSelectAccount).toHaveBeenCalledWith(null);
+  });
 });

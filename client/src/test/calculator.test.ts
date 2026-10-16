@@ -30,6 +30,9 @@ describe('Calculator Evaluator Seam Tests', () => {
   it('handles division by zero and extreme edge cases safely without throwing', () => {
     expect(evaluateExpression('50 / 0')).toBe(0);
     expect(evaluateExpression('invalid text')).toBe(0);
+    expect(evaluateExpression('* 5')).toBe(0);
+    expect(evaluateExpression('/ 10')).toBe(0);
+    expect(evaluateExpression('1' + '0'.repeat(200) + ' * ' + '1' + '0'.repeat(200))).toBe(0);
   });
 
   it('formats display output with currency symbol', () => {

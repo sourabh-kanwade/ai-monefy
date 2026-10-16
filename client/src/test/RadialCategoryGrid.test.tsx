@@ -60,4 +60,27 @@ describe('RadialCategoryGrid Seam Tests', () => {
     fireEvent.click(screen.getByText('Travel'));
     expect(handleTap).toHaveBeenCalledWith(mockCategories.find((c) => c.name === 'Travel'));
   });
+
+  it('renders over-budget warning indicator when spend exceeds category budget', () => {
+    const handleTap = vi.fn();
+    const expenses = { c1: 150 };
+    const budgets = { c1: 100 };
+
+    render(
+      <RadialCategoryGrid
+        categories={mockCategories}
+        categoryExpenses={expenses}
+        categoryBudgets={budgets}
+        currency="$"
+        onCategoryTap={handleTap}
+        maxPrimaryRing={6}
+      />
+    );
+
+    const overflowBtn = screen.getByTestId('btn-categories-overflow');
+    fireEvent.click(overflowBtn);
+
+    // Over budget dot in overflow drawer
+    expect(screen.getAllByTitle(/Over budget by \$50\.00/i)[0]).toBeInTheDocument();
+  });
 });

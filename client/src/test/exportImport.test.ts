@@ -5,6 +5,10 @@ import {
   exportTransactionsToCSV,
   exportDatabaseToJSON,
   importDatabaseFromJSON,
+  importTransactionsFromCSV,
+  triggerFileDownload,
+  resolveCurrencyCode,
+  formatDateToMonefy,
 } from '../utils/exportImport';
 import type { Category, Account, Transaction } from '../types';
 
@@ -147,9 +151,54 @@ describe('Data Export and Import Utilities', () => {
 
     // Invalid JSON error check
     await expect(importDatabaseFromJSON('{ "version": 2, invalid }', db)).rejects.toThrow();
+    // Root must be an object check
+    await expect(importDatabaseFromJSON('null', db)).rejects.toThrow(
+      /root must be an object/
+    );
+    await expect(importDatabaseFromJSON('"just-a-string"', db)).rejects.toThrow(
+      /root must be an object/
+    );
     // Missing required arrays check
     await expect(importDatabaseFromJSON('{"version": 1, "accounts": []}', db)).rejects.toThrow(
       /Invalid backup format/
     );
+  });
+
+  it('triggers browser file download safely', () => {
+    globalThis.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const appendSpy = vi.spyOn(document.body, 'appendChild');
+    const removeSpy = vi.spyOn(document.body, 'removeChild');
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+
+    triggerFileDownload('col1,col2\nval1,val2', 'test.csv', 'text/csv');
+
+    expect(appendSpy).toHaveBeenCalled();
+    expect(clickSpy).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalled();
+    expect(globalThis.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+  });
+
+  it('throws error when CSV import has no valid rows and row-level errors', async () => {
+    const invalidCsv = 'Date,Category,Account,Amount\ninvalid-date,Food,Cash,25';
+    await expect(importTransactionsFromCSV(invalidCsv, db)).rejects.toThrow(/Failed to parse CSV/);
+  });
+
+  it('creates new destination account when importing transfer with unknown toAccount', async () => {
+    const transferCsv = [
+      'Date,Category,Account,Amount,Type,To Account',
+      '2026-10-15,,Checking,100,transfer,Investment Pot',
+    ].join('\n');
+    const res = await importTransactionsFromCSV(transferCsv, db);
+    expect(res.importedTransactionsCount).toBe(1);
+    expect(res.createdAccountsCount).toBeGreaterThanOrEqual(1);
+    const toAcc = await db.accounts.where('name').equals('Investment Pot').first();
+    expect(toAcc).toBeDefined();
+  });
+
+  it('handles getCurrencyCode fallback and formatDateToMonefy non-standard date formats', () => {
+    expect(resolveCurrencyCode('CUSTOM_CURRENCY')).toBe('INR');
+    expect(formatDateToMonefy('2026/10/15')).toBe('15/10/2026');
+    expect(formatDateToMonefy('not-a-valid-date')).toBe('not-a-valid-date');
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { MonefyDatabase } from '../db/localDb';
+import { MonefyDatabase, generateUuid } from '../db/localDb';
 
 describe('Ticket 01: Walking Skeleton Seam Tests', () => {
   let db: MonefyDatabase;
@@ -86,5 +86,40 @@ describe('Ticket 01: Walking Skeleton Seam Tests', () => {
     const balance = await reloadedDb.calculateNetBalance();
     expect(balance).toBe(1150);
     reloadedDb.close();
+  });
+
+  it('migrates legacy categories without displayOrder or isVisible on initializeDefaults', async () => {
+    const legacyDb = new MonefyDatabase(`test_legacy_${Date.now()}`);
+    await legacyDb.open();
+    await legacyDb.categories.add({
+      id: 'legacy-cat-1',
+      name: 'Legacy Cat',
+      icon: 'Tag',
+      color: '#fff',
+      type: 'expense',
+      isDefault: false,
+      isDeleted: false,
+      createdAt: '2026-10-01T00:00:00Z',
+      updatedAt: '2026-10-01T00:00:00Z',
+    } as any);
+
+    await legacyDb.initializeDefaults();
+
+    const migrated = await legacyDb.categories.get('legacy-cat-1');
+    expect(migrated?.displayOrder).toBeDefined();
+    expect(migrated?.isVisible).toBe(true);
+    await legacyDb.delete();
+  });
+
+  it('falls back to regex uuid generation when crypto.randomUUID is unavailable', () => {
+    const origCrypto = globalThis.crypto;
+    // @ts-ignore
+    delete (globalThis as any).crypto;
+    try {
+      const id = generateUuid();
+      expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    } finally {
+      (globalThis as any).crypto = origCrypto;
+    }
   });
 });

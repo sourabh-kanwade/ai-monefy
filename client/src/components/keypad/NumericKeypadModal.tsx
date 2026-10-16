@@ -198,6 +198,8 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
           }}
         >
           <div
+            data-testid="calculator-expression"
+            onClick={() => handleKeyPress('clear')}
             className="font-num"
             style={{
               fontSize: 'clamp(26px, 7.5vw, 34px)',
@@ -205,6 +207,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
               color: 'var(--text-primary)',
               wordBreak: 'break-all',
               minHeight: '36px',
+              cursor: 'pointer',
             }}
           >
             {expression || '0'}

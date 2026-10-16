@@ -60,12 +60,19 @@ describe('NumericKeypadModal Seam Tests', () => {
     // Verify modal header displays category name
     expect(screen.getByText('Food & Drinks')).toBeInTheDocument();
 
-    // Tap keys: 1, 5, +, 4, ., 5
+    // Start with operator when empty (noop)
+    fireEvent.click(screen.getByRole('button', { name: '+' }));
+
+    // Tap keys: 1, 5, -, + (replaces -), 4, ., 5, . (ignored duplicate), Backspace, 5
     fireEvent.click(screen.getByRole('button', { name: '1' }));
     fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: '-' }));
     fireEvent.click(screen.getByRole('button', { name: '+' }));
     fireEvent.click(screen.getByRole('button', { name: '4' }));
     fireEvent.click(screen.getByRole('button', { name: '.' }));
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: '.' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Backspace' }));
     fireEvent.click(screen.getByRole('button', { name: '5' }));
 
     // Verify live evaluated subtotal preview shows $19.50
@@ -90,5 +97,60 @@ describe('NumericKeypadModal Seam Tests', () => {
         note: 'Lunch with colleagues',
       })
     );
+  });
+
+  it('validates amount, category presence, clamps future dates, and handles closed state', () => {
+    const handleSave = vi.fn();
+    const handleClose = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { rerender, container } = render(
+      <NumericKeypadModal
+        isOpen={false}
+        onClose={handleClose}
+        onSave={handleSave}
+        initialCategory={mockCategory}
+        accounts={mockAccounts}
+        currency="$"
+        type="expense"
+      />
+    );
+    expect(screen.queryByTestId('btn-keypad-confirm')).not.toBeInTheDocument();
+
+    rerender(
+      <NumericKeypadModal
+        isOpen={true}
+        onClose={handleClose}
+        onSave={handleSave}
+        initialCategory={null}
+        accounts={mockAccounts}
+        currency="$"
+        type="expense"
+      />
+    );
+
+    // Confirm without entering amount
+    const confirmButton = screen.getByTestId('btn-keypad-confirm');
+    fireEvent.click(confirmButton);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a valid amount greater than 0');
+
+    // Enter amount 10 with null initialCategory
+    fireEvent.click(screen.getByRole('button', { name: '1' }));
+    fireEvent.click(screen.getByRole('button', { name: '0' }));
+    fireEvent.click(confirmButton);
+    expect(alertSpy).toHaveBeenCalledWith('Please select a category');
+
+    // Future date clamping
+    const dateInput = container.querySelector('input[type="date"]')!;
+    fireEvent.change(dateInput, { target: { value: '2099-01-01' } });
+    expect(dateInput).not.toHaveValue('2099-01-01');
+
+    // Clear expression by clicking display
+    fireEvent.click(screen.getByTestId('calculator-expression'));
+    expect(screen.getByTestId('calculator-expression')).toHaveTextContent('0');
+
+    // Close button
+    fireEvent.click(screen.getByLabelText('Close keypad'));
+    expect(handleClose).toHaveBeenCalled();
   });
 });

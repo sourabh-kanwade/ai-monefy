@@ -43,4 +43,38 @@ describe('WalkingSkeletonView UI Component Tests', () => {
       expect(txItem?.textContent).toContain('35.00');
     });
   });
+
+  it('validates amount on submit and opens calculator keypad to save transaction', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    render(
+      <FinanceProvider database={testDb}>
+        <WalkingSkeletonView />
+      </FinanceProvider>
+    );
+
+    await screen.findByText('TOTAL BALANCE');
+    await screen.findByRole('option', { name: 'Food' });
+
+    // Submit without amount
+    const saveButton = screen.getByRole('button', { name: /Save Expense/i });
+    fireEvent.submit(saveButton.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a valid amount');
+
+    // Open calculator keypad
+    const keypadBtn = screen.getByRole('button', { name: /Open Monefy Calculator Keypad/i });
+    fireEvent.click(keypadBtn);
+
+    // Keypad modal is open, click digit 5 and confirm
+    const key5 = screen.getByRole('button', { name: '5' });
+    fireEvent.click(key5);
+
+    const confirmBtn = screen.getByTestId('btn-keypad-confirm');
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      const items = document.querySelectorAll('.transaction-item');
+      expect(items.length).toBeGreaterThan(0);
+    });
+  });
 });

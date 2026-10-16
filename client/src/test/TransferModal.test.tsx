@@ -74,4 +74,58 @@ describe('TransferModal Seam Tests', () => {
     });
     expect(handleClose).toHaveBeenCalled();
   });
+
+  it('validates transfer amounts, same accounts, clamps future dates, and handles closed state', () => {
+    const handleSave = vi.fn();
+    const handleClose = vi.fn();
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { rerender } = render(
+      <TransferModal
+        isOpen={false}
+        onClose={handleClose}
+        onSave={handleSave}
+        accounts={mockAccounts}
+        currency="$"
+      />
+    );
+    expect(screen.queryByText(/Transfer Between Accounts/i)).not.toBeInTheDocument();
+
+    rerender(
+      <TransferModal
+        isOpen={true}
+        onClose={handleClose}
+        onSave={handleSave}
+        accounts={mockAccounts}
+        currency="$"
+      />
+    );
+
+    // Invalid amount alert
+    const submitBtn = screen.getByRole('button', { name: /Confirm Transfer/i });
+    fireEvent.submit(submitBtn.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Please enter a valid transfer amount');
+
+    // Same from and to accounts
+    const amountInput = screen.getByLabelText(/Transfer Amount/i);
+    fireEvent.change(amountInput, { target: { value: '50' } });
+
+    const fromSelect = screen.getByLabelText(/From Account/i);
+    const toSelect = screen.getByLabelText(/To Account/i);
+    fireEvent.change(fromSelect, { target: { value: 'acc-1' } });
+    fireEvent.change(toSelect, { target: { value: 'acc-1' } });
+
+    fireEvent.submit(submitBtn.closest('form')!);
+    expect(alertSpy).toHaveBeenCalledWith('Source and destination accounts must be different');
+
+    // Future date clamping
+    const dateInput = screen.getByLabelText(/Date/i);
+    fireEvent.change(dateInput, { target: { value: '2099-01-01' } });
+    // Date clamped to today
+    expect(dateInput).not.toHaveValue('2099-01-01');
+
+    // Close button
+    fireEvent.click(screen.getByLabelText(/Close/i));
+    expect(handleClose).toHaveBeenCalled();
+  });
 });

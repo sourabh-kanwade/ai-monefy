@@ -101,4 +101,71 @@ describe('TransactionHistorySheet Seam Tests', () => {
     fireEvent.click(screen.getByText(/Grocery store sushi/i));
     expect(handleEdit).toHaveBeenCalledWith(mockTransactions[0]);
   });
+
+  it('renders transfer transactions, handles transaction deletion, and displays empty state', () => {
+    const handleEdit = vi.fn();
+    const handleDelete = vi.fn();
+
+    const transferTx: Transaction = {
+      id: 'tx-transfer',
+      accountId: 'acc-1',
+      toAccountId: 'acc-2',
+      categoryId: 'cat-1',
+      amount: 100,
+      type: 'transfer',
+      note: 'ATM Transfer',
+      date: '2026-10-15T10:00:00.000Z',
+      createdAt: '2026-10-15T10:00:00.000Z',
+      updatedAt: '2026-10-15T10:00:00.000Z',
+      isDeleted: false,
+    };
+
+    const multiAccounts: Account[] = [
+      ...mockAccounts,
+      {
+        id: 'acc-2',
+        name: 'Card',
+        icon: 'credit-card',
+        color: '#3B82F6',
+        initialBalance: 1000,
+        isDefault: false,
+        isDeleted: false,
+        createdAt: '2026-10-01T00:00:00Z',
+        updatedAt: '2026-10-01T00:00:00Z',
+      },
+    ];
+
+    const { rerender } = render(
+      <TransactionHistorySheet
+        transactions={[transferTx]}
+        categories={mockCategories}
+        accounts={multiAccounts}
+        currency="$"
+        onEditTransaction={handleEdit}
+        onDeleteTransaction={handleDelete}
+      />
+    );
+
+    // Assert transfer header
+    expect(screen.getByText('Transfer: Cash → Card')).toBeInTheDocument();
+    expect(screen.getByText('⇄ $100.00')).toBeInTheDocument();
+
+    // Click delete transaction button
+    const deleteBtn = screen.getByTitle('Delete transaction');
+    fireEvent.click(deleteBtn);
+    expect(handleDelete).toHaveBeenCalledWith('tx-transfer');
+
+    // Empty state
+    rerender(
+      <TransactionHistorySheet
+        transactions={[]}
+        categories={mockCategories}
+        accounts={multiAccounts}
+        currency="$"
+        onEditTransaction={handleEdit}
+        onDeleteTransaction={handleDelete}
+      />
+    );
+    expect(screen.getByText(/No transactions recorded yet/i)).toBeInTheDocument();
+  });
 });
