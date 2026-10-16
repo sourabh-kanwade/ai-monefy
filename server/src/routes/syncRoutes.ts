@@ -31,6 +31,10 @@ interface SyncPushBody {
     is_default?: boolean;
     isDeleted?: boolean;
     is_deleted?: boolean;
+    displayOrder?: number;
+    display_order?: number;
+    isVisible?: boolean;
+    is_visible?: boolean;
     createdAt?: string;
     created_at?: string;
     updatedAt?: string;
@@ -110,12 +114,14 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
       const now = new Date().toISOString();
       const isDef = cat.isDefault ?? cat.is_default ?? false;
       const isDel = cat.isDeleted ?? cat.is_deleted ?? false;
+      const displayOrder = Number(cat.displayOrder ?? cat.display_order ?? 0) || 0;
+      const isVisible = cat.isVisible ?? cat.is_visible ?? true;
       const createdAt = cat.createdAt ?? cat.created_at ?? now;
       const updatedAt = cat.updatedAt ?? cat.updated_at ?? now;
 
       await client.query(
-        `INSERT INTO categories (id, user_id, name, icon, color, type, is_default, is_deleted, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        `INSERT INTO categories (id, user_id, name, icon, color, type, is_default, is_deleted, display_order, is_visible, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
          ON CONFLICT (id) DO UPDATE SET
            name = EXCLUDED.name,
            icon = EXCLUDED.icon,
@@ -123,9 +129,11 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
            type = EXCLUDED.type,
            is_default = EXCLUDED.is_default,
            is_deleted = EXCLUDED.is_deleted,
+           display_order = EXCLUDED.display_order,
+           is_visible = EXCLUDED.is_visible,
            updated_at = EXCLUDED.updated_at
          WHERE EXCLUDED.updated_at >= categories.updated_at AND categories.user_id = $2`,
-        [cat.id, userId, cat.name, cat.icon, cat.color, cat.type, isDef, isDel, createdAt, updatedAt]
+        [cat.id, userId, cat.name, cat.icon, cat.color, cat.type, isDef, isDel, displayOrder, isVisible, createdAt, updatedAt]
       );
     }
 
@@ -208,7 +216,7 @@ syncRouter.get('/pull', authenticateToken, async (req, res) => {
         [userId, since]
       ),
       query(
-        `SELECT id, name, icon, color, type, is_default AS "isDefault", is_deleted AS "isDeleted", created_at AS "createdAt", updated_at AS "updatedAt"
+        `SELECT id, name, icon, color, type, is_default AS "isDefault", is_deleted AS "isDeleted", display_order AS "displayOrder", is_visible AS "isVisible", created_at AS "createdAt", updated_at AS "updatedAt"
          FROM categories
          WHERE user_id = $1 AND ($2::timestamptz IS NULL OR updated_at > $2::timestamptz)`,
         [userId, since]

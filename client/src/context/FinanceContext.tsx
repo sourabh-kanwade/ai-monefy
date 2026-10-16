@@ -46,6 +46,10 @@ interface FinanceContextType {
     color: string;
     type: 'expense' | 'income';
   }) => Promise<string>;
+  updateCategory: (id: string, updates: Partial<Category>) => Promise<void>;
+  toggleCategoryVisibility: (id: string, isVisible: boolean) => Promise<void>;
+  reorderCategories: (orderedIds: string[]) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   addAccount: (input: {
     name: string;
     icon: string;
@@ -216,6 +220,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     }) => {
       const id = crypto.randomUUID?.() || String(Date.now());
       const now = new Date().toISOString();
+      const countOfType = categories.filter((c) => c.type === input.type && !c.isDeleted).length;
       const newCat: Category = {
         id,
         name: input.name,
@@ -224,6 +229,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         type: input.type,
         isDefault: false,
         isDeleted: false,
+        displayOrder: countOfType,
+        isVisible: true,
         createdAt: now,
         updatedAt: now,
       };
@@ -238,6 +245,73 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
       });
       await refreshData();
       return id;
+    },
+    [database, refreshData, categories]
+  );
+
+  const updateCategory = useCallback(
+    async (id: string, updates: Partial<Category>) => {
+      const now = new Date().toISOString();
+      await database.categories.update(id, { ...updates, updatedAt: now });
+      const updated = await database.categories.get(id);
+      if (updated) {
+        await database.syncQueue.add({
+          id: crypto.randomUUID?.() || String(Date.now()),
+          entityType: 'category',
+          entityId: id,
+          action: 'update',
+          payload: updated,
+          timestamp: now,
+        });
+      }
+      await refreshData();
+    },
+    [database, refreshData]
+  );
+
+  const toggleCategoryVisibility = useCallback(
+    async (id: string, isVisible: boolean) => {
+      await updateCategory(id, { isVisible });
+    },
+    [updateCategory]
+  );
+
+  const reorderCategories = useCallback(
+    async (orderedIds: string[]) => {
+      const now = new Date().toISOString();
+      for (let i = 0; i < orderedIds.length; i++) {
+        const catId = orderedIds[i];
+        await database.categories.update(catId, { displayOrder: i, updatedAt: now });
+        const updated = await database.categories.get(catId);
+        if (updated) {
+          await database.syncQueue.add({
+            id: crypto.randomUUID?.() || String(Date.now()),
+            entityType: 'category',
+            entityId: catId,
+            action: 'update',
+            payload: updated,
+            timestamp: now,
+          });
+        }
+      }
+      await refreshData();
+    },
+    [database, refreshData]
+  );
+
+  const deleteCategory = useCallback(
+    async (id: string) => {
+      const now = new Date().toISOString();
+      await database.categories.update(id, { isDeleted: true, updatedAt: now });
+      await database.syncQueue.add({
+        id: crypto.randomUUID?.() || String(Date.now()),
+        entityType: 'category',
+        entityId: id,
+        action: 'delete',
+        payload: { id },
+        timestamp: now,
+      });
+      await refreshData();
     },
     [database, refreshData]
   );
@@ -469,6 +543,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
         deleteTransaction,
         updateTransaction,
         addCategory,
+        updateCategory,
+        toggleCategoryVisibility,
+        reorderCategories,
+        deleteCategory,
         addAccount,
         updateAccount,
         deleteAccount,

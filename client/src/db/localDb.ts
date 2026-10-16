@@ -65,7 +65,7 @@ export class MonefyDatabase extends Dexie {
 
     if (categoryCount === 0) {
       const initialCategories: Category[] = [
-        ...DEFAULT_EXPENSE_CATEGORIES.map((cat) => ({
+        ...DEFAULT_EXPENSE_CATEGORIES.map((cat, index) => ({
           id: generateUuid(),
           name: cat.name,
           icon: cat.icon,
@@ -73,10 +73,12 @@ export class MonefyDatabase extends Dexie {
           type: 'expense' as const,
           isDefault: true,
           isDeleted: false,
+          displayOrder: index,
+          isVisible: true,
           createdAt: now,
           updatedAt: now,
         })),
-        ...DEFAULT_INCOME_CATEGORIES.map((cat) => ({
+        ...DEFAULT_INCOME_CATEGORIES.map((cat, index) => ({
           id: generateUuid(),
           name: cat.name,
           icon: cat.icon,
@@ -84,11 +86,41 @@ export class MonefyDatabase extends Dexie {
           type: 'income' as const,
           isDefault: true,
           isDeleted: false,
+          displayOrder: index,
+          isVisible: true,
           createdAt: now,
           updatedAt: now,
         })),
       ];
       await this.categories.bulkAdd(initialCategories);
+    } else {
+      // Backfill missing displayOrder or isVisible on existing categories
+      const allCats = await this.categories.toArray();
+      const updates: Category[] = [];
+      let expenseIdx = 0;
+      let incomeIdx = 0;
+      for (const cat of allCats) {
+        let changed = false;
+        let order = cat.displayOrder;
+        let visible = cat.isVisible;
+        if (order === undefined) {
+          order = cat.type === 'expense' ? expenseIdx++ : incomeIdx++;
+          changed = true;
+        } else {
+          if (cat.type === 'expense') expenseIdx = Math.max(expenseIdx, order + 1);
+          else incomeIdx = Math.max(incomeIdx, order + 1);
+        }
+        if (visible === undefined) {
+          visible = true;
+          changed = true;
+        }
+        if (changed) {
+          updates.push({ ...cat, displayOrder: order, isVisible: visible });
+        }
+      }
+      if (updates.length > 0) {
+        await this.categories.bulkPut(updates);
+      }
     }
 
     const accountCount = await this.accounts.count();

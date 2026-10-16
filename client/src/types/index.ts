@@ -24,6 +24,8 @@ export interface Category {
   type: 'expense' | 'income';
   isDefault: boolean;
   isDeleted: boolean;
+  displayOrder?: number;
+  isVisible?: boolean;
   createdAt: string;
   updatedAt: string;
 }

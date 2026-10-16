@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS categories (
     type VARCHAR(20) NOT NULL CHECK (type IN ('expense', 'income')),
     is_default BOOLEAN NOT NULL DEFAULT false,
     is_deleted BOOLEAN NOT NULL DEFAULT false,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    is_visible BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

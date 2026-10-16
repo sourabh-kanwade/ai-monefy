@@ -46,6 +46,8 @@ export const MonefyDashboard: React.FC = () => {
     stepNextPeriod,
     addTransaction,
     addCategory,
+    toggleCategoryVisibility,
+    reorderCategories,
     addAccount,
     updateAccount,
     deleteAccount,
@@ -213,7 +215,7 @@ export const MonefyDashboard: React.FC = () => {
         onOpenSync={() => setIsSyncModalOpen(true)}
         onOpenAccounts={() => setIsAccountManagerOpen(true)}
         onOpenBudgets={() => setIsBudgetModalOpen(true)}
-        onOpenCategories={() => setIsCustomizerOpen(true)}
+        onOpenCategories={() => setIsSettingsOpen(true)}
       />
 
       {/* Account Breakdown Bar */}
@@ -507,6 +509,13 @@ export const MonefyDashboard: React.FC = () => {
           await refreshData();
           return res;
         }}
+        onToggleCategoryVisibility={async (id, isVisible) => {
+          await toggleCategoryVisibility(id, isVisible);
+        }}
+        onReorderCategories={async (orderedIds) => {
+          await reorderCategories(orderedIds);
+        }}
+        onAddCategory={() => setIsCustomizerOpen(true)}
       />
 
 

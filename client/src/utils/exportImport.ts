@@ -192,6 +192,8 @@ export async function importTransactionsFromCSV(
         type: isIncome ? 'income' : 'expense',
         isDefault: false,
         isDeleted: false,
+        displayOrder: 999,
+        isVisible: true,
         createdAt: now,
         updatedAt: now,
       };
@@ -511,9 +513,15 @@ export async function importDatabaseFromJSON(
       db.budgets.clear(),
     ]);
 
+    const normalizedCategories: Category[] = categories.map((cat, idx) => ({
+      ...cat,
+      displayOrder: typeof cat.displayOrder === 'number' ? cat.displayOrder : idx,
+      isVisible: cat.isVisible !== false,
+    }));
+
     await Promise.all([
       db.accounts.bulkAdd(accounts),
-      db.categories.bulkAdd(categories),
+      db.categories.bulkAdd(normalizedCategories),
       db.transactions.bulkAdd(transactions),
       budgets.length > 0 ? db.budgets.bulkAdd(budgets) : Promise.resolve(),
     ]);

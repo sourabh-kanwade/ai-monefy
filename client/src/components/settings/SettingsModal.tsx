@@ -1,7 +1,21 @@
-import React, { useState, useRef } from 'react';
-import { X, Globe, Download, Upload, FileText, Database, CheckCircle2, AlertCircle, FileSpreadsheet } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  X,
+  Globe,
+  Download,
+  Upload,
+  FileText,
+  Database,
+  CheckCircle2,
+  AlertCircle,
+  FileSpreadsheet,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+} from 'lucide-react';
 import type { Category, Account, Transaction } from '../../types';
 import type { MonefyDatabase } from '../../db/localDb';
+import { CategoryIcon } from '../categories/CategoryIcon';
 import {
   exportTransactionsToCSV,
   exportDatabaseToJSON,
@@ -24,6 +38,10 @@ export interface SettingsModalProps {
   onImportCSV?: (csvString: string) => Promise<CsvImportResult | void>;
   onExportCSV?: () => void;
   onBackupJSON?: () => void;
+  onToggleCategoryVisibility?: (id: string, isVisible: boolean) => Promise<void> | void;
+  onReorderCategories?: (orderedIds: string[]) => Promise<void> | void;
+  onAddCategory?: () => void;
+  initialTab?: 'general' | 'categories';
 }
 
 const CURRENCIES = [
@@ -49,12 +67,65 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportCSV,
   onExportCSV,
   onBackupJSON,
+  onToggleCategoryVisibility,
+  onReorderCategories,
+  onAddCategory,
+  initialTab = 'general',
 }) => {
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [isImportingCsv, setIsImportingCsv] = useState(false);
+  const [categoryTab, setCategoryTab] = useState<'expense' | 'income'>('expense');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const csvInputRef = useRef<HTMLInputElement | null>(null);
+  const categoriesSectionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (initialTab === 'categories' && categoriesSectionRef.current) {
+      categoriesSectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [initialTab]);
+
+  const activeCategories = categories
+    .filter((c) => c.type === categoryTab && !c.isDeleted)
+    .sort((a, b) => {
+      const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999;
+      const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999;
+      return orderA - orderB;
+    });
+
+  const handleToggleVisibility = async (catId: string, nextVisible: boolean) => {
+    if (!nextVisible) {
+      const visibleCount = activeCategories.filter(
+        (c) => c.isVisible !== false && c.id !== catId
+      ).length;
+      if (visibleCount === 0) {
+        setStatusMessage({
+          type: 'error',
+          text: `At least one ${categoryTab} category must remain visible on the dashboard.`,
+        });
+        return;
+      }
+    }
+    if (onToggleCategoryVisibility) {
+      await onToggleCategoryVisibility(catId, nextVisible);
+    }
+  };
+
+  const handleMoveCategory = async (currentIndex: number, direction: -1 | 1) => {
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= activeCategories.length) return;
+
+    const newOrder = [...activeCategories];
+    const temp = newOrder[currentIndex];
+    newOrder[currentIndex] = newOrder[targetIndex];
+    newOrder[targetIndex] = temp;
+
+    const orderedIds = newOrder.map((c) => c.id);
+    if (onReorderCategories) {
+      await onReorderCategories(orderedIds);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -364,6 +435,233 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       {curr.code}
                     </span>
                   </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Categories & Display Order Section */}
+          <div ref={categoriesSectionRef}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '6px',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: 'var(--text-secondary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                Categories & Display Order
+              </div>
+              {onAddCategory && (
+                <button
+                  type="button"
+                  data-testid="btn-add-category-settings"
+                  onClick={onAddCategory}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: 'var(--color-primary)',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    border: '1px solid rgba(99, 102, 241, 0.25)',
+                    padding: '3px 8px',
+                    borderRadius: 'var(--radius-full)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Plus size={13} /> Add Custom
+                </button>
+              )}
+            </div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
+              Select which categories appear on the dashboard wheel/grid and arrange their display order.
+            </div>
+
+            {/* Expense / Income Filter Tabs */}
+            <div
+              style={{
+                display: 'flex',
+                background: 'var(--bg-elevated)',
+                borderRadius: 'var(--radius-md)',
+                padding: '3px',
+                gap: '4px',
+                marginBottom: '10px',
+              }}
+            >
+              <button
+                type="button"
+                data-testid="tab-categories-expense"
+                onClick={() => setCategoryTab('expense')}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  background: categoryTab === 'expense' ? 'var(--color-primary)' : 'transparent',
+                  color: categoryTab === 'expense' ? '#FFFFFF' : 'var(--text-muted)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)',
+                }}
+              >
+                Expense Categories
+              </button>
+              <button
+                type="button"
+                data-testid="tab-categories-income"
+                onClick={() => setCategoryTab('income')}
+                style={{
+                  flex: 1,
+                  padding: '6px 10px',
+                  borderRadius: 'var(--radius-sm)',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  background: categoryTab === 'income' ? 'var(--color-primary)' : 'transparent',
+                  color: categoryTab === 'income' ? '#FFFFFF' : 'var(--text-muted)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)',
+                }}
+              >
+                Income Categories
+              </button>
+            </div>
+
+            {/* Categories List */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+                maxHeight: '260px',
+                overflowY: 'auto',
+                paddingRight: '2px',
+              }}
+            >
+              {activeCategories.map((cat, index) => {
+                const isFirst = index === 0;
+                const isLast = index === activeCategories.length - 1;
+                const isVisible = cat.isVisible !== false;
+
+                return (
+                  <div
+                    key={cat.id}
+                    data-testid={`category-row-${cat.id}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '8px 10px',
+                      borderRadius: 'var(--radius-md)',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border-subtle)',
+                      opacity: isVisible ? 1 : 0.5,
+                      transition: 'all var(--transition-fast)',
+                    }}
+                  >
+                    {/* Left: Checkbox & Category Details */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <input
+                        type="checkbox"
+                        data-testid={`category-toggle-${cat.id}`}
+                        aria-label={`Toggle visibility of ${cat.name}`}
+                        checked={isVisible}
+                        onChange={(e) => handleToggleVisibility(cat.id, e.target.checked)}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          accentColor: 'var(--color-primary)',
+                          cursor: 'pointer',
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          background: `${cat.color}25`,
+                          border: `1.5px solid ${cat.color}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <CategoryIcon name={cat.icon} size={15} color={cat.color} />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {cat.name}
+                        </span>
+                        {cat.isDefault && (
+                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                            Default
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: Reorder Up/Down buttons */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <button
+                        type="button"
+                        data-testid={`category-move-up-${cat.id}`}
+                        aria-label={`Move ${cat.name} up`}
+                        disabled={isFirst}
+                        onClick={() => handleMoveCategory(index, -1)}
+                        style={{
+                          width: '26px',
+                          height: '26px',
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border-subtle)',
+                          color: isFirst ? 'var(--text-muted)' : 'var(--text-primary)',
+                          opacity: isFirst ? 0.35 : 1,
+                          cursor: isFirst ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                        }}
+                      >
+                        <ChevronUp size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`category-move-down-${cat.id}`}
+                        aria-label={`Move ${cat.name} down`}
+                        disabled={isLast}
+                        onClick={() => handleMoveCategory(index, 1)}
+                        style={{
+                          width: '26px',
+                          height: '26px',
+                          borderRadius: 'var(--radius-sm)',
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border-subtle)',
+                          color: isLast ? 'var(--text-muted)' : 'var(--text-primary)',
+                          opacity: isLast ? 0.35 : 1,
+                          cursor: isLast ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                        }}
+                      >
+                        <ChevronDown size={15} />
+                      </button>
+                    </div>
+                  </div>
                 );
               })}
             </div>
