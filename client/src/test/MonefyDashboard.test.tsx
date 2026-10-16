@@ -125,9 +125,9 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
 
     // 2. Keypad Modal via direct category tap
     const allCats = await db.categories.toArray();
-    const firstCat = allCats.find(
-      (c) => c.type === 'expense' && !c.isDeleted && c.isVisible !== false
-    )!;
+    const firstCat = allCats
+      .filter((c) => c.type === 'expense' && !c.isDeleted && c.isVisible !== false)
+      .sort((a, b) => (a.displayOrder ?? 999) - (b.displayOrder ?? 999))[0];
     const catItem = await screen.findByTestId(`radial-category-${firstCat.id}`);
     fireEvent.click(catItem);
     expect(await screen.findByTestId('btn-keypad-confirm')).toBeInTheDocument();
