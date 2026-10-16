@@ -114,7 +114,19 @@ test.describe('Seam 6: Cloud Sync, Authentication & Offline Queue', () => {
     await page.locator('[data-testid="btn-logout-cloud"]').click();
     await expect(page.getByText('Local Guest Mode')).toBeVisible();
 
-    // Close Modal
+    // 8. Test Successful Login Flow
+    await page.locator('[data-testid="tab-auth-login"]').click();
+    await page.locator('input[placeholder="you@domain.com"]').fill('jane@example.com');
+    await page.locator('input[placeholder="Minimum 6 characters"]').fill('secret123');
+    await page.locator('[data-testid="btn-submit-auth"]').click();
+
+    await expect(page.getByText('Cloud Account Connected')).toBeVisible();
+    await expect(page.getByText('Jane Cloud')).toBeVisible();
+
+    // 9. Log Out again and Close Modal
+    await page.locator('[data-testid="btn-logout-cloud"]').click();
+    await expect(page.getByText('Local Guest Mode')).toBeVisible();
+
     await page.locator('[data-testid="btn-close-cloud-sync"]').click();
     await expect(page.getByText('Multi-device synchronization')).not.toBeVisible();
   });

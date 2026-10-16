@@ -23,9 +23,28 @@ test.describe('Seam 2: Multi-Account Management & Transfers', () => {
     // 2. Click "Add Another Account"
     await page.locator('button', { hasText: 'Add Another Account' }).click();
 
-    // Fill in Account Name and Initial Balance
+    // 2a. Test empty name alert validation
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('Please enter an account name');
+      await dialog.accept();
+    });
+    await page.locator('button[type="submit"]', { hasText: 'Add Account' }).click();
+
+    // 2b. Test Cancel button
+    await page.locator('.modal-sheet button', { hasText: 'Cancel' }).click();
+    await expect(page.locator('input[placeholder="e.g. Crypto Wallet, Checking"]')).not.toBeVisible();
+
+    // Re-open Add Account form
+    await page.locator('button', { hasText: 'Add Another Account' }).click();
+
+    // Fill in Account Name and Initial Balance, and select a color
     await page.locator('input[placeholder="e.g. Crypto Wallet, Checking"]').fill('Crypto Wallet');
     await page.locator('input[aria-label="Initial Balance"]').fill('500');
+    // Click a color option
+    const colorBtns = page.locator('.modal-sheet button[type="button"][style*="border-radius: 50%"]');
+    if (await colorBtns.count() > 0) {
+      await colorBtns.first().click();
+    }
     await page.locator('button[type="submit"]', { hasText: 'Add Account' }).click();
 
     // Verify Crypto Wallet is listed in manager modal
@@ -54,7 +73,7 @@ test.describe('Seam 2: Multi-Account Management & Transfers', () => {
     const emergencyPill = page.locator('button', { hasText: 'Emergency Fund' }).first();
     await expect(emergencyPill).toBeVisible();
 
-    // 3. Filter by the new account
+    // 3. Filter by the new account and then back to All Accounts
     await emergencyPill.click();
     // Re-click "All Accounts"
     await page.locator('button', { hasText: 'All Accounts' }).first().click();
@@ -63,9 +82,26 @@ test.describe('Seam 2: Multi-Account Management & Transfers', () => {
     await page.locator('[data-testid="btn-quick-transfer"]').click();
     await expect(page.getByText('Transfer Between Accounts')).toBeVisible();
 
-    // Enter transfer amount: $75
+    // 4a. Test empty transfer amount validation
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('valid transfer amount');
+      await dialog.accept();
+    });
+    await page.locator('button[type="submit"]', { hasText: 'Confirm Transfer' }).click();
+
+    // 4b. Enter transfer amount: $75, select destination account and date
     await page.locator('input[aria-label="Transfer Amount"]').fill('75');
     await page.locator('input#transfer-note').fill('Move to savings');
+
+    const toAccountSelect = page.locator('select#to-account-select');
+    if (await toAccountSelect.isVisible()) {
+      await toAccountSelect.selectOption({ index: 1 });
+    }
+
+    const transferDate = page.locator('input#transfer-date');
+    if (await transferDate.isVisible()) {
+      await transferDate.fill('2026-10-01');
+    }
 
     // Submit transfer
     await page.locator('button[type="submit"]', { hasText: 'Confirm Transfer' }).click();

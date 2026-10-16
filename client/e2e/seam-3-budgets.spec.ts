@@ -23,6 +23,18 @@ test.describe('Seam 3: Category Budgets & Warnings', () => {
     // 2. Set monthly budget of $50 on Food
     await page.locator('button[aria-label="Set budget for Food"]').click();
 
+    // 2a. Test invalid limit alert
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('valid monthly limit');
+      await dialog.accept();
+    });
+    await page.locator('button[aria-label="Save Budget"]').click();
+
+    // 2b. Test Cancel button
+    await page.locator('.modal-sheet button', { hasText: 'Cancel' }).click();
+
+    // Re-open and set valid $50 budget
+    await page.locator('button[aria-label="Set budget for Food"]').click();
     await page.locator('input[placeholder="Enter monthly limit"]').fill('50');
     await page.locator('button[aria-label="Save Budget"]').click();
 
@@ -66,6 +78,12 @@ test.describe('Seam 3: Category Budgets & Warnings', () => {
     await page.locator('[data-testid="btn-open-budgets"]').click();
     await expect(page.getByText('Category Budgets')).toBeVisible();
     await expect(foodMeter).toHaveAttribute('data-budget-state', 'exceeded');
+
+    // 4b. Update the existing budget limit to $100 (tests updating existing budget in database)
+    await page.locator('button[aria-label="Edit budget for Food"]').click();
+    await page.locator('input[placeholder="Enter monthly limit"]').fill('100');
+    await page.locator('button[aria-label="Save Budget"]').click();
+    await expect(foodMeter).toHaveAttribute('data-budget-state', 'normal');
 
     // 5. Remove the budget
     await page.locator('button[aria-label="Remove budget for Food"]').click();

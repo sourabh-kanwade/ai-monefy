@@ -52,13 +52,34 @@ test.describe('Seam 5: Header Menu, Settings, Custom Categories & CSV Export/Imp
     await foodToggle.click();
     await expect(foodToggle).not.toBeChecked();
 
-    // Reorder: Move Transport down
+    // Reorder: Move Transport down, then move it up
     const transportMoveDown = page.locator('button[aria-label="Move Transport down"]');
     await transportMoveDown.click();
+    const transportMoveUp = page.locator('button[aria-label="Move Transport up"]');
+    if (await transportMoveUp.isVisible()) {
+      await transportMoveUp.click();
+    }
 
     // 6. Create Custom Category via CategoryCustomizerModal
     await page.locator('[data-testid="btn-add-category-settings"]').click();
     await expect(page.getByText('Create Custom Category')).toBeVisible();
+
+    // 6a. Test empty title alert validation
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('enter a category title');
+      await dialog.accept();
+    });
+    await page.locator('button', { hasText: 'Save Category' }).click();
+
+    // 6b. Toggle type to Income and back to Expense
+    await page.locator('.modal-sheet button', { hasText: 'Income' }).click();
+    await page.locator('.modal-sheet button', { hasText: 'Expense' }).click();
+
+    // 6c. Select a color from palette
+    const paletteBtns = page.locator('.modal-sheet button[type="button"][style*="border-radius: 50%"]');
+    if (await paletteBtns.count() > 0) {
+      await paletteBtns.first().click();
+    }
 
     await page.locator('input[aria-label="Category Name"]').fill('Gaming');
     // Select Coffee icon
@@ -70,19 +91,32 @@ test.describe('Seam 5: Header Menu, Settings, Custom Categories & CSV Export/Imp
     // Verify "Gaming" is now listed in SettingsModal categories
     await expect(page.getByText('Gaming')).toBeVisible();
 
-    // Close Settings modal to verify Food is hidden and Gaming is added
+    // Close Settings modal to record a transaction
     await page.locator('[data-testid="btn-close-settings"]').click();
-    // Add a transaction on Gaming
+
+    // Add a quick expense for Gaming so transactions exist for export
+    await page.locator('[data-testid="btn-quick-expense"]').click();
+    await page.locator('button', { hasText: /^3$/ }).click();
+    await page.locator('button', { hasText: /^0$/ }).click();
+    await page.locator('input[placeholder="Add note (optional)..."]').fill('Steam game');
+    await page.locator('[data-testid="btn-keypad-confirm"]').click();
+
     // Reopen settings
     await page.locator('[data-testid="btn-hamburger-menu"]').click();
     await page.locator('[data-testid="btn-open-settings"]').click();
 
-    // 7. CSV Export & JSON Backup
+    // 7. CSV Export & JSON Backup (with transactions present)
     await page.locator('[data-testid="btn-export-csv"]').click();
     await expect(page.getByText(/Exported \d+ transactions as .* in Monefy format!/)).toBeVisible();
 
     await page.locator('[data-testid="btn-backup-json"]').click();
     await expect(page.getByText('Full JSON backup created and downloaded!')).toBeVisible();
+
+    // Test import CSV trigger button click
+    const triggerCsvBtn = page.locator('[data-testid="btn-trigger-import-csv"]');
+    if (await triggerCsvBtn.isVisible()) {
+      await triggerCsvBtn.click();
+    }
 
     // 8. Import CSV Data
     const csvFilePath = path.resolve(process.cwd(), '../Monefy.Data.15-10-26.csv');

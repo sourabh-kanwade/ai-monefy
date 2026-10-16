@@ -3,6 +3,8 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App } from '@capacitor/app';
 
+export { Capacitor, Haptics, StatusBar, App, ImpactStyle, Style };
+
 /**
  * Triggers native device haptic feedback on keypad button presses,
  * falling back to browser vibration API if supported.

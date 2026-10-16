@@ -27,10 +27,19 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     // Verify keypad modal is open
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).toBeVisible();
 
-    // Enter arithmetic expression: 40 + 5
-    await page.locator('button', { hasText: /^4$/ }).click();
+    // 1a. Test zero amount validation dialog
+    page.once('dialog', async (dialog) => {
+      expect(dialog.message()).toContain('Please enter a valid amount');
+      await dialog.accept();
+    });
+    await page.locator('[data-testid="btn-keypad-confirm"]').click();
+
+    // 1b. Test multiple decimal prevention and arithmetic subtraction: 50 - 5
+    await page.locator('button', { hasText: /^5$/ }).click();
+    await page.locator('button', { hasText: /^\.$/ }).click();
+    await page.locator('button', { hasText: /^\.$/ }).click(); // duplicate decimal ignored
     await page.locator('button', { hasText: /^0$/ }).click();
-    await page.locator('button', { hasText: /^\+$/ }).click();
+    await page.locator('button', { hasText: /^\-$/ }).click();
     await page.locator('button', { hasText: /^5$/ }).click();
 
     // Check calculator subtotal evaluates to 45.00
@@ -61,12 +70,12 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     await expect(balanceAmount).toHaveText('$55.00');
     await expect(balanceHub).toHaveAttribute('data-state', 'surplus');
 
-    // 3. Record an expense directly by tapping a radial category grid item
-    const billsCategory = page.locator('[data-testid^="radial-category-"]').first();
-    await expect(billsCategory).toBeVisible();
-    await billsCategory.click();
+    // 3. Record a second expense directly by tapping a radial category grid item (creates multi-slice wheel)
+    const transportCategory = page.locator('button', { hasText: 'Transport' }).first();
+    await expect(transportCategory).toBeVisible();
+    await transportCategory.click();
 
-    // Keypad opens: test backspace, decimal, operators and close
+    // Keypad opens: test backspace, decimal, operators and confirm
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).toBeVisible();
     await page.locator('button', { hasText: /^9$/ }).click();
     await page.locator('button', { hasText: /^9$/ }).click();
@@ -82,10 +91,26 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     await page.locator('button[aria-label="Close keypad"]').click();
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).not.toBeVisible();
 
-    // 4. Click the wheel slice to open keypad with pre-selected category
-    const chartSlice = page.locator('[data-testid^="slice-"]').first();
-    await expect(chartSlice).toBeVisible();
-    await chartSlice.dispatchEvent('click');
+    // Now record actual Transport expense: $15
+    await transportCategory.click();
+    await page.locator('button', { hasText: /^1$/ }).click();
+    await page.locator('button', { hasText: /^5$/ }).click();
+    await page.locator('[data-testid="btn-keypad-confirm"]').click();
+
+    // Balance should now be $55 - $15 = $40.00
+    await expect(balanceAmount).toHaveText('$40.00');
+
+    // 4. Test Multi-slice Monefy Wheel Hover & Selection
+    const slices = page.locator('[data-testid^="slice-"]');
+    await expect(slices).toHaveCount(2);
+
+    // Hover slice 1
+    await slices.first().dispatchEvent('mouseenter');
+    await slices.first().dispatchEvent('mouseleave');
+
+    // Hover slice 2 and click it to open keypad with pre-selected category
+    await slices.nth(1).dispatchEvent('mouseenter');
+    await slices.nth(1).dispatchEvent('click');
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).toBeVisible();
 
     // Enter 20 / 2 = 10
@@ -105,7 +130,27 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     await page.locator('[data-testid="btn-keypad-confirm"]').click();
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).not.toBeVisible();
 
-    // Balance should now be $55 - $10 = $45.00
-    await expect(balanceAmount).toHaveText('$45.00');
+    // Balance should now be $40 - $10 = $30.00
+    await expect(balanceAmount).toHaveText('$30.00');
+
+    // 5. Test Radial Grid Custom New button and Overflow Drawer
+    const customBtn = page.locator('[data-testid="btn-add-category"]');
+    if (await customBtn.isVisible()) {
+      await customBtn.click();
+      await expect(page.getByText('Create Custom Category')).toBeVisible();
+      await page.locator('.modal-sheet button[aria-label="Close"]').click();
+    }
+
+    const overflowBtn = page.locator('[data-testid="btn-categories-overflow"]');
+    if (await overflowBtn.isVisible()) {
+      await overflowBtn.click();
+      await expect(page.getByText('All Categories')).toBeVisible();
+      // Select category from inside drawer
+      const drawerCat = page.locator('.modal-sheet button', { hasText: 'Bills' }).first();
+      await drawerCat.click();
+      // Keypad should open for that category
+      await expect(page.locator('[data-testid="btn-keypad-confirm"]')).toBeVisible();
+      await page.locator('button[aria-label="Close keypad"]').click();
+    }
   });
 });
