@@ -41,7 +41,9 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
       setAccountId(transaction.accountId);
       setToAccountId(transaction.toAccountId || '');
       setNote(transaction.note || '');
-      setDate(transaction.date ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10));
+      setDate(
+        transaction.date ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10)
+      );
     }
   }, [transaction]);
 
@@ -97,12 +99,20 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
         </div>
 
         {/* Edit Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+        >
           {/* Amount Input */}
           <div>
             <label
               htmlFor="edit-amount"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Amount ({currency})
             </label>
@@ -158,8 +168,8 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                       ? t === 'expense'
                         ? 'var(--color-deficit)'
                         : t === 'income'
-                        ? 'var(--color-surplus)'
-                        : '#3B82F6'
+                          ? 'var(--color-surplus)'
+                          : '#3B82F6'
                       : 'transparent',
                     color: isActive ? '#ffffff' : 'var(--text-secondary)',
                     transition: 'all var(--transition-fast)',
@@ -176,7 +186,12 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             <div>
               <label
                 htmlFor="edit-category"
-                style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '6px',
+                  display: 'block',
+                }}
               >
                 Category
               </label>
@@ -207,7 +222,12 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             <div>
               <label
                 htmlFor="edit-account"
-                style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '6px',
+                  display: 'block',
+                }}
               >
                 Account
               </label>
@@ -240,7 +260,12 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
           <div>
             <label
               htmlFor="edit-date"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Date
             </label>
@@ -271,7 +296,12 @@ export const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
           <div>
             <label
               htmlFor="edit-note"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Note
             </label>

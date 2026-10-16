@@ -13,7 +13,9 @@ test.describe('Seam 5: Header Menu, Settings, Custom Categories & CSV Export/Imp
     await page.reload();
   });
 
-  test('user toggles theme, customizes currency, manages category order/visibility, creates custom category, and exports/imports CSV', async ({ page }) => {
+  test('user toggles theme, customizes currency, manages category order/visibility, creates custom category, and exports/imports CSV', async ({
+    page,
+  }) => {
     await expect(page.locator('[data-testid="center-balance-hub"]')).toBeVisible();
 
     // 1. Open Hamburger Menu
@@ -76,8 +78,10 @@ test.describe('Seam 5: Header Menu, Settings, Custom Categories & CSV Export/Imp
     await page.locator('.modal-sheet button', { hasText: 'Expense' }).click();
 
     // 6c. Select a color from palette
-    const paletteBtns = page.locator('.modal-sheet button[type="button"][style*="border-radius: 50%"]');
-    if (await paletteBtns.count() > 0) {
+    const paletteBtns = page.locator(
+      '.modal-sheet button[type="button"][style*="border-radius: 50%"]'
+    );
+    if ((await paletteBtns.count()) > 0) {
       await paletteBtns.first().click();
     }
 

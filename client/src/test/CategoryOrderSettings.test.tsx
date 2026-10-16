@@ -6,15 +6,85 @@ import type { Category, Account, Transaction } from '../types';
 
 describe('Category Order and Visibility Seam Tests', () => {
   const mockCategories: Category[] = [
-    { id: 'c1', name: 'Food', icon: 'Utensils', color: '#FF6B6B', type: 'expense', isDefault: true, isDeleted: false, displayOrder: 0, isVisible: true, createdAt: '', updatedAt: '' },
-    { id: 'c2', name: 'Transport', icon: 'Car', color: '#4ECDC4', type: 'expense', isDefault: true, isDeleted: false, displayOrder: 1, isVisible: true, createdAt: '', updatedAt: '' },
-    { id: 'c3', name: 'Shopping', icon: 'ShoppingBag', color: '#FFE66D', type: 'expense', isDefault: true, isDeleted: false, displayOrder: 2, isVisible: false, createdAt: '', updatedAt: '' },
-    { id: 'c4', name: 'Entertainment', icon: 'Film', color: '#9B5DE5', type: 'expense', isDefault: true, isDeleted: false, displayOrder: 3, isVisible: true, createdAt: '', updatedAt: '' },
-    { id: 'c5', name: 'Salary', icon: 'Briefcase', color: '#2ECC71', type: 'income', isDefault: true, isDeleted: false, displayOrder: 0, isVisible: true, createdAt: '', updatedAt: '' },
+    {
+      id: 'c1',
+      name: 'Food',
+      icon: 'Utensils',
+      color: '#FF6B6B',
+      type: 'expense',
+      isDefault: true,
+      isDeleted: false,
+      displayOrder: 0,
+      isVisible: true,
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'c2',
+      name: 'Transport',
+      icon: 'Car',
+      color: '#4ECDC4',
+      type: 'expense',
+      isDefault: true,
+      isDeleted: false,
+      displayOrder: 1,
+      isVisible: true,
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'c3',
+      name: 'Shopping',
+      icon: 'ShoppingBag',
+      color: '#FFE66D',
+      type: 'expense',
+      isDefault: true,
+      isDeleted: false,
+      displayOrder: 2,
+      isVisible: false,
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'c4',
+      name: 'Entertainment',
+      icon: 'Film',
+      color: '#9B5DE5',
+      type: 'expense',
+      isDefault: true,
+      isDeleted: false,
+      displayOrder: 3,
+      isVisible: true,
+      createdAt: '',
+      updatedAt: '',
+    },
+    {
+      id: 'c5',
+      name: 'Salary',
+      icon: 'Briefcase',
+      color: '#2ECC71',
+      type: 'income',
+      isDefault: true,
+      isDeleted: false,
+      displayOrder: 0,
+      isVisible: true,
+      createdAt: '',
+      updatedAt: '',
+    },
   ];
 
   const mockAccounts: Account[] = [
-    { id: 'acc-1', name: 'Cash', icon: 'Banknote', color: '#10B981', initialBalance: 100, isDefault: true, createdAt: '', updatedAt: '', isDeleted: false },
+    {
+      id: 'acc-1',
+      name: 'Cash',
+      icon: 'Banknote',
+      color: '#10B981',
+      initialBalance: 100,
+      isDefault: true,
+      createdAt: '',
+      updatedAt: '',
+      isDeleted: false,
+    },
   ];
 
   const mockTransactions: Transaction[] = [];
@@ -57,12 +127,12 @@ describe('Category Order and Visibility Seam Tests', () => {
       );
 
       const buttons = screen.getAllByRole('button');
-      const categoryNames = buttons.map(b => b.textContent).filter(Boolean);
+      const categoryNames = buttons.map((b) => b.textContent).filter(Boolean);
 
       // Entertainment should come before Transport, and Transport before Food
-      const entIndex = categoryNames.findIndex(t => t?.includes('Entertainment'));
-      const transIndex = categoryNames.findIndex(t => t?.includes('Transport'));
-      const foodIndex = categoryNames.findIndex(t => t?.includes('Food'));
+      const entIndex = categoryNames.findIndex((t) => t?.includes('Entertainment'));
+      const transIndex = categoryNames.findIndex((t) => t?.includes('Transport'));
+      const foodIndex = categoryNames.findIndex((t) => t?.includes('Food'));
 
       expect(entIndex).toBeLessThan(transIndex);
       expect(transIndex).toBeLessThan(foodIndex);

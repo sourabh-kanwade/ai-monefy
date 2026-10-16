@@ -127,7 +127,9 @@ function parseDateToISO(rawDate: string): string | null {
   }
 
   // Check DD/MM/YYYY or DD-MM-YYYY format (supporting 2 or 4 digit years)
-  const dmyMatch = str.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+  const dmyMatch = str.match(
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/
+  );
   if (dmyMatch) {
     const day = parseInt(dmyMatch[1], 10);
     const month = parseInt(dmyMatch[2], 10) - 1; // 0-indexed
@@ -359,7 +361,7 @@ export function parseTransactionsCsv(csvString: string): CsvParseResult {
     const rawNote = noteCol !== -1 ? (row[noteCol] || '').trim() : '';
 
     // Transaction Type determination
-    let determinedType: TransactionType = 'expense';
+    let determinedType: TransactionType;
 
     if (format === 'monefy-export' && typeCol !== -1) {
       const explicitType = (row[typeCol] || '').trim().toLowerCase();

@@ -29,13 +29,11 @@ describe('Backend Auth & Health Endpoints Seam Tests', () => {
   });
 
   it('POST /api/auth/register creates user and returns signed JWT token', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: testEmail,
-        password: testPassword,
-        name: 'Test Monefy User',
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: testEmail,
+      password: testPassword,
+      name: 'Test Monefy User',
+    });
 
     expect(res.status).toBe(201);
     expect(res.body.user).toBeDefined();
@@ -46,12 +44,10 @@ describe('Backend Auth & Health Endpoints Seam Tests', () => {
   });
 
   it('POST /api/auth/register rejects duplicate email registration', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        email: testEmail,
-        password: testPassword,
-      });
+    const res = await request(app).post('/api/auth/register').send({
+      email: testEmail,
+      password: testPassword,
+    });
 
     expect(res.status).toBe(409);
     expect(res.body.error).toMatch(/already registered/i);
@@ -70,12 +66,10 @@ describe('Backend Auth & Health Endpoints Seam Tests', () => {
   });
 
   it('POST /api/auth/login succeeds with valid credentials', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: testEmail,
-        password: testPassword,
-      });
+    const res = await request(app).post('/api/auth/login').send({
+      email: testEmail,
+      password: testPassword,
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.user).toBeDefined();
@@ -84,12 +78,10 @@ describe('Backend Auth & Health Endpoints Seam Tests', () => {
   });
 
   it('POST /api/auth/login rejects invalid password', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: testEmail,
-        password: 'WrongPassword!',
-      });
+    const res = await request(app).post('/api/auth/login').send({
+      email: testEmail,
+      password: 'WrongPassword!',
+    });
 
     expect(res.status).toBe(401);
     expect(res.body.error).toMatch(/invalid email or password/i);

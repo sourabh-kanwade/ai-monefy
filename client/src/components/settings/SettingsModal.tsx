@@ -41,7 +41,7 @@ export interface SettingsModalProps {
   onToggleCategoryVisibility?: (id: string, isVisible: boolean) => Promise<void> | void;
   onReorderCategories?: (orderedIds: string[]) => Promise<void> | void;
   onAddCategory?: () => void;
-  initialTab?: 'general' | 'categories';
+  initialTab?: 'general' | 'categories' | 'data';
 }
 
 const CURRENCIES = [
@@ -72,7 +72,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onAddCategory,
   initialTab = 'general',
 }) => {
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: 'success' | 'error';
+    text: string;
+  } | null>(null);
   const [isRestoring, setIsRestoring] = useState(false);
   const [isImportingCsv, setIsImportingCsv] = useState(false);
   const [categoryTab, setCategoryTab] = useState<'expense' | 'income'>('expense');
@@ -128,7 +131,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   if (!isOpen) return null;
-
 
   const handleExportCSV = () => {
     if (onExportCSV) {
@@ -242,7 +244,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               currMsg = `, currency set to ${matched.symbol} (${matched.code})`;
             }
           }
-          const dupMsg = res.skippedDuplicatesCount > 0 ? `, ${res.skippedDuplicatesCount} duplicates skipped` : '';
+          const dupMsg =
+            res.skippedDuplicatesCount > 0
+              ? `, ${res.skippedDuplicatesCount} duplicates skipped`
+              : '';
           setStatusMessage({
             type: 'success',
             text: `Successfully imported ${res.importedTransactionsCount} transactions (${res.createdCategoriesCount} new categories, ${res.createdAccountsCount} new accounts${dupMsg}${currMsg})!`,
@@ -275,7 +280,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-
     <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1000 }}>
       <div
         className="modal-sheet glass-panel"
@@ -349,9 +353,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   ? 'rgba(16, 185, 129, 0.15)'
                   : 'rgba(239, 68, 68, 0.15)',
               color:
-                statusMessage.type === 'success'
-                  ? 'var(--color-surplus)'
-                  : 'var(--color-deficit)',
+                statusMessage.type === 'success' ? 'var(--color-surplus)' : 'var(--color-deficit)',
               borderBottom: '1px solid var(--border-subtle)',
             }}
           >
@@ -410,12 +412,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       justifyContent: 'center',
                       padding: '10px 8px',
                       borderRadius: 'var(--radius-md)',
-                      background: isSelected
-                        ? 'rgba(99, 102, 241, 0.2)'
-                        : 'var(--bg-elevated)',
-                      border: `1.5px solid ${
-                        isSelected ? '#6366F1' : 'var(--border-subtle)'
-                      }`,
+                      background: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'var(--bg-elevated)',
+                      border: `1.5px solid ${isSelected ? '#6366F1' : 'var(--border-subtle)'}`,
                       color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
                       cursor: 'pointer',
                       transition: 'all var(--transition-fast)',
@@ -485,7 +483,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               )}
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '10px' }}>
-              Select which categories appear on the dashboard wheel/grid and arrange their display order.
+              Select which categories appear on the dashboard wheel/grid and arrange their display
+              order.
             </div>
 
             {/* Expense / Income Filter Tabs */}
@@ -601,7 +600,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         <CategoryIcon name={cat.icon} size={15} color={cat.color} />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <span
+                          style={{
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)',
+                          }}
+                        >
                           {cat.name}
                         </span>
                         {cat.isDefault && (
@@ -774,7 +779,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               }}
             >
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Import transactions from a spreadsheet CSV file (AI Monefy, classic Monefy, or generic format). Missing categories and accounts will be created automatically.
+                Import transactions from a spreadsheet CSV file (AI Monefy, classic Monefy, or
+                generic format). Missing categories and accounts will be created automatically.
               </div>
 
               <input
@@ -814,7 +820,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {/* Database Restore Section */}
           <div>
-
             <div
               style={{
                 fontSize: '12px',

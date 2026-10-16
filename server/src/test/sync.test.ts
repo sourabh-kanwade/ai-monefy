@@ -137,9 +137,7 @@ describe('Delta Synchronization Endpoints Seam Tests', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .send(newerUpdate);
 
-    let pullRes = await request(app)
-      .get('/api/sync/pull')
-      .set('Authorization', `Bearer ${tokenA}`);
+    let pullRes = await request(app).get('/api/sync/pull').set('Authorization', `Bearer ${tokenA}`);
 
     expect(pullRes.body.transactions[0].amount).toBe(8.0);
     expect(pullRes.body.transactions[0].note).toBe('Latte Grande');
@@ -166,9 +164,7 @@ describe('Delta Synchronization Endpoints Seam Tests', () => {
       .set('Authorization', `Bearer ${tokenA}`)
       .send(staleUpdate);
 
-    pullRes = await request(app)
-      .get('/api/sync/pull')
-      .set('Authorization', `Bearer ${tokenA}`);
+    pullRes = await request(app).get('/api/sync/pull').set('Authorization', `Bearer ${tokenA}`);
 
     // Stale edit was rejected; newer edit persists!
     expect(pullRes.body.transactions[0].amount).toBe(8.0);

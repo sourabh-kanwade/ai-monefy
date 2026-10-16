@@ -13,7 +13,9 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     await page.reload();
   });
 
-  test('user records expense and income through center balance hub and keypad', async ({ page }) => {
+  test('user records expense and income through center balance hub and keypad', async ({
+    page,
+  }) => {
     // Wait for core UI hub to mount
     const balanceHub = page.locator('[data-testid="center-balance-hub"]');
     await expect(balanceHub).toBeVisible();
@@ -39,7 +41,7 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     await page.locator('button', { hasText: /^\.$/ }).click();
     await page.locator('button', { hasText: /^\.$/ }).click(); // duplicate decimal ignored
     await page.locator('button', { hasText: /^0$/ }).click();
-    await page.locator('button', { hasText: /^\-$/ }).click();
+    await page.locator('button', { hasText: /^-$/ }).click();
     await page.locator('button', { hasText: /^5$/ }).click();
 
     // Check calculator subtotal evaluates to 45.00

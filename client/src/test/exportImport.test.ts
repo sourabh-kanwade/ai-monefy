@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
 import { MonefyDatabase } from '../db/localDb';
 import {
@@ -16,13 +16,53 @@ describe('Data Export and Import Utilities', () => {
   let db: MonefyDatabase;
 
   const mockCategories: Category[] = [
-    { id: 'cat-1', name: 'Food & Dining', icon: 'Utensils', color: '#FF6B6B', type: 'expense', isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
-    { id: 'cat-2', name: 'Salary', icon: 'Briefcase', color: '#10B981', type: 'income', isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'cat-1',
+      name: 'Food & Dining',
+      icon: 'Utensils',
+      color: '#FF6B6B',
+      type: 'expense',
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
+    {
+      id: 'cat-2',
+      name: 'Salary',
+      icon: 'Briefcase',
+      color: '#10B981',
+      type: 'income',
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockAccounts: Account[] = [
-    { id: 'acc-1', name: 'Cash', icon: 'Banknote', color: '#10B981', initialBalance: 500, isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
-    { id: 'acc-2', name: 'Bank Card', icon: 'CreditCard', color: '#3B82F6', initialBalance: 1200, isDefault: false, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'acc-1',
+      name: 'Cash',
+      icon: 'Banknote',
+      color: '#10B981',
+      initialBalance: 500,
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
+    {
+      id: 'acc-2',
+      name: 'Bank Card',
+      icon: 'CreditCard',
+      color: '#3B82F6',
+      initialBalance: 1200,
+      isDefault: false,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockTransactions: Transaction[] = [
@@ -76,8 +116,12 @@ describe('Data Export and Import Utilities', () => {
 
   it('exports transactions to Monefy CSV format by default', () => {
     const csv = exportTransactionsToCSV(mockTransactions, mockCategories, mockAccounts, 'INR');
-    expect(csv).toContain('date,account,category,amount,currency,converted amount,currency,description');
-    expect(csv).toContain('Cash,Food & Dining,-45.5,INR,-45.5,INR,"Lunch, with coffee ""special"""');
+    expect(csv).toContain(
+      'date,account,category,amount,currency,converted amount,currency,description'
+    );
+    expect(csv).toContain(
+      'Cash,Food & Dining,-45.5,INR,-45.5,INR,"Lunch, with coffee ""special"""'
+    );
     expect(csv).toContain('Bank Card,Salary,"3,000",INR,"3,000",INR,October paycheck');
     expect(csv).toContain('Payment -> Cash');
     expect(csv).toContain('15/10/2026');
@@ -152,9 +196,7 @@ describe('Data Export and Import Utilities', () => {
     // Invalid JSON error check
     await expect(importDatabaseFromJSON('{ "version": 2, invalid }', db)).rejects.toThrow();
     // Root must be an object check
-    await expect(importDatabaseFromJSON('null', db)).rejects.toThrow(
-      /root must be an object/
-    );
+    await expect(importDatabaseFromJSON('null', db)).rejects.toThrow(/root must be an object/);
     await expect(importDatabaseFromJSON('"just-a-string"', db)).rejects.toThrow(
       /root must be an object/
     );

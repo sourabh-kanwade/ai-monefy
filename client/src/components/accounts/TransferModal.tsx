@@ -41,7 +41,10 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       const active = accounts.filter((a) => !a.isDeleted);
-      const from = (defaultAccountId && active.some(a => a.id === defaultAccountId)) ? defaultAccountId : (active[0]?.id || '');
+      const from =
+        defaultAccountId && active.some((a) => a.id === defaultAccountId)
+          ? defaultAccountId
+          : active[0]?.id || '';
       const to = active.find((a) => a.id !== from)?.id || '';
       setFromAccountId(from);
       setToAccountId(to);
@@ -119,12 +122,20 @@ export const TransferModal: React.FC<TransferModalProps> = ({
         </div>
 
         {/* Transfer Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+        >
           {/* Amount Input */}
           <div>
             <label
               htmlFor="transfer-amount"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Transfer Amount ({currency})
             </label>
@@ -158,7 +169,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <div>
               <label
                 htmlFor="from-account-select"
-                style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '6px',
+                  display: 'block',
+                }}
               >
                 From Account
               </label>
@@ -189,7 +205,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
             <div>
               <label
                 htmlFor="to-account-select"
-                style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '6px',
+                  display: 'block',
+                }}
               >
                 To Account
               </label>
@@ -222,7 +243,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           <div>
             <label
               htmlFor="transfer-date"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Date
             </label>
@@ -252,7 +278,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           <div>
             <label
               htmlFor="transfer-note"
-              style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
             >
               Note (Optional)
             </label>

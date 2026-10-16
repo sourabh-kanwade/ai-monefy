@@ -5,11 +5,31 @@ import type { Category, Account, Transaction } from '../types';
 
 describe('SettingsModal CSV Import UI Seam Tests', () => {
   const mockCategories: Category[] = [
-    { id: 'cat-1', name: 'Food', icon: 'Utensils', color: '#FF6B6B', type: 'expense', isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'cat-1',
+      name: 'Food',
+      icon: 'Utensils',
+      color: '#FF6B6B',
+      type: 'expense',
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockAccounts: Account[] = [
-    { id: 'acc-1', name: 'Cash', icon: 'Banknote', color: '#10B981', initialBalance: 100, isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'acc-1',
+      name: 'Cash',
+      icon: 'Banknote',
+      color: '#10B981',
+      initialBalance: 100,
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockTransactions: Transaction[] = [];
@@ -60,7 +80,8 @@ describe('SettingsModal CSV Import UI Seam Tests', () => {
     );
 
     const fileInput = screen.getByTestId('input-import-csv');
-    const validCsv = 'Date,Type,Category,Account,ToAccount,Amount,Note\n2026-10-15,expense,Food,Cash,,25,Snack';
+    const validCsv =
+      'Date,Type,Category,Account,ToAccount,Amount,Note\n2026-10-15,expense,Food,Cash,,25,Snack';
     const file = new File([validCsv], 'transactions.csv', { type: 'text/csv' });
 
     fireEvent.change(fileInput, { target: { files: [file] } });

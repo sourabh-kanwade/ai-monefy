@@ -28,7 +28,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
       name: 'Cash',
       icon: 'Wallet',
       color: '#2ECC71',
-      initialBalance: 85461.70,
+      initialBalance: 85461.7,
       isDefault: true,
       isDeleted: false,
       createdAt: now,
@@ -124,7 +124,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     // Local balance before moving to cloud
     const localBalanceBefore = await db.calculateNetBalance();
-    expect(localBalanceBefore).toBe(55645.70);
+    expect(localBalanceBefore).toBe(55645.7);
     expect(isNaN(localBalanceBefore)).toBe(false);
 
     // Now connect to cloud (set token and initiate guest migration)
@@ -177,7 +177,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     // Verify net balance after cloud sync: MUST NOT BE NaN
     const netBalanceAfter = await db.calculateNetBalance();
-    expect(netBalanceAfter).toBe(55645.70);
+    expect(netBalanceAfter).toBe(55645.7);
     expect(isNaN(netBalanceAfter)).toBe(false);
   });
 
@@ -221,7 +221,7 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     await db.transactions.add({
       id: 'tx-coffee',
-      amount: 45.50,
+      amount: 45.5,
       type: 'expense',
       categoryId: 'cat-food',
       accountId: 'acc-str-cash',
@@ -234,6 +234,6 @@ describe('Local to Cloud Setup & Migration Seam Tests', () => {
 
     const netBal = await db.calculateNetBalance();
     expect(isNaN(netBal)).toBe(false);
-    expect(netBal).toBe(454.50);
+    expect(netBal).toBe(454.5);
   });
 });

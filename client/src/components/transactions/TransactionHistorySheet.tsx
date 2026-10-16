@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Search, X, ChevronDown, ChevronUp, Trash2, Wallet, ArrowRightLeft } from 'lucide-react';
 import type { Transaction, Category, Account } from '../../types';
 import { CategoryIcon } from '../categories/CategoryIcon';
@@ -31,8 +31,11 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
   const [searchQuery, setSearchQuery] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const getCategory = (id: string) => categories.find((c) => c.id === id);
-  const getAccount = (id: string) => accounts.find((a) => a.id === id);
+  const getCategory = useCallback(
+    (id: string) => categories.find((c) => c.id === id),
+    [categories]
+  );
+  const getAccount = useCallback((id: string) => accounts.find((a) => a.id === id), [accounts]);
 
   // Filter transactions by real-time search query
   const filteredTransactions = useMemo(() => {
@@ -52,7 +55,7 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
 
       return catMatch || noteMatch || accMatch || toAccMatch || amountMatch;
     });
-  }, [transactions, searchQuery, categories, accounts]);
+  }, [transactions, searchQuery, getCategory, getAccount]);
 
   // Group transactions in reverse-chronological order by day
   const groupedTransactions = useMemo(() => {
@@ -204,14 +207,19 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
             <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)' }}>
               <Wallet size={36} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
               <p style={{ fontSize: '13px' }}>
-                {searchQuery ? `No transactions matching "${searchQuery}"` : 'No transactions recorded yet'}
+                {searchQuery
+                  ? `No transactions matching "${searchQuery}"`
+                  : 'No transactions recorded yet'}
               </p>
             </div>
           ) : (
             groupedTransactions.map((group) => {
               const netDay = group.totalIncome - group.totalExpense;
               return (
-                <div key={group.dateKey} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div
+                  key={group.dateKey}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                >
                   {/* Date Header */}
                   <div
                     style={{
@@ -233,7 +241,8 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                         color: netDay >= 0 ? 'var(--color-surplus)' : 'var(--color-deficit)',
                       }}
                     >
-                      {netDay >= 0 ? '+' : '-'}{formatAmount(Math.abs(netDay))}
+                      {netDay >= 0 ? '+' : '-'}
+                      {formatAmount(Math.abs(netDay))}
                     </span>
                   </div>
 
@@ -273,7 +282,9 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                background: cat?.color ? `${cat.color}20` : 'rgba(255, 255, 255, 0.05)',
+                                background: cat?.color
+                                  ? `${cat.color}20`
+                                  : 'rgba(255, 255, 255, 0.05)',
                                 color: cat?.color || 'var(--text-primary)',
                                 flexShrink: 0,
                               }}
@@ -281,12 +292,22 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                               {isTransfer ? (
                                 <ArrowRightLeft size={18} />
                               ) : (
-                                <CategoryIcon name={cat?.icon || 'circle'} size={18} color={cat?.color} />
+                                <CategoryIcon
+                                  name={cat?.icon || 'circle'}
+                                  size={18}
+                                  color={cat?.color}
+                                />
                               )}
                             </div>
 
                             <div>
-                              <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)' }}>
+                              <div
+                                style={{
+                                  fontWeight: 600,
+                                  fontSize: '13px',
+                                  color: 'var(--text-primary)',
+                                }}
+                              >
                                 {isTransfer
                                   ? `Transfer: ${acc?.name || 'Account'} → ${toAcc?.name || 'Account'}`
                                   : cat?.name || 'General'}
@@ -317,11 +338,12 @@ export const TransactionHistorySheet: React.FC<TransactionHistorySheetProps> = (
                                   color: isTransfer
                                     ? '#3B82F6'
                                     : isExp
-                                    ? 'var(--color-deficit)'
-                                    : 'var(--color-surplus)',
+                                      ? 'var(--color-deficit)'
+                                      : 'var(--color-surplus)',
                                 }}
                               >
-                                {isTransfer ? '⇄ ' : isExp ? '-' : '+'}{formatAmount(tx.amount)}
+                                {isTransfer ? '⇄ ' : isExp ? '-' : '+'}
+                                {formatAmount(tx.amount)}
                               </div>
                             </div>
 

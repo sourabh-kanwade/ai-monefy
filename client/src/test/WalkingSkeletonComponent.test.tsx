@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FinanceProvider } from '../context/FinanceContext';
 import { WalkingSkeletonView } from '../components/skeleton/WalkingSkeletonView';

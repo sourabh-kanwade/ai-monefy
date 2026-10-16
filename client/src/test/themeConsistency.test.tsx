@@ -72,7 +72,9 @@ describe('Theme Consistency Seam Tests', () => {
     expect(viewSwitcher.style.background).toContain('var(--bg-elevated)');
 
     // Signature Monefy Donut Wheel Card should use var(--bg-card) or theme tokens, not hardcoded dark gradient
-    const wheelCard = container.querySelector('.glass-panel[style*="linear-gradient"]') as HTMLElement | null;
+    const wheelCard = container.querySelector(
+      '.glass-panel[style*="linear-gradient"]'
+    ) as HTMLElement | null;
     if (wheelCard) {
       expect(wheelCard.style.background).not.toContain('rgba(22, 27, 39');
       expect(wheelCard.style.background).not.toContain('rgba(14, 18, 27');

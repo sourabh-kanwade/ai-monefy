@@ -14,23 +14,24 @@
 
 ## Task Summary Dashboard
 
-| Phase | Description | Total Tasks | Completed | In Progress | Pending | Status |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **Phase 1** | Project Scaffolding & Setup | 4 | 4 | 0 | 0 |  Completed |
-| **Phase 2** | Design System & Core Shell | 3 | 3 | 0 | 0 |  Completed |
-| **Phase 3** | Data Layer & Local-First IDB | 3 | 3 | 0 | 0 |  Completed |
-| **Phase 4** | Iconic Monefy Wheel & Keypad | 4 | 4 | 0 | 0 |  Completed |
-| **Phase 5** | Accounts, Transfers & History | 3 | 3 | 0 | 0 |  Completed |
-| **Phase 6** | Budgets, Analytics & Settings | 4 | 4 | 0 | 0 |  Completed |
-| **Phase 7** | Cloud Sync (PostgreSQL / Supabase) | 4 | 4 | 0 | 0 |  Completed |
-| **Phase 8** | Android Build & Final Verification | 2 | 2 | 0 | 0 |  Completed |
-| **Total** | | **27** | **27** | **0** | **0** | **100% DONE** |
+| Phase       | Description                        | Total Tasks | Completed | In Progress | Pending |    Status     |
+| ----------- | ---------------------------------- | :---------: | :-------: | :---------: | :-----: | :-----------: |
+| **Phase 1** | Project Scaffolding & Setup        |      4      |     4     |      0      |    0    |   Completed   |
+| **Phase 2** | Design System & Core Shell         |      3      |     3     |      0      |    0    |   Completed   |
+| **Phase 3** | Data Layer & Local-First IDB       |      3      |     3     |      0      |    0    |   Completed   |
+| **Phase 4** | Iconic Monefy Wheel & Keypad       |      4      |     4     |      0      |    0    |   Completed   |
+| **Phase 5** | Accounts, Transfers & History      |      3      |     3     |      0      |    0    |   Completed   |
+| **Phase 6** | Budgets, Analytics & Settings      |      4      |     4     |      0      |    0    |   Completed   |
+| **Phase 7** | Cloud Sync (PostgreSQL / Supabase) |      4      |     4     |      0      |    0    |   Completed   |
+| **Phase 8** | Android Build & Final Verification |      2      |     2     |      0      |    0    |   Completed   |
+| **Total**   |                                    |   **27**    |  **27**   |    **0**    |  **0**  | **100% DONE** |
 
 ---
 
 ## Detailed Task Tracker
 
 ### Phase 1: Project Scaffolding & Setup
+
 - [x] **TASK-1.1**: Root Monorepo Configuration
   - **Status**: `COMPLETED`
   - **Deliverable**: `package.json`, root workspace scripts
@@ -58,6 +59,7 @@
 ---
 
 ### Phase 2: Design System & Core Shell
+
 - [x] **TASK-2.1**: Design System & Styling Engine (Dark/Light + Monefy Palette)
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/src/index.css` (Obsidian Slate design tokens, glassmorphism, responsive grid)
@@ -79,6 +81,7 @@
 ---
 
 ### Phase 3: Data Layer & Local-First IndexedDB
+
 - [x] **TASK-3.1**: TypeScript Data Models & Types
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/src/types/index.ts`
@@ -100,6 +103,7 @@
 ---
 
 ### Phase 4: Iconic Monefy Wheel & Keypad Experience
+
 - [x] **TASK-4.1**: Interactive Circular Donut Chart
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/src/components/monefy-wheel/CircularChart.tsx`
@@ -127,6 +131,7 @@
 ---
 
 ### Phase 5: Multi-Account Management, Transfers & History
+
 - [x] **TASK-5.1**: Transaction History Sheet & Search
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/src/components/transactions/TransactionHistorySheet.tsx`, `client/src/components/transactions/EditTransactionModal.tsx`
@@ -148,6 +153,7 @@
 ---
 
 ### Phase 6: Budgets, Analytics & Settings
+
 - [x] **TASK-6.1**: Category Budget Limits & Visual Progress
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/src/components/budgets/BudgetModal.tsx`, `client/src/components/budgets/BudgetProgressMeter.tsx`
@@ -175,6 +181,7 @@
 ---
 
 ### Phase 7: Cloud Synchronization Engine (PostgreSQL / Supabase)
+
 - [x] **TASK-7.1**: PostgreSQL Schema & Supabase DDL
   - **Status**: `COMPLETED`
   - **Deliverable**: `server/src/db/db.ts`, `server/src/db/schema.sql` (UUIDs, RLS, indexes)
@@ -202,6 +209,7 @@
 ---
 
 ### Phase 8: Android Capacitor Build & Final Verification
+
 - [x] **TASK-8.1**: Capacitor Android Config & Sync
   - **Status**: `COMPLETED`
   - **Deliverable**: `client/capacitor.config.ts`, `client/android/`, `client/src/utils/nativePlatform.ts`
@@ -217,22 +225,22 @@
 
 ## Activity Log
 
-| Timestamp | Task ID | Action | Notes |
-|---|---|---|---|
-| 2026-10-15 | - | Tracker Initialized | Created master plan & tracker files |
-| 2026-10-15 | - | Architecture Update | Migrated backend DB from SQLite to PostgreSQL with Supabase compatibility (UUIDs, RLS) |
-| 2026-10-15 | - | Spec Published | Synthesized & published [SPEC-01-AI-MONEFY.md](docs/specs/SPEC-01-AI-MONEFY.md) with `ready-for-agent` label |
-| 2026-10-15 | Ticket 01 | Walking Skeleton | Scaffolded client, Dexie IDB, seed data, Obsidian Slate design system |
-| 2026-10-15 | Ticket 02 | Calculator Keypad | Arithmetic expression evaluator, haptic numeric keypad modal |
-| 2026-10-15 | Ticket 03 | Monefy Circular Chart | Dynamic SVG arc donut chart, CenterBalance surplus/deficit hub |
-| 2026-10-15 | Ticket 04 | Radial Category Grid | 1-tap radial category grid, Lucide icon picker, customizer modal |
-| 2026-10-15 | Ticket 05 | Period Filtering | Day/Week/Month/Year/All navigation header & filter stepping |
-| 2026-10-15 | Ticket 06 | Multi-Account & Transfers | Account breakdown strip, account transfers without altering net income |
-| 2026-10-15 | Ticket 07 | Transaction History | Reverse-chronological grouped list, multi-field search, transaction edit view |
-| 2026-10-15 | Ticket 08 | Category Budgets | Category budget limits, visual progress meters, overspending badges |
-| 2026-10-15 | Ticket 09 | Expense Analytics | Spending breakdown view, proportional bars, category drill-down |
-| 2026-10-15 | Ticket 10 | Export/Import & Currency | RFC-4180 CSV export, JSON backup/restore, global currency selector |
-| 2026-10-15 | Ticket 11 | Backend Auth & Postgres | PostgreSQL schema, connection pool, JWT auth endpoints |
-| 2026-10-15 | Ticket 12 | Offline Delta Sync | LWW push/pull delta sync endpoints, sync engine, guest data migration |
-| 2026-10-15 | Ticket 13 | Capacitor Packaging | Capacitor 8 Android container, native haptics, status bar, back button |
-| 2026-10-15 | Ticket 14 | E2E Verification & Polish | 28 test suites, 64 tests passing 100%, production builds passing |
+| Timestamp  | Task ID   | Action                    | Notes                                                                                                        |
+| ---------- | --------- | ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 2026-10-15 | -         | Tracker Initialized       | Created master plan & tracker files                                                                          |
+| 2026-10-15 | -         | Architecture Update       | Migrated backend DB from SQLite to PostgreSQL with Supabase compatibility (UUIDs, RLS)                       |
+| 2026-10-15 | -         | Spec Published            | Synthesized & published [SPEC-01-AI-MONEFY.md](docs/specs/SPEC-01-AI-MONEFY.md) with `ready-for-agent` label |
+| 2026-10-15 | Ticket 01 | Walking Skeleton          | Scaffolded client, Dexie IDB, seed data, Obsidian Slate design system                                        |
+| 2026-10-15 | Ticket 02 | Calculator Keypad         | Arithmetic expression evaluator, haptic numeric keypad modal                                                 |
+| 2026-10-15 | Ticket 03 | Monefy Circular Chart     | Dynamic SVG arc donut chart, CenterBalance surplus/deficit hub                                               |
+| 2026-10-15 | Ticket 04 | Radial Category Grid      | 1-tap radial category grid, Lucide icon picker, customizer modal                                             |
+| 2026-10-15 | Ticket 05 | Period Filtering          | Day/Week/Month/Year/All navigation header & filter stepping                                                  |
+| 2026-10-15 | Ticket 06 | Multi-Account & Transfers | Account breakdown strip, account transfers without altering net income                                       |
+| 2026-10-15 | Ticket 07 | Transaction History       | Reverse-chronological grouped list, multi-field search, transaction edit view                                |
+| 2026-10-15 | Ticket 08 | Category Budgets          | Category budget limits, visual progress meters, overspending badges                                          |
+| 2026-10-15 | Ticket 09 | Expense Analytics         | Spending breakdown view, proportional bars, category drill-down                                              |
+| 2026-10-15 | Ticket 10 | Export/Import & Currency  | RFC-4180 CSV export, JSON backup/restore, global currency selector                                           |
+| 2026-10-15 | Ticket 11 | Backend Auth & Postgres   | PostgreSQL schema, connection pool, JWT auth endpoints                                                       |
+| 2026-10-15 | Ticket 12 | Offline Delta Sync        | LWW push/pull delta sync endpoints, sync engine, guest data migration                                        |
+| 2026-10-15 | Ticket 13 | Capacitor Packaging       | Capacitor 8 Android container, native haptics, status bar, back button                                       |
+| 2026-10-15 | Ticket 14 | E2E Verification & Polish | 28 test suites, 64 tests passing 100%, production builds passing                                             |

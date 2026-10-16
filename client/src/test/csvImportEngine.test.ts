@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { MonefyDatabase } from '../db/localDb';
-import {
-  importTransactionsFromCSV,
-  exportTransactionsToCSV,
-} from '../utils/exportImport';
+import { importTransactionsFromCSV, exportTransactionsToCSV } from '../utils/exportImport';
 import type { Category, Account } from '../types';
 
 describe('CSV Database Import & Entity Resolution Engine', () => {

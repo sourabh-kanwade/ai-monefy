@@ -75,7 +75,9 @@ test.describe('Seam 6: Cloud Sync, Authentication & Offline Queue', () => {
     await page.reload();
   });
 
-  test('user opens sync modal, registers account with cloud migration, tests manual sync, and logs out', async ({ page }) => {
+  test('user opens sync modal, registers account with cloud migration, tests manual sync, and logs out', async ({
+    page,
+  }) => {
     await expect(page.locator('[data-testid="center-balance-hub"]')).toBeVisible();
 
     // 1. Open Cloud Sync Modal via Header Menu
@@ -108,7 +110,9 @@ test.describe('Seam 6: Cloud Sync, Authentication & Offline Queue', () => {
 
     // 6. Test Manual Sync Now
     await page.locator('[data-testid="btn-sync-now"]').click();
-    await expect(page.getByText('All records synchronized successfully with the cloud!')).toBeVisible();
+    await expect(
+      page.getByText('All records synchronized successfully with the cloud!')
+    ).toBeVisible();
 
     // 7. Log Out
     await page.locator('[data-testid="btn-logout-cloud"]').click();

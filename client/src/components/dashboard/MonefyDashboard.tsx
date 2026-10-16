@@ -176,7 +176,11 @@ export const MonefyDashboard: React.FC = () => {
   const categoryExpenses = useMemo(() => {
     const expenses: Record<string, number> = {};
     for (const tx of periodTransactions) {
-      if (selectedAccountId && tx.accountId !== selectedAccountId && tx.toAccountId !== selectedAccountId) {
+      if (
+        selectedAccountId &&
+        tx.accountId !== selectedAccountId &&
+        tx.toAccountId !== selectedAccountId
+      ) {
         continue;
       }
       if (tx.type === 'expense') {
@@ -329,7 +333,15 @@ export const MonefyDashboard: React.FC = () => {
           {/* Radial Category Grid Section with Budgets Trigger */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: 'var(--text-secondary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
                 Categories
               </span>
               <button
@@ -517,7 +529,6 @@ export const MonefyDashboard: React.FC = () => {
         }}
         onAddCategory={() => setIsCustomizerOpen(true)}
       />
-
 
       {/* Cloud Sync & Migration Modal */}
       <CloudSyncModal

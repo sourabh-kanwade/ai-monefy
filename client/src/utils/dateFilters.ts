@@ -12,7 +12,11 @@ export function getPeriodBounds(interval: TimeInterval, refDate: Date = new Date
   if (interval === 'DAY') {
     const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
     const end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
-    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const label = d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
     return { start, end, label };
   }
 
@@ -25,7 +29,11 @@ export function getPeriodBounds(interval: TimeInterval, refDate: Date = new Date
     end.setHours(23, 59, 59, 999);
 
     const startLabel = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const endLabel = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const endLabel = end.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
     return { start, end, label: `${startLabel} - ${endLabel}` };
   }
 
@@ -49,7 +57,11 @@ export function getPeriodBounds(interval: TimeInterval, refDate: Date = new Date
   return { start, end, label: 'All Time' };
 }
 
-export function stepPeriod(interval: TimeInterval, refDate: Date, direction: 'prev' | 'next'): Date {
+export function stepPeriod(
+  interval: TimeInterval,
+  refDate: Date,
+  direction: 'prev' | 'next'
+): Date {
   const d = new Date(refDate);
   const modifier = direction === 'next' ? 1 : -1;
 

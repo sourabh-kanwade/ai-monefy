@@ -25,14 +25,14 @@ export const BudgetProgressMeter: React.FC<BudgetProgressMeterProps> = ({
   const state: 'normal' | 'warning' | 'exceeded' = isExceeded
     ? 'exceeded'
     : isWarning
-    ? 'warning'
-    : 'normal';
+      ? 'warning'
+      : 'normal';
 
   const barColor = isExceeded
     ? 'var(--color-deficit)'
     : isWarning
-    ? '#F59E0B'
-    : 'var(--color-surplus)';
+      ? '#F59E0B'
+      : 'var(--color-surplus)';
 
   const overAmount = isExceeded ? spent - limit : 0;
 
@@ -74,7 +74,8 @@ export const BudgetProgressMeter: React.FC<BudgetProgressMeterProps> = ({
                 }}
               >
                 <AlertTriangle size={12} />
-                Over Budget (+{currency}{overAmount.toFixed(2)})
+                Over Budget (+{currency}
+                {overAmount.toFixed(2)})
               </span>
             )}
             <span
@@ -111,8 +112,8 @@ export const BudgetProgressMeter: React.FC<BudgetProgressMeterProps> = ({
             boxShadow: isExceeded
               ? '0 0 8px rgba(239, 68, 68, 0.6)'
               : isWarning
-              ? '0 0 8px rgba(245, 158, 11, 0.6)'
-              : 'none',
+                ? '0 0 8px rgba(245, 158, 11, 0.6)'
+                : 'none',
           }}
         />
       </div>
@@ -127,8 +128,14 @@ export const BudgetProgressMeter: React.FC<BudgetProgressMeterProps> = ({
             justifyContent: 'space-between',
           }}
         >
-          <span>Spent: {currency}{spent.toFixed(2)}</span>
-          <span>Limit: {currency}{limit.toFixed(2)}</span>
+          <span>
+            Spent: {currency}
+            {spent.toFixed(2)}
+          </span>
+          <span>
+            Limit: {currency}
+            {limit.toFixed(2)}
+          </span>
         </div>
       )}
     </div>

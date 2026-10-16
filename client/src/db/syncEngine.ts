@@ -218,7 +218,10 @@ export class SyncEngine {
           initialBalance: isNaN(initBal) ? 0 : initBal,
         };
         const local = await db.accounts.get(normalizedAcc.id);
-        if (!local || new Date(normalizedAcc.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+        if (
+          !local ||
+          new Date(normalizedAcc.updatedAt).getTime() >= new Date(local.updatedAt).getTime()
+        ) {
           await db.accounts.put(normalizedAcc);
           pulledCount++;
         }
@@ -241,7 +244,10 @@ export class SyncEngine {
           amount: isNaN(amount) ? 0 : Math.abs(amount),
         };
         const local = await db.transactions.get(normalizedTx.id);
-        if (!local || new Date(normalizedTx.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+        if (
+          !local ||
+          new Date(normalizedTx.updatedAt).getTime() >= new Date(local.updatedAt).getTime()
+        ) {
           await db.transactions.put(normalizedTx);
           pulledCount++;
         }
@@ -255,7 +261,10 @@ export class SyncEngine {
           monthlyLimit: isNaN(limit) ? 0 : Math.max(0, limit),
         };
         const local = await db.budgets.get(normalizedBudget.id);
-        if (!local || new Date(normalizedBudget.updatedAt).getTime() >= new Date(local.updatedAt).getTime()) {
+        if (
+          !local ||
+          new Date(normalizedBudget.updatedAt).getTime() >= new Date(local.updatedAt).getTime()
+        ) {
           await db.budgets.put(normalizedBudget);
           pulledCount++;
         }

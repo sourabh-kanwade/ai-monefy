@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MonefyDashboard } from '../components/dashboard/MonefyDashboard';
 import { FinanceProvider } from '../context/FinanceContext';
 import { MonefyDatabase } from '../db/localDb';
@@ -51,7 +50,9 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
     const wheelTab = screen.getByTestId('tab-wheel');
     fireEvent.click(wheelTab);
 
-    expect(await screen.findByText(/Tap slices or \+\/\- to record transactions/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Tap slices or \+\/- to record transactions/i)
+    ).toBeInTheDocument();
   });
 
   it('opens and closes keypad for expense, income, and category slice click', async () => {
@@ -158,9 +159,15 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
   });
 
   it('handles syncNow, login, register, and logout workflows from cloud sync modal', async () => {
-    const syncSpy = vi.spyOn(syncEngine, 'sync').mockResolvedValue({ status: 'success', pushed: 1, pulled: 1 });
-    const loginSpy = vi.spyOn(syncEngine, 'login').mockResolvedValue({ id: 'u1', email: 'test@cloud.com', name: 'User' });
-    const regSpy = vi.spyOn(syncEngine, 'register').mockResolvedValue({ id: 'u2', email: 'reg@cloud.com', name: 'Reg' });
+    const syncSpy = vi
+      .spyOn(syncEngine, 'sync')
+      .mockResolvedValue({ status: 'success', pushed: 1, pulled: 1 });
+    const loginSpy = vi
+      .spyOn(syncEngine, 'login')
+      .mockResolvedValue({ id: 'u1', email: 'test@cloud.com', name: 'User' });
+    const regSpy = vi
+      .spyOn(syncEngine, 'register')
+      .mockResolvedValue({ id: 'u2', email: 'reg@cloud.com', name: 'Reg' });
     const logoutSpy = vi.spyOn(syncEngine, 'logout').mockReturnValue(undefined);
 
     render(
@@ -178,7 +185,9 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
     // Submit login form
     const emailInput = await screen.findByPlaceholderText(/you@domain.com/i);
     fireEvent.change(emailInput, { target: { value: 'test@cloud.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), { target: { value: 'Pass1234' } });
+    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), {
+      target: { value: 'Pass1234' },
+    });
     fireEvent.click(screen.getByTestId('btn-submit-auth'));
 
     await waitFor(() => {
@@ -212,8 +221,12 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
 
     // Switch to Register tab and submit
     fireEvent.click(await screen.findByTestId('tab-auth-register'));
-    fireEvent.change(await screen.findByPlaceholderText(/you@domain.com/i), { target: { value: 'reg@cloud.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), { target: { value: 'Pass1234' } });
+    fireEvent.change(await screen.findByPlaceholderText(/you@domain.com/i), {
+      target: { value: 'reg@cloud.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), {
+      target: { value: 'Pass1234' },
+    });
     fireEvent.change(screen.getByPlaceholderText(/your name/i), { target: { value: 'Reg User' } });
     fireEvent.click(screen.getByTestId('btn-submit-auth'));
 
@@ -290,7 +303,9 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
       ],
       budgets: [],
     };
-    const jsonFile = new File([JSON.stringify(backupData)], 'backup.json', { type: 'application/json' });
+    const jsonFile = new File([JSON.stringify(backupData)], 'backup.json', {
+      type: 'application/json',
+    });
     fireEvent.change(jsonFileInput, { target: { files: [jsonFile] } });
     await waitFor(async () => {
       const txs = await db.transactions.toArray();

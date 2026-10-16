@@ -62,12 +62,19 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
           <h3 style={{ fontSize: '18px', fontWeight: 800 }}>
             {editingCategory ? 'Edit Category' : 'Create Custom Category'}
           </h3>
-          <button onClick={onClose} aria-label="Close" style={{ color: 'var(--text-muted)', padding: '6px' }}>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{ color: 'var(--text-muted)', padding: '6px' }}
+          >
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+        >
           {/* Category Preview */}
           <div
             style={{
@@ -100,14 +107,28 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
               <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
                 {name || 'Category Name'}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'capitalize' }}>
+              <div
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-muted)',
+                  textTransform: 'capitalize',
+                }}
+              >
                 {type} Category
               </div>
             </div>
           </div>
 
           {/* Type Toggle: Expense / Income */}
-          <div style={{ display: 'flex', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '4px', gap: '4px' }}>
+          <div
+            style={{
+              display: 'flex',
+              background: 'var(--bg-elevated)',
+              borderRadius: 'var(--radius-md)',
+              padding: '4px',
+              gap: '4px',
+            }}
+          >
             <button
               type="button"
               onClick={() => setType('expense')}
@@ -142,7 +163,14 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
 
           {/* Title Input */}
           <div>
-            <label style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+            <label
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'block',
+              }}
+            >
               Category Name
             </label>
             <input
@@ -167,7 +195,14 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
 
           {/* Color Palette Selector */}
           <div>
-            <label style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>
+            <label
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '8px',
+                display: 'block',
+              }}
+            >
               Choose Color
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }}>
@@ -196,7 +231,14 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
 
           {/* Icon Selector Grid */}
           <div>
-            <label style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>
+            <label
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '8px',
+                display: 'block',
+              }}
+            >
               Choose Icon
             </label>
             <div
@@ -226,7 +268,11 @@ export const CategoryCustomizerModal: React.FC<CategoryCustomizerModalProps> = (
                     color: icon === iconName ? color : 'var(--text-secondary)',
                   }}
                 >
-                  <CategoryIcon name={iconName} size={20} color={icon === iconName ? color : 'currentColor'} />
+                  <CategoryIcon
+                    name={iconName}
+                    size={20}
+                    color={icon === iconName ? color : 'currentColor'}
+                  />
                 </button>
               ))}
             </div>

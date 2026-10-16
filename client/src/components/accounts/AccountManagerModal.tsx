@@ -168,11 +168,18 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
                     </div>
                   ) : (
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
+                      <div
+                        style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}
+                      >
                         {acc.name}
                       </div>
-                      <div className="font-num" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        Current: {currency}{bal.toFixed(2)} (Initial: {currency}{(Number(acc.initialBalance) || 0).toFixed(2)})
+                      <div
+                        className="font-num"
+                        style={{ fontSize: '12px', color: 'var(--text-muted)' }}
+                      >
+                        Current: {currency}
+                        {bal.toFixed(2)} (Initial: {currency}
+                        {(Number(acc.initialBalance) || 0).toFixed(2)})
                       </div>
                     </div>
                   )}
@@ -229,7 +236,14 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
             <h4 style={{ fontSize: '14px', fontWeight: 700 }}>New Account</h4>
 
             <div>
-              <label style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>
+              <label
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '4px',
+                  display: 'block',
+                }}
+              >
                 Account Name
               </label>
               <input
@@ -254,7 +268,12 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
             <div>
               <label
                 htmlFor="new-account-balance"
-                style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '4px',
+                  display: 'block',
+                }}
               >
                 Initial Balance ({currency})
               </label>
@@ -281,7 +300,14 @@ export const AccountManagerModal: React.FC<AccountManagerModalProps> = ({
             </div>
 
             <div>
-              <label style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              <label
+                style={{
+                  fontSize: '11px',
+                  color: 'var(--text-muted)',
+                  marginBottom: '6px',
+                  display: 'block',
+                }}
+              >
                 Color
               </label>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>

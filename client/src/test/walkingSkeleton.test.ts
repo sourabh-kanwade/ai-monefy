@@ -113,7 +113,6 @@ describe('Ticket 01: Walking Skeleton Seam Tests', () => {
 
   it('falls back to regex uuid generation when crypto.randomUUID is unavailable', () => {
     const origCrypto = globalThis.crypto;
-    // @ts-ignore
     delete (globalThis as any).crypto;
     try {
       const id = generateUuid();

@@ -85,7 +85,7 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
 
     // Handle decimal point
     if (val === '.') {
-      const segments = expression.split(/[\+\-\*\/]/);
+      const segments = expression.split(/[+\-*/]/);
       const lastSegment = segments[segments.length - 1];
       if (lastSegment.includes('.')) return; // No multiple decimals in same number
       setExpression((prev) => prev + '.');
@@ -122,7 +122,8 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
   };
 
   const isExpense = type === 'expense';
-  const categoryColor = initialCategory?.color || (isExpense ? 'var(--color-deficit)' : 'var(--color-surplus)');
+  const categoryColor =
+    initialCategory?.color || (isExpense ? 'var(--color-deficit)' : 'var(--color-surplus)');
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -223,16 +224,39 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
               marginTop: '2px',
             }}
           >
-            ={currency}{currentResult.toFixed(2)}
+            ={currency}
+            {currentResult.toFixed(2)}
           </div>
         </div>
 
         {/* Controls: Account, Date, Note */}
-        <div style={{ padding: '12px 18px', display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-secondary)' }}>
+        <div
+          style={{
+            padding: '12px 18px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            background: 'var(--bg-secondary)',
+          }}
+        >
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             {/* Account Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)', minHeight: '42px' }}>
-              <Wallet size={16} color="var(--text-muted)" style={{ marginRight: '6px', flexShrink: 0 }} />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'var(--bg-elevated)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0 10px',
+                border: '1px solid var(--border-subtle)',
+                minHeight: '42px',
+              }}
+            >
+              <Wallet
+                size={16}
+                color="var(--text-muted)"
+                style={{ marginRight: '6px', flexShrink: 0 }}
+              />
               <select
                 value={selectedAccountId}
                 onChange={(e) => setSelectedAccountId(e.target.value)}
@@ -247,7 +271,11 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
                 }}
               >
                 {accounts.map((a) => (
-                  <option key={a.id} value={a.id} style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
+                  <option
+                    key={a.id}
+                    value={a.id}
+                    style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}
+                  >
                     {a.name}
                   </option>
                 ))}
@@ -255,8 +283,22 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             </div>
 
             {/* Date Selector */}
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '0 10px', border: '1px solid var(--border-subtle)', minHeight: '42px' }}>
-              <Calendar size={16} color="var(--text-muted)" style={{ marginRight: '6px', flexShrink: 0 }} />
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'var(--bg-elevated)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0 10px',
+                border: '1px solid var(--border-subtle)',
+                minHeight: '42px',
+              }}
+            >
+              <Calendar
+                size={16}
+                color="var(--text-muted)"
+                style={{ marginRight: '6px', flexShrink: 0 }}
+              />
               <input
                 type="date"
                 max={todayStr}
@@ -334,7 +376,10 @@ export const NumericKeypadModal: React.FC<NumericKeypadModalProps> = ({
             }}
           >
             <Check size={20} />
-            <span>Confirm {currency}{currentResult.toFixed(2)}</span>
+            <span>
+              Confirm {currency}
+              {currentResult.toFixed(2)}
+            </span>
           </button>
         </div>
       </div>

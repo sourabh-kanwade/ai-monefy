@@ -5,12 +5,7 @@ import { BudgetProgressMeter } from '../components/budgets/BudgetProgressMeter';
 describe('BudgetProgressMeter Seam Tests', () => {
   it('renders green state when consumption is below 70%', () => {
     const { container } = render(
-      <BudgetProgressMeter
-        spent={50}
-        limit={100}
-        currency="$"
-        categoryName="Food"
-      />
+      <BudgetProgressMeter spent={50} limit={100} currency="$" categoryName="Food" />
     );
 
     const meter = container.querySelector('[data-budget-state]');
@@ -21,12 +16,7 @@ describe('BudgetProgressMeter Seam Tests', () => {
 
   it('renders amber warning state when consumption is between 70% and 100%', () => {
     const { container } = render(
-      <BudgetProgressMeter
-        spent={85}
-        limit={100}
-        currency="$"
-        categoryName="Bills"
-      />
+      <BudgetProgressMeter spent={85} limit={100} currency="$" categoryName="Bills" />
     );
 
     const meter = container.querySelector('[data-budget-state]');
@@ -36,12 +26,7 @@ describe('BudgetProgressMeter Seam Tests', () => {
 
   it('renders red danger state and overspending badge when consumption exceeds 100%', () => {
     const { container } = render(
-      <BudgetProgressMeter
-        spent={130}
-        limit={100}
-        currency="$"
-        categoryName="Entertainment"
-      />
+      <BudgetProgressMeter spent={130} limit={100} currency="$" categoryName="Entertainment" />
     );
 
     const meter = container.querySelector('[data-budget-state]');

@@ -26,7 +26,9 @@ export const CenterBalance: React.FC<CenterBalanceProps> = ({
 
   const isSurplus = safeBalance >= 0;
   const state = isSurplus ? 'surplus' : 'deficit';
-  const formattedAmount = `${safeBalance < 0 ? '-' : ''}${currency}${Math.abs(safeBalance).toLocaleString('en-US', {
+  const formattedAmount = `${safeBalance < 0 ? '-' : ''}${currency}${Math.abs(
+    safeBalance
+  ).toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -98,9 +100,15 @@ export const CenterBalance: React.FC<CenterBalanceProps> = ({
           fontWeight: 600,
         }}
       >
-        <span style={{ color: 'var(--color-surplus)' }}>+{currency}{safeIncome.toFixed(0)}</span>
+        <span style={{ color: 'var(--color-surplus)' }}>
+          +{currency}
+          {safeIncome.toFixed(0)}
+        </span>
         <span>/</span>
-        <span style={{ color: 'var(--color-deficit)' }}>-{currency}{safeExpense.toFixed(0)}</span>
+        <span style={{ color: 'var(--color-deficit)' }}>
+          -{currency}
+          {safeExpense.toFixed(0)}
+        </span>
       </div>
 
       {/* Quick Action Floating Action Triggers: [-] on left, [+] on right, [⇄] on bottom */}

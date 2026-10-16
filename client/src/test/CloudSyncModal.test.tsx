@@ -95,8 +95,12 @@ describe('CloudSyncModal Seam Tests', () => {
     );
 
     // Enter email & password and submit
-    fireEvent.change(screen.getByPlaceholderText(/you@domain.com/i), { target: { value: 'test@user.com' } });
-    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), { target: { value: 'secret' } });
+    fireEvent.change(screen.getByPlaceholderText(/you@domain.com/i), {
+      target: { value: 'test@user.com' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Minimum 6 characters/i), {
+      target: { value: 'secret' },
+    });
     fireEvent.click(screen.getByTestId('btn-submit-auth'));
 
     await waitFor(() => {
@@ -123,7 +127,9 @@ describe('CloudSyncModal Seam Tests', () => {
     expect(screen.getByText('Just now')).toBeInTheDocument();
 
     // Test onSyncNow failure banner (line 80)
-    const handleSyncError = vi.fn().mockRejectedValue(new Error('Sync failed. Please check connection.'));
+    const handleSyncError = vi
+      .fn()
+      .mockRejectedValue(new Error('Sync failed. Please check connection.'));
     rerender(
       <CloudSyncModal
         isOpen={true}

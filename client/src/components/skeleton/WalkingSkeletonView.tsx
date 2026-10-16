@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { useFinance } from '../../context/FinanceContext';
-import { PlusCircle, MinusCircle, Wallet, Tag, ArrowUpRight, ArrowDownLeft, Sun, Moon, Calculator } from 'lucide-react';
+import {
+  PlusCircle,
+  MinusCircle,
+  Wallet,
+  Tag,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Sun,
+  Moon,
+  Calculator,
+} from 'lucide-react';
 import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
 
 export const WalkingSkeletonView: React.FC = () => {
@@ -69,14 +79,27 @@ export const WalkingSkeletonView: React.FC = () => {
   const safeExpense = typeof totalExpense === 'number' && !isNaN(totalExpense) ? totalExpense : 0;
 
   return (
-    <div className="app-container" style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div
+      className="app-container"
+      style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}
+    >
       {/* Top Bar */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', fontWeight: 600 }}>
+          <span
+            style={{
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: 'var(--text-muted)',
+              fontWeight: 600,
+            }}
+          >
             AI Monefy v1.0
           </span>
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>Personal Finance</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Personal Finance
+          </h1>
         </div>
         <button
           onClick={toggleTheme}
@@ -85,7 +108,11 @@ export const WalkingSkeletonView: React.FC = () => {
           aria-label="Toggle theme"
           id="btn-theme-toggle"
         >
-          {theme === 'dark' ? <Sun size={20} color="#FFE66D" /> : <Moon size={20} color="#38bdf8" />}
+          {theme === 'dark' ? (
+            <Sun size={20} color="#FFE66D" />
+          ) : (
+            <Moon size={20} color="#38bdf8" />
+          )}
         </button>
       </header>
 
@@ -95,13 +122,21 @@ export const WalkingSkeletonView: React.FC = () => {
         style={{
           padding: '24px',
           textAlign: 'center',
-          background: safeNetBalance >= 0
-            ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)'
-            : 'linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)',
+          background:
+            safeNetBalance >= 0
+              ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)'
+              : 'linear-gradient(180deg, rgba(239, 68, 68, 0.12) 0%, rgba(22, 27, 39, 0.8) 100%)',
           border: `1px solid ${safeNetBalance >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
         }}
       >
-        <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, letterSpacing: '0.05em' }}>
+        <span
+          style={{
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            fontWeight: 500,
+            letterSpacing: '0.05em',
+          }}
+        >
           TOTAL BALANCE
         </span>
         <div
@@ -112,34 +147,65 @@ export const WalkingSkeletonView: React.FC = () => {
             fontWeight: 800,
             color: safeNetBalance >= 0 ? 'var(--color-surplus)' : 'var(--color-deficit)',
             marginTop: '4px',
-            textShadow: safeNetBalance >= 0 ? '0 0 20px var(--color-surplus-glow)' : '0 0 20px var(--color-deficit-glow)',
+            textShadow:
+              safeNetBalance >= 0
+                ? '0 0 20px var(--color-surplus-glow)'
+                : '0 0 20px var(--color-deficit-glow)',
           }}
         >
-          {currency}{Math.abs(safeNetBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {currency}
+          {Math.abs(safeNetBalance).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
           {safeNetBalance < 0 && <span style={{ fontSize: '20px', marginLeft: '4px' }}>-</span>}
         </div>
 
         {/* Income & Expense Subtotals */}
-        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid var(--border-subtle)',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.15)', borderRadius: '50%', padding: '6px' }}>
+            <div
+              style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                borderRadius: '50%',
+                padding: '6px',
+              }}
+            >
               <ArrowDownLeft size={16} color="var(--color-surplus)" />
             </div>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Income</div>
-              <div className="font-num" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-surplus)' }}>
-                +{currency}{safeIncome.toFixed(2)}
+              <div
+                className="font-num"
+                style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-surplus)' }}
+              >
+                +{currency}
+                {safeIncome.toFixed(2)}
               </div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ background: 'rgba(239, 68, 68, 0.15)', borderRadius: '50%', padding: '6px' }}>
+            <div
+              style={{ background: 'rgba(239, 68, 68, 0.15)', borderRadius: '50%', padding: '6px' }}
+            >
               <ArrowUpRight size={16} color="var(--color-deficit)" />
             </div>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Expense</div>
-              <div className="font-num" style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-deficit)' }}>
-                -{currency}{safeExpense.toFixed(2)}
+              <div
+                className="font-num"
+                style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-deficit)' }}
+              >
+                -{currency}
+                {safeExpense.toFixed(2)}
               </div>
             </div>
           </div>
@@ -147,11 +213,23 @@ export const WalkingSkeletonView: React.FC = () => {
       </div>
 
       {/* Quick Entry Form (Walking Skeleton) */}
-      <form onSubmit={handleSubmit} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <form
+        onSubmit={handleSubmit}
+        className="glass-panel"
+        style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+      >
         <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Quick Log Transaction</h3>
 
         {/* Type Toggle: Expense / Income */}
-        <div style={{ display: 'flex', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '4px', gap: '4px' }}>
+        <div
+          style={{
+            display: 'flex',
+            background: 'var(--bg-elevated)',
+            borderRadius: 'var(--radius-md)',
+            padding: '4px',
+            gap: '4px',
+          }}
+        >
           <button
             type="button"
             onClick={() => setType('expense')}
@@ -196,7 +274,15 @@ export const WalkingSkeletonView: React.FC = () => {
 
         {/* Amount Input */}
         <div>
-          <label htmlFor="input-tx-amount" style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+          <label
+            htmlFor="input-tx-amount"
+            style={{
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              marginBottom: '6px',
+              display: 'block',
+            }}
+          >
             Amount ({currency})
           </label>
           <input
@@ -226,7 +312,17 @@ export const WalkingSkeletonView: React.FC = () => {
         {/* Category & Account Selectors */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div>
-            <label htmlFor="select-tx-category" style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <label
+              htmlFor="select-tx-category"
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
               <Tag size={13} /> Category
             </label>
             <select
@@ -253,7 +349,17 @@ export const WalkingSkeletonView: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="select-tx-account" style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <label
+              htmlFor="select-tx-account"
+              style={{
+                fontSize: '12px',
+                color: 'var(--text-muted)',
+                marginBottom: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
               <Wallet size={13} /> Account
             </label>
             <select
@@ -282,7 +388,15 @@ export const WalkingSkeletonView: React.FC = () => {
 
         {/* Note input */}
         <div>
-          <label htmlFor="input-tx-note" style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+          <label
+            htmlFor="input-tx-note"
+            style={{
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              marginBottom: '6px',
+              display: 'block',
+            }}
+          >
             Note (Optional)
           </label>
           <input
@@ -311,7 +425,9 @@ export const WalkingSkeletonView: React.FC = () => {
           className={type === 'expense' ? 'btn-danger' : 'btn-primary'}
           style={{ width: '100%', padding: '14px', marginTop: '6px' }}
         >
-          {type === 'expense' ? `Save Expense (${currency}${amountStr || '0.00'})` : `Save Income (${currency}${amountStr || '0.00'})`}
+          {type === 'expense'
+            ? `Save Expense (${currency}${amountStr || '0.00'})`
+            : `Save Income (${currency}${amountStr || '0.00'})`}
         </button>
 
         <button
@@ -344,27 +460,39 @@ export const WalkingSkeletonView: React.FC = () => {
         onSave={async (txData) => {
           await addTransaction(txData);
         }}
-        initialCategory={categories.find((c) => c.id === selectedCatId) || activeCategories[0] || null}
+        initialCategory={
+          categories.find((c) => c.id === selectedCatId) || activeCategories[0] || null
+        }
         accounts={accounts}
         currency={currency}
         type={type}
       />
 
       {/* Transaction History Section */}
-      <section className="glass-panel" style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <section
+        className="glass-panel"
+        style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Recent Transactions</h3>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{transactions.length} records</span>
+          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+            {transactions.length} records
+          </span>
         </div>
 
         {transactions.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--text-muted)' }}>
             <Wallet size={36} style={{ margin: '0 auto 10px', opacity: 0.4 }} />
             <p style={{ fontSize: '14px' }}>No transactions recorded yet.</p>
-            <p style={{ fontSize: '12px', marginTop: '4px' }}>Log your first expense or income above!</p>
+            <p style={{ fontSize: '12px', marginTop: '4px' }}>
+              Log your first expense or income above!
+            </p>
           </div>
         ) : (
-          <div id="transaction-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div
+            id="transaction-list"
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+          >
             {transactions.map((tx) => {
               const isExp = tx.type === 'expense';
               return (
@@ -397,17 +525,33 @@ export const WalkingSkeletonView: React.FC = () => {
                       {isExp ? <MinusCircle size={20} /> : <PlusCircle size={20} />}
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
+                      <div
+                        style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}
+                      >
                         {getCategoryName(tx.categoryId)}
                       </div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', gap: '8px' }}>
+                      <div
+                        style={{
+                          fontSize: '12px',
+                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          gap: '8px',
+                        }}
+                      >
                         <span>{getAccountName(tx.accountId)}</span>
                         {tx.note && <span>• {tx.note}</span>}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      textAlign: 'right',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
                     <div>
                       <div
                         className="font-num"
@@ -417,10 +561,15 @@ export const WalkingSkeletonView: React.FC = () => {
                           color: isExp ? 'var(--color-deficit)' : 'var(--color-surplus)',
                         }}
                       >
-                        {isExp ? '-' : '+'}{currency}{tx.amount.toFixed(2)}
+                        {isExp ? '-' : '+'}
+                        {currency}
+                        {tx.amount.toFixed(2)}
                       </div>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {new Date(tx.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        {new Date(tx.date).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                        })}
                       </div>
                     </div>
                     <button

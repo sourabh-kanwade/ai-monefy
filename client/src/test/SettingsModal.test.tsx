@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { SettingsModal } from '../components/settings/SettingsModal';
@@ -7,15 +7,46 @@ import type { Category, Account, Transaction } from '../types';
 
 describe('SettingsModal Seam Tests', () => {
   const mockCategories: Category[] = [
-    { id: 'cat-1', name: 'Food', icon: 'Utensils', color: '#FF6B6B', type: 'expense', isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'cat-1',
+      name: 'Food',
+      icon: 'Utensils',
+      color: '#FF6B6B',
+      type: 'expense',
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockAccounts: Account[] = [
-    { id: 'acc-1', name: 'Cash', icon: 'Banknote', color: '#10B981', initialBalance: 100, isDefault: true, createdAt: '2026-10-15T00:00:00Z', updatedAt: '2026-10-15T00:00:00Z', isDeleted: false },
+    {
+      id: 'acc-1',
+      name: 'Cash',
+      icon: 'Banknote',
+      color: '#10B981',
+      initialBalance: 100,
+      isDefault: true,
+      createdAt: '2026-10-15T00:00:00Z',
+      updatedAt: '2026-10-15T00:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   const mockTransactions: Transaction[] = [
-    { id: 'tx-1', amount: 25, type: 'expense', categoryId: 'cat-1', accountId: 'acc-1', note: 'Snack', date: '2026-10-15T12:00:00Z', createdAt: '2026-10-15T12:00:00Z', updatedAt: '2026-10-15T12:00:00Z', isDeleted: false },
+    {
+      id: 'tx-1',
+      amount: 25,
+      type: 'expense',
+      categoryId: 'cat-1',
+      accountId: 'acc-1',
+      note: 'Snack',
+      date: '2026-10-15T12:00:00Z',
+      createdAt: '2026-10-15T12:00:00Z',
+      updatedAt: '2026-10-15T12:00:00Z',
+      isDeleted: false,
+    },
   ];
 
   beforeEach(() => {
@@ -134,15 +165,19 @@ describe('SettingsModal Seam Tests', () => {
         transactions={mockTransactions}
         categories={mockCategories}
         accounts={mockAccounts}
-        onImportCsv={handleImportCsv}
+        onImportCSV={handleImportCsv}
       />
     );
 
     // CSV input
-    const csvInput = container.querySelector('input[type="file"][accept*=".csv"]') as HTMLInputElement;
+    const csvInput = container.querySelector(
+      'input[type="file"][accept*=".csv"]'
+    ) as HTMLInputElement;
     expect(csvInput).toBeInTheDocument();
 
-    const file = new File(['Date,Category,Amount\n2026-10-15,Food,20'], 'sample.csv', { type: 'text/csv' });
+    const file = new File(['Date,Category,Amount\n2026-10-15,Food,20'], 'sample.csv', {
+      type: 'text/csv',
+    });
     fireEvent.change(csvInput, { target: { files: [file] } });
 
     await waitFor(() => {
@@ -150,7 +185,9 @@ describe('SettingsModal Seam Tests', () => {
     });
 
     // Test reader.onerror branch (lines 270-272)
-    const readSpy = vi.spyOn(FileReader.prototype, 'readAsText').mockImplementationOnce(function (this: FileReader) {
+    const readSpy = vi.spyOn(FileReader.prototype, 'readAsText').mockImplementationOnce(function (
+      this: FileReader
+    ) {
       if (this.onerror) {
         this.onerror(new ProgressEvent('error') as any);
       }
@@ -186,15 +223,17 @@ describe('SettingsModal Seam Tests', () => {
       />
     );
 
-    const csvInput = container.querySelector('input[type="file"][accept*=".csv"]') as HTMLInputElement;
-    const file = new File(['Date,Category,Amount\n2026-10-15,Food,20'], 'sample.csv', { type: 'text/csv' });
+    const csvInput = container.querySelector(
+      'input[type="file"][accept*=".csv"]'
+    ) as HTMLInputElement;
+    const file = new File(['Date,Category,Amount\n2026-10-15,Food,20'], 'sample.csv', {
+      type: 'text/csv',
+    });
     fireEvent.change(csvInput, { target: { files: [file] } });
 
     await waitFor(() => {
       expect(handleSetCurrency).toHaveBeenCalledWith('€');
-      expect(
-        screen.getByText(/Successfully imported 5 transactions/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Successfully imported 5 transactions/i)).toBeInTheDocument();
       expect(
         screen.getByText(/2 duplicates skipped, currency set to € \(EUR\)/i)
       ).toBeInTheDocument();
@@ -216,11 +255,10 @@ describe('SettingsModal Seam Tests', () => {
       />
     );
 
-    const csvInput = container.querySelector('input[type="file"][accept*=".csv"]') as HTMLInputElement;
-    const csvContent = [
-      'Date,Category,Account,Amount',
-      '2026-10-15,Food,Cash,25',
-    ].join('\n');
+    const csvInput = container.querySelector(
+      'input[type="file"][accept*=".csv"]'
+    ) as HTMLInputElement;
+    const csvContent = ['Date,Category,Account,Amount', '2026-10-15,Food,Cash,25'].join('\n');
     const file = new File([csvContent], 'monefy.csv', { type: 'text/csv' });
     fireEvent.change(csvInput, { target: { files: [file] } });
 
@@ -254,7 +292,9 @@ describe('SettingsModal Seam Tests', () => {
     expect(handleRestoreDatabase).not.toHaveBeenCalled();
 
     // Trigger file change with valid file and onRestoreDatabase
-    const validJsonFile = new File([JSON.stringify({ version: 1 })], 'backup.json', { type: 'application/json' });
+    const validJsonFile = new File([JSON.stringify({ version: 1 })], 'backup.json', {
+      type: 'application/json',
+    });
     fireEvent.change(jsonInput, { target: { files: [validJsonFile] } });
     await waitFor(() => {
       expect(handleRestoreDatabase).toHaveBeenCalled();
@@ -282,21 +322,27 @@ describe('SettingsModal Seam Tests', () => {
       transactions: mockTransactions,
       budgets: [],
     };
-    const backupFile = new File([JSON.stringify(validBackupData)], 'valid.json', { type: 'application/json' });
+    const backupFile = new File([JSON.stringify(validBackupData)], 'valid.json', {
+      type: 'application/json',
+    });
     fireEvent.change(jsonInput, { target: { files: [backupFile] } });
     await waitFor(() => {
       expect(screen.getByText(/Successfully restored 1 transactions/i)).toBeInTheDocument();
     });
 
     // Test JSON restore rejection
-    const invalidFile = new File(['invalid json file'], 'invalid.json', { type: 'application/json' });
+    const invalidFile = new File(['invalid json file'], 'invalid.json', {
+      type: 'application/json',
+    });
     fireEvent.change(jsonInput, { target: { files: [invalidFile] } });
     await waitFor(() => {
       expect(screen.getByText(/Restore failed:/i)).toBeInTheDocument();
     });
 
     // Test reader.onerror branch for JSON restore
-    const readSpy = vi.spyOn(FileReader.prototype, 'readAsText').mockImplementationOnce(function (this: FileReader) {
+    const readSpy = vi.spyOn(FileReader.prototype, 'readAsText').mockImplementationOnce(function (
+      this: FileReader
+    ) {
       if (this.onerror) {
         this.onerror(new ProgressEvent('error') as any);
       }
@@ -324,7 +370,9 @@ describe('SettingsModal Seam Tests', () => {
       />
     );
 
-    const csvInput = container.querySelector('input[type="file"][accept*=".csv"]') as HTMLInputElement;
+    const csvInput = container.querySelector(
+      'input[type="file"][accept*=".csv"]'
+    ) as HTMLInputElement;
 
     // Empty file change
     fireEvent.change(csvInput, { target: { files: [] } });
@@ -346,8 +394,32 @@ describe('SettingsModal Seam Tests', () => {
     const handleReorder = vi.fn();
 
     const twoCategories: Category[] = [
-      { id: 'cat-1', name: 'Food', icon: 'Utensils', color: '#f00', type: 'expense', isDefault: true, createdAt: '', updatedAt: '', isDeleted: false, displayOrder: 0, isVisible: true },
-      { id: 'cat-2', name: 'Transport', icon: 'Car', color: '#0f0', type: 'expense', isDefault: false, createdAt: '', updatedAt: '', isDeleted: false, displayOrder: 1, isVisible: true },
+      {
+        id: 'cat-1',
+        name: 'Food',
+        icon: 'Utensils',
+        color: '#f00',
+        type: 'expense',
+        isDefault: true,
+        createdAt: '',
+        updatedAt: '',
+        isDeleted: false,
+        displayOrder: 0,
+        isVisible: true,
+      },
+      {
+        id: 'cat-2',
+        name: 'Transport',
+        icon: 'Car',
+        color: '#0f0',
+        type: 'expense',
+        isDefault: false,
+        createdAt: '',
+        updatedAt: '',
+        isDeleted: false,
+        displayOrder: 1,
+        isVisible: true,
+      },
     ];
 
     const { rerender } = render(
@@ -381,7 +453,18 @@ describe('SettingsModal Seam Tests', () => {
 
     // Test last visible category safeguard
     const singleCat: Category[] = [
-      { id: 'cat-1', name: 'Food', icon: 'Utensils', color: '#f00', type: 'expense', isDefault: true, createdAt: '', updatedAt: '', isDeleted: false, isVisible: true },
+      {
+        id: 'cat-1',
+        name: 'Food',
+        icon: 'Utensils',
+        color: '#f00',
+        type: 'expense',
+        isDefault: true,
+        createdAt: '',
+        updatedAt: '',
+        isDeleted: false,
+        isVisible: true,
+      },
     ];
     rerender(
       <SettingsModal
@@ -397,7 +480,9 @@ describe('SettingsModal Seam Tests', () => {
       />
     );
     fireEvent.click(screen.getByTestId('category-toggle-cat-1'));
-    expect(screen.getByText(/At least one expense category must remain visible/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/At least one expense category must remain visible/i)
+    ).toBeInTheDocument();
   });
 
   it('handles fallback CSV export and JSON backup without handler props', async () => {

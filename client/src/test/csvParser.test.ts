@@ -23,7 +23,7 @@ describe('CSV Tokenizer (RFC-4180 Compliance)', () => {
   });
 
   it('handles CRLF and trailing empty lines gracefully', () => {
-    const csv = "A,B\r\n1,2\r\n3,4\r\n\r\n";
+    const csv = 'A,B\r\n1,2\r\n3,4\r\n\r\n';
     const grid = tokenizeCsv(csv);
     expect(grid).toEqual([
       ['A', 'B'],
@@ -74,7 +74,7 @@ describe('parseTransactionsCsv (Schema Detection & Row Normalization)', () => {
       'date,account,category,amount,currency,converted amount,currency,description',
       '15/10/2026,Cash,Groceries,-35.50,$,-35.50,$,Supermarket run',
       '14/10/2026,Bank Card,Salary,2500,$,2500,$,Monthly wage',
-      '15/10/2026,Bank Card,' + "Payment -> Cash" + ',200,$,200,$,ATM withdraw',
+      '15/10/2026,Bank Card,' + 'Payment -> Cash' + ',200,$,200,$,ATM withdraw',
     ].join('\n');
 
     const result = parseTransactionsCsv(classicCsv);
@@ -157,8 +157,12 @@ describe('parseTransactionsCsv (Schema Detection & Row Normalization)', () => {
     expect(result.errors.length).toBeGreaterThanOrEqual(4);
     expect(result.errors.some((e) => e.rowNumber === 2 && e.reason.includes('date'))).toBe(true);
     expect(result.errors.some((e) => e.rowNumber === 3 && e.reason.includes('amount'))).toBe(true);
-    expect(result.errors.some((e) => e.rowNumber === 4 && e.reason.includes('greater than 0'))).toBe(true);
-    expect(result.errors.some((e) => e.rowNumber === 5 && e.reason.includes('Category'))).toBe(true);
+    expect(
+      result.errors.some((e) => e.rowNumber === 4 && e.reason.includes('greater than 0'))
+    ).toBe(true);
+    expect(result.errors.some((e) => e.rowNumber === 5 && e.reason.includes('Category'))).toBe(
+      true
+    );
   });
 
   it('rejects completely empty or headerless content', () => {

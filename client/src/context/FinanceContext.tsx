@@ -1,7 +1,20 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import { db, MonefyDatabase } from '../db/localDb';
 import type { Transaction, Category, Account, Budget, TimeInterval } from '../types';
-import { getPeriodBounds, stepPeriod, filterTransactionsByPeriod, canStepNextPeriod } from '../utils/dateFilters';
+import {
+  getPeriodBounds,
+  stepPeriod,
+  filterTransactionsByPeriod,
+  canStepNextPeriod,
+} from '../utils/dateFilters';
 
 interface FinanceContextType {
   transactions: Transaction[];
@@ -66,10 +79,10 @@ interface FinanceContextType {
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: MonefyDatabase }> = ({
-  children,
-  database = db,
-}) => {
+export const FinanceProvider: React.FC<{
+  children: React.ReactNode;
+  database?: MonefyDatabase;
+}> = ({ children, database = db }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -87,7 +100,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
 
   const setReferenceDate = useCallback((d: Date) => {
     const today = new Date();
-    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+    const endOfToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
     setReferenceDateState(d.getTime() > endOfToday.getTime() ? today : d);
   }, []);
 
@@ -230,12 +251,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
   );
 
   const addCategory = useCallback(
-    async (input: {
-      name: string;
-      icon: string;
-      color: string;
-      type: 'expense' | 'income';
-    }) => {
+    async (input: { name: string; icon: string; color: string; type: 'expense' | 'income' }) => {
       const id = crypto.randomUUID?.() || String(Date.now());
       const now = new Date().toISOString();
       const countOfType = categories.filter((c) => c.type === input.type && !c.isDeleted).length;
@@ -512,7 +528,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode; database?: M
     let inc = 0;
     let exp = 0;
     for (const tx of periodTransactions) {
-      if (selectedAccountId && tx.accountId !== selectedAccountId && tx.toAccountId !== selectedAccountId) {
+      if (
+        selectedAccountId &&
+        tx.accountId !== selectedAccountId &&
+        tx.toAccountId !== selectedAccountId
+      ) {
         continue;
       }
       const amount = Number(tx.amount);

@@ -79,8 +79,12 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
   const client = await pool.connect();
   try {
     const userId = req.user!.userId;
-    const { accounts = [], categories = [], transactions = [], budgets = [] }: SyncPushBody =
-      req.body || {};
+    const {
+      accounts = [],
+      categories = [],
+      transactions = [],
+      budgets = [],
+    }: SyncPushBody = req.body || {};
 
     await client.query('BEGIN');
 
@@ -105,7 +109,18 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
            is_deleted = EXCLUDED.is_deleted,
            updated_at = EXCLUDED.updated_at
          WHERE EXCLUDED.updated_at >= accounts.updated_at AND accounts.user_id = $2`,
-        [acc.id, userId, acc.name, acc.icon, acc.color, initialBal, isDef, isDel, createdAt, updatedAt]
+        [
+          acc.id,
+          userId,
+          acc.name,
+          acc.icon,
+          acc.color,
+          initialBal,
+          isDef,
+          isDel,
+          createdAt,
+          updatedAt,
+        ]
       );
     }
 
@@ -133,7 +148,20 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
            is_visible = EXCLUDED.is_visible,
            updated_at = EXCLUDED.updated_at
          WHERE EXCLUDED.updated_at >= categories.updated_at AND categories.user_id = $2`,
-        [cat.id, userId, cat.name, cat.icon, cat.color, cat.type, isDef, isDel, displayOrder, isVisible, createdAt, updatedAt]
+        [
+          cat.id,
+          userId,
+          cat.name,
+          cat.icon,
+          cat.color,
+          cat.type,
+          isDef,
+          isDel,
+          displayOrder,
+          isVisible,
+          createdAt,
+          updatedAt,
+        ]
       );
     }
 
@@ -161,7 +189,20 @@ syncRouter.post('/push', authenticateToken, async (req, res) => {
            is_deleted = EXCLUDED.is_deleted,
            updated_at = EXCLUDED.updated_at
          WHERE EXCLUDED.updated_at >= transactions.updated_at AND transactions.user_id = $2`,
-        [tx.id, userId, tx.amount, tx.type, catId, accId, toAccId, tx.note || null, tx.date, isDel, createdAt, updatedAt]
+        [
+          tx.id,
+          userId,
+          tx.amount,
+          tx.type,
+          catId,
+          accId,
+          toAccId,
+          tx.note || null,
+          tx.date,
+          isDel,
+          createdAt,
+          updatedAt,
+        ]
       );
     }
 

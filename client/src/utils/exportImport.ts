@@ -67,12 +67,12 @@ export const MONEFY_CATEGORY_DEFAULTS: Record<string, { icon: string; color: str
 export function resolveCurrencyCode(currency: string = '$'): string {
   const map: Record<string, string> = {
     '₹': 'INR',
-    '$': 'USD',
+    $: 'USD',
     '€': 'EUR',
     '£': 'GBP',
     '¥': 'JPY',
-    'CA$': 'CAD',
-    'AU$': 'AUD',
+    CA$: 'CAD',
+    AU$: 'AUD',
   };
   if (map[currency]) return map[currency];
   if (/^[A-Z]{3}$/i.test(currency)) return currency.toUpperCase();
@@ -157,7 +157,9 @@ export async function importTransactionsFromCSV(
   if (options.skipDuplicates) {
     for (const tx of existingTransactions) {
       if (!tx.isDeleted) {
-        existingFingerprints.add(`${tx.date}_${tx.amount}_${tx.accountId}_${tx.categoryId}_${tx.note || ''}`);
+        existingFingerprints.add(
+          `${tx.date}_${tx.amount}_${tx.accountId}_${tx.categoryId}_${tx.note || ''}`
+        );
       }
     }
   }
@@ -171,7 +173,7 @@ export async function importTransactionsFromCSV(
 
   for (const row of parseResult.rows) {
     // 1. Resolve or create Category
-    let categoryId = '';
+    let categoryId: string;
     const catKey = row.categoryName.trim().toLowerCase();
     const existingCat = catMap.get(catKey);
 
@@ -181,8 +183,8 @@ export async function importTransactionsFromCSV(
       categoryId = generateUuid();
       const isIncome = row.type === 'income';
       const knownDef = MONEFY_CATEGORY_DEFAULTS[catKey];
-      const icon = knownDef ? knownDef.icon : (isIncome ? 'TrendingUp' : 'Tag');
-      const color = knownDef ? knownDef.color : (isIncome ? '#10B981' : '#FF6B6B');
+      const icon = knownDef ? knownDef.icon : isIncome ? 'TrendingUp' : 'Tag';
+      const color = knownDef ? knownDef.color : isIncome ? '#10B981' : '#FF6B6B';
       const createdCategory: Category = {
         id: categoryId,
         userId: null,
@@ -210,7 +212,7 @@ export async function importTransactionsFromCSV(
     }
 
     // 2. Resolve or create Source Account
-    let accountId = '';
+    let accountId: string;
     const accKey = row.accountName.trim().toLowerCase();
     const existingAcc = accMap.get(accKey);
 
@@ -314,20 +316,24 @@ export async function importTransactionsFromCSV(
   }
 
   // Atomically commit to IndexedDB
-  await db.transaction('rw', [db.accounts, db.categories, db.transactions, db.syncQueue], async () => {
-    if (newCategories.length > 0) {
-      await db.categories.bulkAdd(newCategories);
+  await db.transaction(
+    'rw',
+    [db.accounts, db.categories, db.transactions, db.syncQueue],
+    async () => {
+      if (newCategories.length > 0) {
+        await db.categories.bulkAdd(newCategories);
+      }
+      if (newAccounts.length > 0) {
+        await db.accounts.bulkAdd(newAccounts);
+      }
+      if (newTransactions.length > 0) {
+        await db.transactions.bulkAdd(newTransactions);
+      }
+      if (newSyncItems.length > 0) {
+        await db.syncQueue.bulkAdd(newSyncItems);
+      }
     }
-    if (newAccounts.length > 0) {
-      await db.accounts.bulkAdd(newAccounts);
-    }
-    if (newTransactions.length > 0) {
-      await db.transactions.bulkAdd(newTransactions);
-    }
-    if (newSyncItems.length > 0) {
-      await db.syncQueue.bulkAdd(newSyncItems);
-    }
-  });
+  );
 
   return {
     importedTransactionsCount: newTransactions.length,
@@ -339,7 +345,6 @@ export async function importTransactionsFromCSV(
     errors: parseResult.errors,
   };
 }
-
 
 /**
  * Escapes a field according to RFC-4180 CSV standard.
@@ -480,7 +485,12 @@ export async function importDatabaseFromJSON(
   try {
     parsed = JSON.parse(jsonString);
   } catch (err) {
-    throw new Error(`Failed to parse backup JSON: ${err instanceof Error ? err.message : String(err)}`);
+    throw new Error(
+      `Failed to parse backup JSON: ${err instanceof Error ? err.message : String(err)}`,
+      {
+        cause: err,
+      }
+    );
   }
 
   if (typeof parsed !== 'object' || parsed === null) {
@@ -504,28 +514,32 @@ export async function importDatabaseFromJSON(
   const transactions = data.transactions as Transaction[];
   const budgets = Array.isArray(data.budgets) ? (data.budgets as Budget[]) : [];
 
-  await db.transaction('rw', [db.accounts, db.categories, db.transactions, db.budgets], async () => {
-    // Clear and restore
-    await Promise.all([
-      db.accounts.clear(),
-      db.categories.clear(),
-      db.transactions.clear(),
-      db.budgets.clear(),
-    ]);
+  await db.transaction(
+    'rw',
+    [db.accounts, db.categories, db.transactions, db.budgets],
+    async () => {
+      // Clear and restore
+      await Promise.all([
+        db.accounts.clear(),
+        db.categories.clear(),
+        db.transactions.clear(),
+        db.budgets.clear(),
+      ]);
 
-    const normalizedCategories: Category[] = categories.map((cat, idx) => ({
-      ...cat,
-      displayOrder: typeof cat.displayOrder === 'number' ? cat.displayOrder : idx,
-      isVisible: cat.isVisible !== false,
-    }));
+      const normalizedCategories: Category[] = categories.map((cat, idx) => ({
+        ...cat,
+        displayOrder: typeof cat.displayOrder === 'number' ? cat.displayOrder : idx,
+        isVisible: cat.isVisible !== false,
+      }));
 
-    await Promise.all([
-      db.accounts.bulkAdd(accounts),
-      db.categories.bulkAdd(normalizedCategories),
-      db.transactions.bulkAdd(transactions),
-      budgets.length > 0 ? db.budgets.bulkAdd(budgets) : Promise.resolve(),
-    ]);
-  });
+      await Promise.all([
+        db.accounts.bulkAdd(accounts),
+        db.categories.bulkAdd(normalizedCategories),
+        db.transactions.bulkAdd(transactions),
+        budgets.length > 0 ? db.budgets.bulkAdd(budgets) : Promise.resolve(),
+      ]);
+    }
+  );
 
   return {
     accountsCount: accounts.length,

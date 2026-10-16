@@ -113,7 +113,9 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
                   gap: '10px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div
                       style={{
@@ -166,7 +168,9 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
 
                 {/* Progress Meter or Edit Form */}
                 {isEditing ? (
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+                  <div
+                    style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}
+                  >
                     <input
                       type="number"
                       step="any"
@@ -215,8 +219,12 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
                     showLabels={true}
                   />
                 ) : (
-                  <div className="font-num" style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    Spent this period: {currency}{spent.toFixed(2)} (No limit set)
+                  <div
+                    className="font-num"
+                    style={{ fontSize: '12px', color: 'var(--text-muted)' }}
+                  >
+                    Spent this period: {currency}
+                    {spent.toFixed(2)} (No limit set)
                   </div>
                 )}
               </div>

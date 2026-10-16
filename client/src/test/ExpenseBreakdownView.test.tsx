@@ -129,8 +129,6 @@ describe('ExpenseBreakdownView Seam Tests', () => {
         categories={mockCategories}
         accounts={mockAccounts}
         currency="$"
-        periodLabel="October 2026"
-        selectedAccountId={null}
       />
     );
     expect(screen.getByText(/No expenses recorded for this period/i)).toBeInTheDocument();

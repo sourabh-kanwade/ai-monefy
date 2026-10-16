@@ -24,7 +24,9 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
 }) => {
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
 
-  const expenseCategories = categories.filter((c) => c.type === 'expense' && !c.isDeleted && c.isVisible !== false);
+  const expenseCategories = categories.filter(
+    (c) => c.type === 'expense' && !c.isDeleted && c.isVisible !== false
+  );
   const sortedExpenseCategories = [...expenseCategories].sort((a, b) => {
     const orderA = typeof a.displayOrder === 'number' ? a.displayOrder : 999;
     const orderB = typeof b.displayOrder === 'number' ? b.displayOrder : 999;
@@ -39,7 +41,6 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
   });
   const primaryCategories = sortedExpenseCategories.slice(0, maxPrimaryRing);
   const overflowCategories = sortedExpenseCategories.slice(maxPrimaryRing);
-
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -128,7 +129,8 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                   marginTop: '1px',
                 }}
               >
-                {currency}{spend.toFixed(2)}
+                {currency}
+                {spend.toFixed(2)}
               </span>
             </button>
           );
@@ -168,7 +170,9 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               <MoreHorizontal size={18} />
             </div>
             <span style={{ fontSize: 'clamp(10px, 2.7vw, 11px)', fontWeight: 600 }}>More...</span>
-            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>+{overflowCategories.length}</span>
+            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>
+              +{overflowCategories.length}
+            </span>
           </button>
         )}
 
@@ -207,7 +211,9 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
               <Plus size={18} />
             </div>
             <span style={{ fontSize: 'clamp(10px, 2.7vw, 11px)', fontWeight: 600 }}>Custom</span>
-            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>New</span>
+            <span style={{ fontSize: 'clamp(9px, 2.4vw, 10px)', color: 'var(--text-muted)' }}>
+              New
+            </span>
           </button>
         )}
       </div>
@@ -257,21 +263,23 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                       position: 'relative',
                     }}
                   >
-                    {categoryBudgets && categoryBudgets[cat.id] && spend > categoryBudgets[cat.id] && (
-                      <div
-                        title={`Over budget by ${currency}${(spend - categoryBudgets[cat.id]).toFixed(2)}`}
-                        style={{
-                          position: 'absolute',
-                          top: '6px',
-                          right: '6px',
-                          width: '8px',
-                          height: '8px',
-                          borderRadius: '50%',
-                          background: 'var(--color-deficit)',
-                          boxShadow: '0 0 6px var(--color-deficit)',
-                        }}
-                      />
-                    )}
+                    {categoryBudgets &&
+                      categoryBudgets[cat.id] &&
+                      spend > categoryBudgets[cat.id] && (
+                        <div
+                          title={`Over budget by ${currency}${(spend - categoryBudgets[cat.id]).toFixed(2)}`}
+                          style={{
+                            position: 'absolute',
+                            top: '6px',
+                            right: '6px',
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            background: 'var(--color-deficit)',
+                            boxShadow: '0 0 6px var(--color-deficit)',
+                          }}
+                        />
+                      )}
                     <div
                       style={{
                         width: '36px',
@@ -288,8 +296,12 @@ export const RadialCategoryGrid: React.FC<RadialCategoryGridProps> = ({
                       <CategoryIcon name={cat.icon} size={18} color={cat.color} />
                     </div>
                     <span style={{ fontSize: '12px', fontWeight: 600 }}>{cat.name}</span>
-                    <span className="font-num" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                      {currency}{spend.toFixed(2)}
+                    <span
+                      className="font-num"
+                      style={{ fontSize: '11px', color: 'var(--text-muted)' }}
+                    >
+                      {currency}
+                      {spend.toFixed(2)}
                     </span>
                   </button>
                 );

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import istanbul from 'vite-plugin-istanbul';
 
@@ -51,12 +51,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: [
-        'src/main.tsx',
-        'src/test/**',
-        'src/types/**',
-        '**/*.d.ts',
-      ],
+      exclude: ['src/main.tsx', 'src/test/**', 'src/types/**', '**/*.d.ts'],
     },
-  }
-} as any);
+  },
+});

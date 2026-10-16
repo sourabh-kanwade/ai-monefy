@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+coverage
+coverage-playwright
+.nyc_output
+playwright-report
+test-results
+package-lock.json
+*.log
+*.csv
+.scratch
+.agents
+.worktrees
+client/android
+client/ios

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import React from 'react';
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { render, act, waitFor } from '@testing-library/react';
 import { FinanceProvider, useFinance } from '../context/FinanceContext';
 import { MonefyDatabase } from '../db/localDb';
 
@@ -150,9 +150,8 @@ describe('FinanceContext Unit Tests', () => {
     expect(contextValues.totalExpense).toBe(60);
 
     // Add income transaction
-    let incTxId = '';
     await act(async () => {
-      incTxId = await contextValues.addTransaction({
+      await contextValues.addTransaction({
         amount: 200,
         type: 'income',
         categoryId: cat.id,

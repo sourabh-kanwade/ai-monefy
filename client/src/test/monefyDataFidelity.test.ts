@@ -108,7 +108,9 @@ describe('Monefy CSV Format Real-World Data Fidelity (Monefy.Data.15-10-26.csv)'
     const generatedLines = exportedCsv.trim().split('\n');
 
     expect(generatedLines).toHaveLength(originalLines.length);
-    expect(generatedLines[0]).toBe('date,account,category,amount,currency,converted amount,currency,description');
+    expect(generatedLines[0]).toBe(
+      'date,account,category,amount,currency,converted amount,currency,description'
+    );
 
     // Verify every single data line from original file exists in the exported output
     const originalDataSet = new Set(originalLines.slice(1));

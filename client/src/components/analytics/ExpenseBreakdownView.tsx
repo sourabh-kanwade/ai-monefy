@@ -92,7 +92,15 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
       }}
     >
       {/* Analytics Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div
             style={{
@@ -170,7 +178,13 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                     touchAction: 'manipulation',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span
                         style={{
@@ -195,10 +209,20 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                           justifyContent: 'center',
                         }}
                       >
-                        <CategoryIcon name={item.category.icon} size={16} color={item.category.color} />
+                        <CategoryIcon
+                          name={item.category.icon}
+                          size={16}
+                          color={item.category.color}
+                        />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
                           {item.category.name}
                         </div>
                         <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
@@ -306,10 +330,22 @@ export const ExpenseBreakdownView: React.FC<ExpenseBreakdownViewProps> = ({
                             <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                               {tx.note || item.category.name}
                             </div>
-                            <div style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'flex', gap: '6px' }}>
+                            <div
+                              style={{
+                                fontSize: '10px',
+                                color: 'var(--text-muted)',
+                                display: 'flex',
+                                gap: '6px',
+                              }}
+                            >
                               <span>{acc?.name || 'Default'}</span>
                               <span>•</span>
-                              <span>{new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                              <span>
+                                {new Date(tx.date).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                })}
+                              </span>
                             </div>
                           </div>
 

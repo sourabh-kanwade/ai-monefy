@@ -32,7 +32,9 @@ test.describe('Seam 2: Multi-Account Management & Transfers', () => {
 
     // 2b. Test Cancel button
     await page.locator('.modal-sheet button', { hasText: 'Cancel' }).click();
-    await expect(page.locator('input[placeholder="e.g. Crypto Wallet, Checking"]')).not.toBeVisible();
+    await expect(
+      page.locator('input[placeholder="e.g. Crypto Wallet, Checking"]')
+    ).not.toBeVisible();
 
     // Re-open Add Account form
     await page.locator('button', { hasText: 'Add Another Account' }).click();
@@ -41,8 +43,10 @@ test.describe('Seam 2: Multi-Account Management & Transfers', () => {
     await page.locator('input[placeholder="e.g. Crypto Wallet, Checking"]').fill('Crypto Wallet');
     await page.locator('input[aria-label="Initial Balance"]').fill('500');
     // Click a color option
-    const colorBtns = page.locator('.modal-sheet button[type="button"][style*="border-radius: 50%"]');
-    if (await colorBtns.count() > 0) {
+    const colorBtns = page.locator(
+      '.modal-sheet button[type="button"][style*="border-radius: 50%"]'
+    );
+    if ((await colorBtns.count()) > 0) {
       await colorBtns.first().click();
     }
     await page.locator('button[type="submit"]', { hasText: 'Add Account' }).click();

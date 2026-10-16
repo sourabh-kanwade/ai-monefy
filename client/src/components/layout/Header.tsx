@@ -90,7 +90,10 @@ export const Header: React.FC<HeaderProps> = ({
     >
       {/* Top Bar: Brand, Stepper & Hamburger Menu */}
       <div className="header-top-bar">
-        <div className="header-brand" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
+        <div
+          className="header-brand"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}
+        >
           <img
             src="/favicon.svg"
             alt="AI Monefy Logo"
@@ -107,7 +110,8 @@ export const Header: React.FC<HeaderProps> = ({
               fontSize: '17px',
               fontWeight: 800,
               letterSpacing: '-0.02em',
-              background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%)',
+              background:
+                'linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
             }}
@@ -193,7 +197,12 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Hamburger Menu Trigger & Dropdown Container */}
         <div
           className="header-menu-container"
-          style={{ position: 'relative', display: 'flex', alignItems: 'center', zIndex: isMenuOpen ? 2002 : 'auto' }}
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            zIndex: isMenuOpen ? 2002 : 'auto',
+          }}
         >
           <button
             type="button"
@@ -236,14 +245,14 @@ export const Header: React.FC<HeaderProps> = ({
                     syncStatus === 'synced'
                       ? '#10b981'
                       : syncStatus === 'syncing'
-                      ? '#3b82f6'
-                      : '#ef4444',
+                        ? '#3b82f6'
+                        : '#ef4444',
                   boxShadow:
                     syncStatus === 'synced'
                       ? '0 0 6px rgba(16, 185, 129, 0.8)'
                       : syncStatus === 'syncing'
-                      ? '0 0 6px rgba(59, 130, 246, 0.8)'
-                      : '0 0 6px rgba(239, 68, 68, 0.8)',
+                        ? '0 0 6px rgba(59, 130, 246, 0.8)'
+                        : '0 0 6px rgba(239, 68, 68, 0.8)',
                 }}
               />
             )}
@@ -282,7 +291,8 @@ export const Header: React.FC<HeaderProps> = ({
                   zIndex: 2003,
                   width: '280px',
                   maxWidth: 'calc(100vw - 32px)',
-                  background: theme === 'dark' ? 'rgba(22, 27, 39, 0.94)' : 'rgba(255, 255, 255, 0.96)',
+                  background:
+                    theme === 'dark' ? 'rgba(22, 27, 39, 0.94)' : 'rgba(255, 255, 255, 0.96)',
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
                   border: '1px solid var(--border-subtle)',
@@ -400,14 +410,14 @@ export const Header: React.FC<HeaderProps> = ({
                           syncStatus === 'synced'
                             ? 'rgba(16, 185, 129, 0.15)'
                             : syncStatus === 'syncing'
-                            ? 'rgba(59, 130, 246, 0.15)'
-                            : 'var(--bg-elevated)',
+                              ? 'rgba(59, 130, 246, 0.15)'
+                              : 'var(--bg-elevated)',
                         color:
                           syncStatus === 'synced'
                             ? '#10b981'
                             : syncStatus === 'syncing'
-                            ? '#3b82f6'
-                            : 'var(--text-muted)',
+                              ? '#3b82f6'
+                              : 'var(--text-muted)',
                       }}
                     >
                       {syncStatus === 'syncing' ? (
@@ -424,10 +434,10 @@ export const Header: React.FC<HeaderProps> = ({
                         {syncStatus === 'synced'
                           ? 'Realtime Synced'
                           : syncStatus === 'syncing'
-                          ? 'Syncing changes...'
-                          : syncStatus === 'error'
-                          ? 'Sync Error'
-                          : 'Local / Offline'}
+                            ? 'Syncing changes...'
+                            : syncStatus === 'error'
+                              ? 'Sync Error'
+                              : 'Local / Offline'}
                       </div>
                     </div>
                   </div>
@@ -441,26 +451,26 @@ export const Header: React.FC<HeaderProps> = ({
                         syncStatus === 'synced'
                           ? 'rgba(16, 185, 129, 0.15)'
                           : syncStatus === 'syncing'
-                          ? 'rgba(59, 130, 246, 0.15)'
-                          : syncStatus === 'error'
-                          ? 'rgba(239, 68, 68, 0.15)'
-                          : 'var(--bg-elevated)',
+                            ? 'rgba(59, 130, 246, 0.15)'
+                            : syncStatus === 'error'
+                              ? 'rgba(239, 68, 68, 0.15)'
+                              : 'var(--bg-elevated)',
                       color:
                         syncStatus === 'synced'
                           ? '#10b981'
                           : syncStatus === 'syncing'
-                          ? '#3b82f6'
-                          : syncStatus === 'error'
-                          ? '#ef4444'
-                          : 'var(--text-muted)',
+                            ? '#3b82f6'
+                            : syncStatus === 'error'
+                              ? '#ef4444'
+                              : 'var(--text-muted)',
                       border: `1px solid ${
                         syncStatus === 'synced'
                           ? 'rgba(16, 185, 129, 0.3)'
                           : syncStatus === 'syncing'
-                          ? 'rgba(59, 130, 246, 0.3)'
-                          : syncStatus === 'error'
-                          ? 'rgba(239, 68, 68, 0.3)'
-                          : 'var(--border-subtle)'
+                            ? 'rgba(59, 130, 246, 0.3)'
+                            : syncStatus === 'error'
+                              ? 'rgba(239, 68, 68, 0.3)'
+                              : 'var(--border-subtle)'
                       }`,
                     }}
                   >

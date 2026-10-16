@@ -1,20 +1,18 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CategoryCustomizerModal } from '../components/categories/CategoryCustomizerModal';
-import { CategoryIcon, AVAILABLE_ICONS, MONEFY_PALETTE } from '../components/categories/CategoryIcon';
+import {
+  CategoryIcon,
+  AVAILABLE_ICONS,
+  MONEFY_PALETTE,
+} from '../components/categories/CategoryIcon';
 
 describe('CategoryCustomizerModal Seam Tests', () => {
   it('creates a custom category with title, icon, and color', () => {
     const handleSave = vi.fn();
     const handleClose = vi.fn();
 
-    render(
-      <CategoryCustomizerModal
-        isOpen={true}
-        onClose={handleClose}
-        onSave={handleSave}
-      />
-    );
+    render(<CategoryCustomizerModal isOpen={true} onClose={handleClose} onSave={handleSave} />);
 
     // Enter name
     const nameInput = screen.getByPlaceholderText(/Category Name/i);
@@ -41,13 +39,7 @@ describe('CategoryCustomizerModal Seam Tests', () => {
     const handleSave = vi.fn();
     const handleClose = vi.fn();
 
-    render(
-      <CategoryCustomizerModal
-        isOpen={true}
-        onClose={handleClose}
-        onSave={handleSave}
-      />
-    );
+    render(<CategoryCustomizerModal isOpen={true} onClose={handleClose} onSave={handleSave} />);
 
     // First icon (AVAILABLE_ICONS[0] = 'Utensils') is selected by default
     const defaultSelectedIcon = AVAILABLE_ICONS[0];
@@ -96,9 +88,7 @@ describe('CategoryCustomizerModal Seam Tests', () => {
     );
     expect(screen.queryByText(/Category Name/i)).not.toBeInTheDocument();
 
-    rerender(
-      <CategoryCustomizerModal isOpen={true} onClose={handleClose} onSave={handleSave} />
-    );
+    rerender(<CategoryCustomizerModal isOpen={true} onClose={handleClose} onSave={handleSave} />);
 
     // Click save with empty name
     const submitBtn = screen.getByRole('button', { name: /Save Category/i });

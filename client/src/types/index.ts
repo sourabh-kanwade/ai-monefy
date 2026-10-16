@@ -57,7 +57,7 @@ export interface SyncQueueItem {
   entityType: 'transaction' | 'category' | 'account' | 'budget';
   entityId: string;
   action: 'create' | 'update' | 'delete';
-  payload: any;
+  payload: unknown;
   timestamp: string;
 }
 

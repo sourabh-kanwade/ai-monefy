@@ -46,6 +46,7 @@
 Most expense tracking applications force users through mandatory account registrations, suffer from network latency, and present tedious spreadsheet-like interfaces.
 
 **AI Monefy** solves this by providing:
+
 1. **Zero-friction Guest Mode**: Open the app and start recording expenses instantly — no login or network connection required.
 2. **Iconic Radial Monefy UX**: An intuitive circular donut chart displaying category spending distribution, surrounded by touch-friendly radial category icons for rapid two-tap entry.
 3. **Local-First Speed**: All data is written immediately to client-side IndexedDB with sub-millisecond response times.
@@ -69,7 +70,7 @@ Most expense tracking applications force users through mandatory account registr
   - Asynchronous delta sync engine (`/api/sync/pull` and `/api/sync/push`) with deterministic Last-Write-Wins (LWW) conflict resolution.
   - Automatic migration of local guest data to the cloud upon user registration or sign-in.
 - **🏦 Multi-Account & Internal Transfers**
-  - Track balances across multiple accounts (e.g. *Cash*, *Bank Card*, *Savings*).
+  - Track balances across multiple accounts (e.g. _Cash_, _Bank Card_, _Savings_).
   - Internal fund transfers (e.g. ATM cash withdrawal) that adjust balances without distorting income/expense analytics.
   - Filter dashboard views by a single account or an aggregate view.
 - **📊 Budgets & Expense Analytics**
@@ -84,7 +85,7 @@ Most expense tracking applications force users through mandatory account registr
   - Progressive Web App with offline caching.
   - Native Android packaging via [Capacitor](https://capacitorjs.com/) with native haptic feedback, immersive status bar, and splash screen integration.
 - **🎨 Premium Dark & Light Themes**
-  - Carefully crafted *Obsidian Slate* dark theme and clean light theme.
+  - Carefully crafted _Obsidian Slate_ dark theme and clean light theme.
   - Custom category colors and Lucide icon selector.
 
 ---
@@ -131,18 +132,18 @@ graph TD
 
 ## 🛠 Tech Stack
 
-| Domain | Technology | Description |
-|---|---|---|
-| **Frontend Framework** | [React 19](https://react.dev/) | Modern concurrent UI architecture |
-| **Language** | [TypeScript 5.7](https://www.typescriptlang.org/) | Strict type safety across client and server |
-| **Bundler & Tooling** | [Vite 6](https://vitejs.dev/) | Sub-second HMR and optimized production builds |
-| **Client Storage** | [Dexie.js 4](https://dexie.com/) | High-performance IndexedDB wrapper with reactive queries |
-| **Mobile Runtime** | [Capacitor 8](https://capacitorjs.com/) | Native Android container with Haptics and Status Bar plugins |
-| **Styling** | Vanilla CSS Design Tokens | Curated *Obsidian Slate* palette, glassmorphism, responsive grid |
-| **Icons & Effects** | [Lucide React](https://lucide.dev/) & [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti) | Vector icons and celebratory budget animations |
-| **Backend Framework** | [Express 4](https://expressjs.com/) | Lightweight REST API for authentication and delta synchronization |
-| **Database** | [PostgreSQL 15+](https://www.postgresql.org/) / [Supabase](https://supabase.com/) | Relational database with UUID keys, UTC timestamps, and RLS |
-| **Testing** | [Vitest](https://vitest.dev/), [RTL](https://testing-library.com/), [Supertest](https://github.com/ladjs/supertest) | Seam-driven unit, integration, and API testing suites |
+| Domain                 | Technology                                                                                                          | Description                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Frontend Framework** | [React 19](https://react.dev/)                                                                                      | Modern concurrent UI architecture                                 |
+| **Language**           | [TypeScript 5.7](https://www.typescriptlang.org/)                                                                   | Strict type safety across client and server                       |
+| **Bundler & Tooling**  | [Vite 6](https://vitejs.dev/)                                                                                       | Sub-second HMR and optimized production builds                    |
+| **Client Storage**     | [Dexie.js 4](https://dexie.com/)                                                                                    | High-performance IndexedDB wrapper with reactive queries          |
+| **Mobile Runtime**     | [Capacitor 8](https://capacitorjs.com/)                                                                             | Native Android container with Haptics and Status Bar plugins      |
+| **Styling**            | Vanilla CSS Design Tokens                                                                                           | Curated _Obsidian Slate_ palette, glassmorphism, responsive grid  |
+| **Icons & Effects**    | [Lucide React](https://lucide.dev/) & [Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)              | Vector icons and celebratory budget animations                    |
+| **Backend Framework**  | [Express 4](https://expressjs.com/)                                                                                 | Lightweight REST API for authentication and delta synchronization |
+| **Database**           | [PostgreSQL 15+](https://www.postgresql.org/) / [Supabase](https://supabase.com/)                                   | Relational database with UUID keys, UTC timestamps, and RLS       |
+| **Testing**            | [Vitest](https://vitest.dev/), [RTL](https://testing-library.com/), [Supertest](https://github.com/ladjs/supertest) | Seam-driven unit, integration, and API testing suites             |
 
 ---
 
@@ -199,8 +200,8 @@ ai-monefy/
 
 - **Node.js**: v18.0.0 or higher (v20+ recommended)
 - **npm**: v9.0.0 or higher
-- **PostgreSQL**: Local instance or a free [Supabase](https://supabase.com/) project *(optional if running in offline guest mode)*
-- **Android Studio & JDK 17+**: *(Only required for building native Android APK)*
+- **PostgreSQL**: Local instance or a free [Supabase](https://supabase.com/) project _(optional if running in offline guest mode)_
+- **Android Studio & JDK 17+**: _(Only required for building native Android APK)_
 
 ### Installation
 
@@ -312,6 +313,7 @@ npx cap open android
 ```
 
 From Android Studio:
+
 - Select an Android Virtual Device (AVD) or connect a physical Android device with USB debugging enabled.
 - Click **Run** (`Shift + F10`) or navigate to **Build > Build Bundle(s) / APK(s) > Build APK(s)** to generate the APK.
 
@@ -357,11 +359,11 @@ Base URL: `http://localhost:3001`
 
 ### Health & Auth Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|---|---|---|:---:|
-| `GET` | `/api/health` | Healthcheck and PostgreSQL pool status | No |
-| `POST` | `/api/auth/register` | Register a new user (`email`, `password`, `name`) | No |
-| `POST` | `/api/auth/login` | Authenticate user and receive JWT bearer token | No |
+| Method | Endpoint             | Description                                       | Auth Required |
+| ------ | -------------------- | ------------------------------------------------- | :-----------: |
+| `GET`  | `/api/health`        | Healthcheck and PostgreSQL pool status            |      No       |
+| `POST` | `/api/auth/register` | Register a new user (`email`, `password`, `name`) |      No       |
+| `POST` | `/api/auth/login`    | Authenticate user and receive JWT bearer token    |      No       |
 
 #### Example: Register User
 
@@ -372,6 +374,7 @@ curl -X POST http://localhost:3001/api/auth/register \
 ```
 
 Response:
+
 ```json
 {
   "user": {
@@ -427,6 +430,7 @@ curl -X GET "http://localhost:3001/api/sync/pull?since=2026-10-15T00:00:00.000Z"
 ```
 
 Response:
+
 ```json
 {
   "timestamp": "2026-10-15T12:05:00.000Z",
@@ -476,4 +480,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-*Inspired with ❤️ by the classic Monefy interface.*
+_Inspired with ❤️ by the classic Monefy interface._

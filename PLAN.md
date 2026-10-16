@@ -1,4 +1,5 @@
 # AI Monefy: Personal Expense Tracker (Web & Android)
+
 ## Master Implementation Plan
 
 AI Monefy is a high-performance, aesthetically refined personal finance tracker inspired by **Monefy**. It provides a single codebase supporting both **Web** (Desktop/Mobile PWA) and **Android** (via Capacitor native container), built with a **local-first architecture** with offline capability and seamless cloud synchronization backed by **PostgreSQL** (fully compatible with **Supabase**).
@@ -48,6 +49,7 @@ graph TD
 ## 2. PostgreSQL & Supabase Compatibility Strategy
 
 To ensure seamless transition to or direct use of **Supabase**:
+
 1. **Schema Design**:
    - Primary keys use standard `UUID` (`gen_random_uuid()` or `uuid_generate_v4()`).
    - Timestamps use `TIMESTAMPTZ DEFAULT NOW()` for reliable multi-device delta synchronization.
@@ -71,6 +73,7 @@ To ensure seamless transition to or direct use of **Supabase**:
 Each task is self-contained with well-defined inputs, outputs, and validation criteria.
 
 ### Phase 1: Project Scaffolding & Setup
+
 - [ ] **Task 1.1: Root Monorepo Configuration**
   - **Goal**: Configure monorepo workspace for client and server.
   - **Deliverable**: `package.json` with scripts for `npm run dev`, `npm run build`, `npm run lint`.
@@ -94,6 +97,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 2: Design System & Core Shell
+
 - [ ] **Task 2.1: Design System & Styling Engine**
   - **Goal**: Establish Monefy-inspired styling with dark (Obsidian Slate) and light themes, vibrant category colors, typography, and micro-animations.
   - **Deliverable**: `client/src/index.css` with CSS variables, component utility classes, responsive container rules.
@@ -112,6 +116,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 3: Data Layer & Local-First IndexedDB
+
 - [ ] **Task 3.1: Data Models & Type Definitions**
   - **Goal**: Define robust TypeScript interfaces for `Transaction`, `Category`, `Account`, `Budget`, `SyncItem`.
   - **Deliverable**: `client/src/types/index.ts`.
@@ -130,6 +135,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 4: Iconic Monefy Wheel & Keypad Experience
+
 - [ ] **Task 4.1: Interactive Circular Donut Chart**
   - **Goal**: Custom SVG donut chart rendering dynamic category slices with hover/tap highlights and percentages.
   - **Deliverable**: `client/src/components/monefy-wheel/CircularChart.tsx`.
@@ -153,6 +159,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 5: Multi-Account Management, Transfers & History
+
 - [ ] **Task 5.1: Transaction History Sheet**
   - **Goal**: Collapsible/expandable bottom sheet listing transactions grouped by date, with search, edit, and swipe-to-delete.
   - **Deliverable**: `client/src/components/transactions/TransactionList.tsx`, `TransactionItem.tsx`.
@@ -171,6 +178,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 6: Budgets, Analytics & Settings
+
 - [ ] **Task 6.1: Category Budget Limits & Visual Meters**
   - **Goal**: Set monthly budget limits per category with progress bars (Green <70%, Amber 70-90%, Red >100%).
   - **Deliverable**: `client/src/components/budgets/BudgetModal.tsx`.
@@ -194,6 +202,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 7: Cloud Synchronization Engine (PostgreSQL / Supabase)
+
 - [ ] **Task 7.1: PostgreSQL Schema & Supabase DDL**
   - **Goal**: Create PostgreSQL schema file (`schema.sql`) and database connection module with UUIDs, RLS policies, and indexes.
   - **Deliverable**: `server/src/db.ts`, `server/src/db/schema.sql`.
@@ -217,6 +226,7 @@ Each task is self-contained with well-defined inputs, outputs, and validation cr
 ---
 
 ### Phase 8: Android Capacitor Build & Final Verification
+
 - [ ] **Task 8.1: Capacitor Android Bridge & Config**
   - **Goal**: Configure Android permissions, status bar coloring, splash screen, and responsive viewport.
   - **Deliverable**: `client/capacitor.config.ts`, `android/` project updates.

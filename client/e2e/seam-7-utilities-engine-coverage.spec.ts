@@ -6,7 +6,9 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
     await page.waitForLoadState('domcontentloaded');
   });
 
-  test('executes and verifies nativePlatform adapter under native and web modes', async ({ page }) => {
+  test('executes and verifies nativePlatform adapter under native and web modes', async ({
+    page,
+  }) => {
     const results = await page.evaluate(async () => {
       const nativeMod = await import('/src/utils/nativePlatform.ts');
       const { Capacitor, Haptics, StatusBar, App } = nativeMod;
@@ -92,9 +94,12 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
     expect(results.vibrateCount).toBeGreaterThanOrEqual(1);
   });
 
-  test('executes and verifies arithmetic calculator evaluateExpression edge cases', async ({ page }) => {
+  test('executes and verifies arithmetic calculator evaluateExpression edge cases', async ({
+    page,
+  }) => {
     const calcResults = await page.evaluate(async () => {
-      const { evaluateExpression, formatCalculationDisplay } = await import('/src/utils/calculator.ts');
+      const { evaluateExpression, formatCalculationDisplay } =
+        await import('/src/utils/calculator.ts');
 
       return {
         empty: evaluateExpression(''),
@@ -200,10 +205,13 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
 
   test('executes and verifies csvParser tokenization and schema detection', async ({ page }) => {
     const csvResults = await page.evaluate(async () => {
-      const { tokenizeCsv, parseTransactionsCsv, parseAmount } = await import('/src/utils/csvParser.ts');
+      const { tokenizeCsv, parseTransactionsCsv, parseAmount } =
+        await import('/src/utils/csvParser.ts');
 
       // 1. Tokenize variations
-      const commaGrid = tokenizeCsv('date,amount,category\n15/08/2026,50,"Groceries, Food"\n16/08/2026,20,Taxi');
+      const commaGrid = tokenizeCsv(
+        'date,amount,category\n15/08/2026,50,"Groceries, Food"\n16/08/2026,20,Taxi'
+      );
       const semiGrid = tokenizeCsv('date;amount;category\n15/08/2026;50;Food\n16/08/2026;20;Taxi');
       const quotedQuotes = tokenizeCsv('"He said ""hello""";10;Note');
 
@@ -389,7 +397,9 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
     expect(expResults.schemaErr).toBe(true);
   });
 
-  test('executes and verifies localDb account balances with transfers and migration logic', async ({ page }) => {
+  test('executes and verifies localDb account balances with transfers and migration logic', async ({
+    page,
+  }) => {
     const dbResults = await page.evaluate(async () => {
       const { MonefyDatabase } = await import('/src/db/localDb.ts');
 
@@ -504,7 +514,9 @@ test.describe('Seam 7: Utilities, Platform Adapters & Data Engine Edge Cases', (
     expect(dbResults.recentCount).toBeGreaterThanOrEqual(2);
   });
 
-  test('executes and verifies syncEngine state transitions and error handlers', async ({ page }) => {
+  test('executes and verifies syncEngine state transitions and error handlers', async ({
+    page,
+  }) => {
     const syncResults = await page.evaluate(async () => {
       const { syncEngine } = await import('/src/db/syncEngine.ts');
       const { db } = await import('/src/db/localDb.ts');

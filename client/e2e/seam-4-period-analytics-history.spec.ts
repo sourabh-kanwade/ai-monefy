@@ -12,7 +12,9 @@ test.describe('Seam 4: Period Navigation, Analytics Breakdown & Transaction Hist
     await page.reload();
   });
 
-  test('user navigates periods, analyzes spending breakdown, searches and edits/deletes transactions', async ({ page }) => {
+  test('user navigates periods, analyzes spending breakdown, searches and edits/deletes transactions', async ({
+    page,
+  }) => {
     await expect(page.locator('[data-testid="center-balance-hub"]')).toBeVisible();
 
     // 1. Add Expense 1: Food $60 with note "Organic Grocery"
@@ -87,7 +89,11 @@ test.describe('Seam 4: Period Navigation, Analytics Breakdown & Transaction Hist
     await expect(page.getByText('Contributing Transactions (2)')).toBeVisible();
 
     // Click a contributing transaction from inside the accordion to edit it
-    await page.locator('.glass-panel', { hasText: 'Contributing Transactions' }).getByText('Snack').first().click();
+    await page
+      .locator('.glass-panel', { hasText: 'Contributing Transactions' })
+      .getByText('Snack')
+      .first()
+      .click();
     await expect(page.getByText('Edit Transaction')).toBeVisible();
     // Test close button
     await page.locator('.modal-sheet button[aria-label="Close"]').click();
@@ -143,7 +149,10 @@ test.describe('Seam 4: Period Navigation, Analytics Breakdown & Transaction Hist
     page.once('dialog', async (dialog) => {
       await dialog.accept();
     });
-    await page.locator('.transaction-item', { hasText: 'Snack' }).locator('button[title="Delete transaction"]').click();
+    await page
+      .locator('.transaction-item', { hasText: 'Snack' })
+      .locator('button[title="Delete transaction"]')
+      .click();
 
     // Verify deletion: 2 records left
     await expect(page.getByText('2 records')).toBeVisible();

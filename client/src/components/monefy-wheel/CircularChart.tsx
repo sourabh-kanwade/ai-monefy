@@ -172,12 +172,22 @@ export const CircularChart: React.FC<CircularChartProps> = ({
             textOverflow: 'ellipsis',
           }}
         >
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: activeCategory.color }} />
+          <div
+            style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: activeCategory.color,
+            }}
+          />
           <span>{activeCategory.name}:</span>
           <span className="font-num" style={{ color: 'var(--text-primary)' }}>
-            {currency}{activeSpend.toFixed(2)}
+            {currency}
+            {activeSpend.toFixed(2)}
           </span>
-          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>({activePercentage}%)</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+            ({activePercentage}%)
+          </span>
         </div>
       )}
 
@@ -198,7 +208,12 @@ export const CircularChart: React.FC<CircularChartProps> = ({
   );
 };
 
-function polarToCartesian(centerX: number, centerY: number, radius: number, angleInDegrees: number) {
+function polarToCartesian(
+  centerX: number,
+  centerY: number,
+  radius: number,
+  angleInDegrees: number
+) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
   return {
     x: centerX + radius * Math.cos(angleInRadians),

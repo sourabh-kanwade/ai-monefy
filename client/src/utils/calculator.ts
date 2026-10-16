@@ -7,12 +7,12 @@ export function evaluateExpression(expr: string): number {
   if (!expr || typeof expr !== 'string') return 0;
 
   // Clean expression: remove any unexpected characters except digits, decimals, and operators
-  let cleaned = expr.trim();
+  const cleaned = expr.trim();
   if (!cleaned) return 0;
 
   // Split into tokens (numbers and operators)
   // Match consecutive digits with optional decimal point OR single operator (+, -, *, /)
-  const regex = /(\d+\.?\d*|\+|\-|\*|\/)/g;
+  const regex = /(\d+\.?\d*|\+|-|\*|\/)/g;
   const rawTokens = cleaned.match(regex);
   if (!rawTokens || rawTokens.length === 0) return 0;
 
@@ -69,7 +69,7 @@ export function evaluateExpression(expr: string): number {
   let result = typeof pass1Tokens[0] === 'number' ? pass1Tokens[0] : 0;
   let op = '+';
 
-  for (let j = (typeof pass1Tokens[0] === 'number' ? 1 : 0); j < pass1Tokens.length; j++) {
+  for (let j = typeof pass1Tokens[0] === 'number' ? 1 : 0; j < pass1Tokens.length; j++) {
     const token = pass1Tokens[j];
     if (token === '+' || token === '-') {
       op = token;

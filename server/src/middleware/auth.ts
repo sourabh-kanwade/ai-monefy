@@ -39,7 +39,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
     const decoded = jwt.verify(token, JWT_SECRET) as AuthUser;
     req.user = decoded;
     next();
-  } catch (_err) {
+  } catch {
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 }

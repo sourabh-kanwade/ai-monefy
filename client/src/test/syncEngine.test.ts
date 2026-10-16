@@ -66,7 +66,7 @@ describe('Client Delta Sync Engine Unit Tests', () => {
     await db.initializeDefaults();
 
     // Add local transaction
-    const txId = await db.addTransaction({
+    await db.addTransaction({
       amount: 42,
       type: 'expense',
       categoryId: 'cat-test',
@@ -393,7 +393,8 @@ describe('Client Delta Sync Engine Unit Tests', () => {
       if (url.includes('/api/sync/push') || url.includes('/api/sync/pull')) {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({ accounts: [], categories: [], transactions: [], budgets: [] }),
+          json: () =>
+            Promise.resolve({ accounts: [], categories: [], transactions: [], budgets: [] }),
         });
       }
       return Promise.reject(new Error('Unknown'));
@@ -433,7 +434,8 @@ describe('Client Delta Sync Engine Unit Tests', () => {
       if (url.includes('/api/sync/push') || url.includes('/api/sync/pull')) {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({ accounts: [], categories: [], transactions: [], budgets: [] }),
+          json: () =>
+            Promise.resolve({ accounts: [], categories: [], transactions: [], budgets: [] }),
         });
       }
       return Promise.reject(new Error('Unknown'));

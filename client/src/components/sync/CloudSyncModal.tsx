@@ -243,7 +243,10 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
                 }}
               >
                 <span>Last Sync</span>
-                <span className="font-num" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                <span
+                  className="font-num"
+                  style={{ fontWeight: 600, color: 'var(--text-primary)' }}
+                >
                   {lastSyncTime
                     ? new Date(lastSyncTime).toLocaleTimeString([], {
                         hour: '2-digit',
@@ -531,8 +534,8 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({
                   {isLoading
                     ? 'Processing...'
                     : authMode === 'register'
-                    ? 'Create Account & Sync'
-                    : 'Log In & Sync'}
+                      ? 'Create Account & Sync'
+                      : 'Log In & Sync'}
                 </button>
               </form>
             </div>

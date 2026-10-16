@@ -193,7 +193,7 @@ export class MonefyDatabase extends Dexie {
   }
 
   async calculateNetBalance(accountId?: string): Promise<number> {
-    let query = this.transactions.filter((tx) => !tx.isDeleted);
+    const query = this.transactions.filter((tx) => !tx.isDeleted);
     const txs = await query.toArray();
 
     let balance = 0;
@@ -236,7 +236,9 @@ export class MonefyDatabase extends Dexie {
 
   async getRecentTransactions(limit = 100): Promise<Transaction[]> {
     const txs = await this.transactions.filter((tx) => !tx.isDeleted).toArray();
-    return txs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, limit);
+    return txs
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, limit);
   }
 }
 
