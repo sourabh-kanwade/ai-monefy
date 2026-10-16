@@ -100,6 +100,11 @@ test.describe('Seam 5: Header Menu, Settings, Custom Categories & CSV Export/Imp
 
     // Add a quick expense for Gaming so transactions exist for export
     await page.locator('[data-testid="btn-quick-expense"]').click();
+    await expect(page.getByRole('dialog', { name: /select expense category/i })).toBeVisible();
+    await page
+      .locator('[data-testid^="category-picker-item-"]')
+      .filter({ hasText: 'Gaming' })
+      .click();
     await page.locator('button', { hasText: /^3$/ }).click();
     await page.locator('button', { hasText: /^0$/ }).click();
     await page.locator('input[placeholder="Add note (optional)..."]').fill('Steam game');

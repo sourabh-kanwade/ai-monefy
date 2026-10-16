@@ -26,6 +26,10 @@ test.describe('Seam 1: Transaction Lifecycle & Monefy Wheel', () => {
     // 1. Record an Expense of $45 using quick expense button
     await page.locator('[data-testid="btn-quick-expense"]').click();
 
+    // Select category from CategoryPickerModal
+    await expect(page.getByRole('dialog', { name: /select expense category/i })).toBeVisible();
+    await page.locator('[data-testid^="category-picker-item-"]').first().click();
+
     // Verify keypad modal is open
     await expect(page.locator('[data-testid="btn-keypad-confirm"]')).toBeVisible();
 

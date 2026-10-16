@@ -64,9 +64,13 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
 
     await screen.findByText('AI Monefy');
 
-    // Open Expense Keypad via CenterBalance '-' button
+    // Open Expense Keypad via CenterBalance '-' button and CategoryPicker
     const minusBtn = screen.getByTestId('btn-quick-expense');
     fireEvent.click(minusBtn);
+    const allCats = await db.categories.toArray();
+    const firstCat = allCats.find((c) => c.type === 'expense')!;
+    const catItem = await screen.findByTestId(`category-picker-item-${firstCat.id}`);
+    fireEvent.click(catItem);
     expect(await screen.findByTestId('btn-keypad-confirm')).toBeInTheDocument();
 
     // Close keypad via close button
@@ -107,15 +111,32 @@ describe('MonefyDashboard Comprehensive Unit & Integration Tests', () => {
     // When no modal is open, back button returns false
     expect(backButtonListener!()).toBe(false);
 
-    // 1. Keypad Modal
+    // 1. Category Picker Modal via '-' button
     fireEvent.click(screen.getByTestId('btn-quick-expense'));
+    expect(
+      await screen.findByRole('dialog', { name: /select expense category/i })
+    ).toBeInTheDocument();
+    expect(backButtonListener!()).toBe(true);
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: /select expense category/i })
+      ).not.toBeInTheDocument();
+    });
+
+    // 2. Keypad Modal via direct category tap
+    const allCats = await db.categories.toArray();
+    const firstCat = allCats.find(
+      (c) => c.type === 'expense' && !c.isDeleted && c.isVisible !== false
+    )!;
+    const catItem = await screen.findByTestId(`radial-category-${firstCat.id}`);
+    fireEvent.click(catItem);
     expect(await screen.findByTestId('btn-keypad-confirm')).toBeInTheDocument();
     expect(backButtonListener!()).toBe(true);
     await waitFor(() => {
       expect(screen.queryByTestId('btn-keypad-confirm')).not.toBeInTheDocument();
     });
 
-    // 2. Transfer Modal
+    // 3. Transfer Modal
     fireEvent.click(screen.getByTestId('btn-quick-transfer'));
     expect(await screen.findByText(/Transfer Between Accounts/i)).toBeInTheDocument();
     expect(backButtonListener!()).toBe(true);

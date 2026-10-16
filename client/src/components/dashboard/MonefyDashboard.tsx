@@ -5,6 +5,7 @@ import { CircularChart } from '../monefy-wheel/CircularChart';
 import { CenterBalance } from '../monefy-wheel/CenterBalance';
 import { RadialCategoryGrid } from '../monefy-wheel/RadialCategoryGrid';
 import { CategoryCustomizerModal } from '../categories/CategoryCustomizerModal';
+import { CategoryPickerModal } from '../categories/CategoryPickerModal';
 import { NumericKeypadModal } from '../keypad/NumericKeypadModal';
 import { Header } from '../layout/Header';
 import { AccountBar } from '../accounts/AccountBar';
@@ -62,6 +63,7 @@ export const MonefyDashboard: React.FC = () => {
   } = useFinance();
 
   const [isKeypadOpen, setIsKeypadOpen] = useState(false);
+  const [isCategoryPickerOpen, setIsCategoryPickerOpen] = useState(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [isAccountManagerOpen, setIsAccountManagerOpen] = useState(false);
@@ -129,6 +131,10 @@ export const MonefyDashboard: React.FC = () => {
         setIsKeypadOpen(false);
         return true;
       }
+      if (isCategoryPickerOpen) {
+        setIsCategoryPickerOpen(false);
+        return true;
+      }
       if (isCustomizerOpen) {
         setIsCustomizerOpen(false);
         return true;
@@ -163,6 +169,7 @@ export const MonefyDashboard: React.FC = () => {
     return () => unregister();
   }, [
     isKeypadOpen,
+    isCategoryPickerOpen,
     isCustomizerOpen,
     isTransferOpen,
     isAccountManagerOpen,
@@ -191,9 +198,13 @@ export const MonefyDashboard: React.FC = () => {
   }, [periodTransactions, selectedAccountId]);
 
   const handleOpenExpenseKeypad = (category?: Category) => {
-    setKeypadType('expense');
-    setSelectedCategory(category || categories.find((c) => c.type === 'expense') || null);
-    setIsKeypadOpen(true);
+    if (category) {
+      setKeypadType('expense');
+      setSelectedCategory(category);
+      setIsKeypadOpen(true);
+    } else {
+      setIsCategoryPickerOpen(true);
+    }
   };
 
   const handleOpenIncomeKeypad = (category?: Category) => {
@@ -408,6 +419,27 @@ export const MonefyDashboard: React.FC = () => {
         accounts={accounts}
         currency={currency}
         type={keypadType as 'expense' | 'income'}
+      />
+
+      {/* Category Picker Modal */}
+      <CategoryPickerModal
+        isOpen={isCategoryPickerOpen}
+        onClose={() => setIsCategoryPickerOpen(false)}
+        onSelectCategory={(category) => {
+          setSelectedCategory(category);
+          setKeypadType('expense');
+          setIsCategoryPickerOpen(false);
+          setIsKeypadOpen(true);
+        }}
+        categories={categories}
+        type="expense"
+        categoryExpenses={categoryExpenses}
+        categoryBudgets={categoryBudgets}
+        currency={currency}
+        onOpenCustomizer={() => {
+          setIsCategoryPickerOpen(false);
+          setIsCustomizerOpen(true);
+        }}
       />
 
       {/* Category Customizer Modal */}
