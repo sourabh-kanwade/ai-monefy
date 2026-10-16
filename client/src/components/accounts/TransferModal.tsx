@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ArrowRightLeft } from 'lucide-react';
 import { getLocalDateString } from '../../utils/dateFilters';
 import type { Account } from '../../types';
@@ -37,6 +37,19 @@ export const TransferModal: React.FC<TransferModalProps> = ({
   const [amount, setAmount] = useState<string>('');
   const [note, setNote] = useState<string>('');
   const [date, setDate] = useState<string>(() => getLocalDateString());
+
+  useEffect(() => {
+    if (isOpen) {
+      const active = accounts.filter((a) => !a.isDeleted);
+      const from = (defaultAccountId && active.some(a => a.id === defaultAccountId)) ? defaultAccountId : (active[0]?.id || '');
+      const to = active.find((a) => a.id !== from)?.id || '';
+      setFromAccountId(from);
+      setToAccountId(to);
+      setAmount('');
+      setNote('');
+      setDate(getLocalDateString());
+    }
+  }, [isOpen, defaultAccountId, accounts]);
 
   if (!isOpen) return null;
 

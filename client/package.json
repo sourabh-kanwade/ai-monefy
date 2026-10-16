@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:coverage": "rm -rf .nyc_output coverage-playwright && playwright test && nyc report"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.2",

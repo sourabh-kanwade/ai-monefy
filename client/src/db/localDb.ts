@@ -59,85 +59,97 @@ export class MonefyDatabase extends Dexie {
     });
   }
 
+  private _initDefaultsPromise: Promise<void> | null = null;
+
   async initializeDefaults(): Promise<void> {
-    const categoryCount = await this.categories.count();
-    const now = new Date().toISOString();
+    if (this._initDefaultsPromise) {
+      return this._initDefaultsPromise;
+    }
+    this._initDefaultsPromise = (async () => {
+      await this.transaction('rw', [this.categories, this.accounts], async () => {
+        const categoryCount = await this.categories.count();
+        const now = new Date().toISOString();
 
-    if (categoryCount === 0) {
-      const initialCategories: Category[] = [
-        ...DEFAULT_EXPENSE_CATEGORIES.map((cat, index) => ({
-          id: generateUuid(),
-          name: cat.name,
-          icon: cat.icon,
-          color: cat.color,
-          type: 'expense' as const,
-          isDefault: true,
-          isDeleted: false,
-          displayOrder: index,
-          isVisible: true,
-          createdAt: now,
-          updatedAt: now,
-        })),
-        ...DEFAULT_INCOME_CATEGORIES.map((cat, index) => ({
-          id: generateUuid(),
-          name: cat.name,
-          icon: cat.icon,
-          color: cat.color,
-          type: 'income' as const,
-          isDefault: true,
-          isDeleted: false,
-          displayOrder: index,
-          isVisible: true,
-          createdAt: now,
-          updatedAt: now,
-        })),
-      ];
-      await this.categories.bulkAdd(initialCategories);
-    } else {
-      // Backfill missing displayOrder or isVisible on existing categories
-      const allCats = await this.categories.toArray();
-      const updates: Category[] = [];
-      let expenseIdx = 0;
-      let incomeIdx = 0;
-      for (const cat of allCats) {
-        let changed = false;
-        let order = cat.displayOrder;
-        let visible = cat.isVisible;
-        if (order === undefined) {
-          order = cat.type === 'expense' ? expenseIdx++ : incomeIdx++;
-          changed = true;
+        if (categoryCount === 0) {
+          const initialCategories: Category[] = [
+            ...DEFAULT_EXPENSE_CATEGORIES.map((cat, index) => ({
+              id: generateUuid(),
+              name: cat.name,
+              icon: cat.icon,
+              color: cat.color,
+              type: 'expense' as const,
+              isDefault: true,
+              isDeleted: false,
+              displayOrder: index,
+              isVisible: true,
+              createdAt: now,
+              updatedAt: now,
+            })),
+            ...DEFAULT_INCOME_CATEGORIES.map((cat, index) => ({
+              id: generateUuid(),
+              name: cat.name,
+              icon: cat.icon,
+              color: cat.color,
+              type: 'income' as const,
+              isDefault: true,
+              isDeleted: false,
+              displayOrder: index,
+              isVisible: true,
+              createdAt: now,
+              updatedAt: now,
+            })),
+          ];
+          await this.categories.bulkAdd(initialCategories);
         } else {
-          if (cat.type === 'expense') expenseIdx = Math.max(expenseIdx, order + 1);
-          else incomeIdx = Math.max(incomeIdx, order + 1);
+          // Backfill missing displayOrder or isVisible on existing categories
+          const allCats = await this.categories.toArray();
+          const updates: Category[] = [];
+          let expenseIdx = 0;
+          let incomeIdx = 0;
+          for (const cat of allCats) {
+            let changed = false;
+            let order = cat.displayOrder;
+            let visible = cat.isVisible;
+            if (order === undefined) {
+              order = cat.type === 'expense' ? expenseIdx++ : incomeIdx++;
+              changed = true;
+            } else {
+              if (cat.type === 'expense') expenseIdx = Math.max(expenseIdx, order + 1);
+              else incomeIdx = Math.max(incomeIdx, order + 1);
+            }
+            if (visible === undefined) {
+              visible = true;
+              changed = true;
+            }
+            if (changed) {
+              updates.push({ ...cat, displayOrder: order, isVisible: visible });
+            }
+          }
+          if (updates.length > 0) {
+            await this.categories.bulkPut(updates);
+          }
         }
-        if (visible === undefined) {
-          visible = true;
-          changed = true;
-        }
-        if (changed) {
-          updates.push({ ...cat, displayOrder: order, isVisible: visible });
-        }
-      }
-      if (updates.length > 0) {
-        await this.categories.bulkPut(updates);
-      }
-    }
 
-    const accountCount = await this.accounts.count();
-    if (accountCount === 0) {
-      const initialAccounts: Account[] = DEFAULT_ACCOUNTS.map((acc, index) => ({
-        id: generateUuid(),
-        name: acc.name,
-        icon: acc.icon,
-        color: acc.color,
-        initialBalance: acc.initialBalance,
-        isDefault: index === 0,
-        isDeleted: false,
-        createdAt: now,
-        updatedAt: now,
-      }));
-      await this.accounts.bulkAdd(initialAccounts);
-    }
+        const accountCount = await this.accounts.count();
+        if (accountCount === 0) {
+          const initialAccounts: Account[] = DEFAULT_ACCOUNTS.map((acc, index) => ({
+            id: generateUuid(),
+            name: acc.name,
+            icon: acc.icon,
+            color: acc.color,
+            initialBalance: acc.initialBalance,
+            isDefault: index === 0,
+            isDeleted: false,
+            createdAt: now,
+            updatedAt: now,
+          }));
+          await this.accounts.bulkAdd(initialAccounts);
+        }
+      });
+    })().finally(() => {
+      this._initDefaultsPromise = null;
+    });
+    return this._initDefaultsPromise;
   }
 
   async addTransaction(input: {

@@ -5,6 +5,10 @@ node_modules/
 
 # Testing and Coverage
 coverage/
+.nyc_output/
+coverage-playwright/
+playwright-report/
+test-results/
 
 # Production
 dist/
